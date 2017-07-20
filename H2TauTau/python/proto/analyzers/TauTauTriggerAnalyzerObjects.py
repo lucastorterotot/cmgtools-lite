@@ -99,32 +99,49 @@ class TauTauTriggerAnalyzer(Analyzer):
         ### study how many events without trigobj when pass offline selection
         if not any([i for j,i in triggerObjects.iteritems()]):
             event.notrigobj=1
-            return True
-        else:
-            return True
-        ###
+        #     return True
+        # else:
+        #     return True
+        # ###
 
         # if not triggerBits.accept(names.triggerIndex('HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v3')):
         #     import pdb; pdb.set_trace()
         # else:
         #     return False
 
+        # ### match best trigger object of every label to each leg
+        # # TO DO: reorganise the matchTriggerObj to set the tags, to have one loop match+tagevent instead of one in there and one in here
+        # self.matchTriggerObj(seldilep, event, triggerObjects)
+        # ### test for trigger objects and their pt
+        # # TO DO: maybe outer loop should be on leps and inner pt values?
+        # for pt1 in [30,32,34,36,38,40,42,44,46,48,50]:
+        #     for pt2 in [25,27,29,31,33,35,37,39,41,43,45]:
+        #         if pt2<pt1:
+        #             for dilep in seldilep:
+        #                 for mod in self.modlist:
+        #                     if hasattr(dilep.leg1(), 'trigobj'+mod) and \
+        #                             hasattr(dilep.leg2(), 'trigobj'+mod):
+        #                         if getattr(dilep.leg1(),'trigobj'+mod).pt()>pt1 and \
+        #                                 getattr(dilep.leg2(),'trigobj'+mod).pt()>pt2:
+        #                             if event.passoff==1:
+        #                                 setattr(event,'trigpass{}_{}'.format(pt1,pt2)+mod, 1)
+        # ###
+
         ### match best trigger object of every label to each leg
-        # TO DO: reorganise the matchTriggerObj to set the tags, to have one loop match+tagevent instead of one in there and one in here
-        self.matchTriggerObj(seldilep, event, triggerObjects)
-        ### test for trigger objects and their pt
-        # TO DO: maybe outer loop should be on leps and inner pt values?
-        for pt1 in [30,32,34,36,38,40,42,44,46,48,50]:
-            for pt2 in [25,27,29,31,33,35,37,39,41,43,45]:
-                if pt2<pt1:
-                    for dilep in seldilep:
-                        for mod in self.modlist:
-                            if hasattr(dilep.leg1(), 'trigobj'+mod) and \
-                                    hasattr(dilep.leg2(), 'trigobj'+mod):
-                                if getattr(dilep.leg1(),'trigobj'+mod).pt()>pt1 and \
-                                        getattr(dilep.leg2(),'trigobj'+mod).pt()>pt2:
-                                    if event.passoff==1:
-                                        setattr(event,'trigpass{}_{}'.format(pt1,pt2)+mod, 1)
+        for dilep in seldilep:
+            for mod in self.modlist:
+                for label, objects in triggerObjects.iteritems():
+                    bm1, dr1 = bestMatch(dilep.leg1(), objects)
+                    bm2, dr2 = bestMatch(dilep.leg2(), objects)
+                    if dr1>0.5 or dr2>0.5:
+                        continue
+                    if bm1 and bm2:
+                        if triggerBits.accept(names.triggerIndex('HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v3')):
+                            for pt1 in [30,32,34,36,38,40,42,44,46,48,50]:
+                                for pt2 in [25,27,29,31,33,35,37,39,41,43,45]:
+                                    if pt2<pt1:
+                                        if (bm1.pt()>pt1 and bm2.pt()>pt2) or (bm1.pt()>pt2 and bm2.pt()>pt1):
+                                            setattr(event,'trigpass{}_{}'.format(pt1,pt2)+mod, 1)
         ###
 
         # if (event.passoff==1):# and hasattr(event, 'trigpass36_35hltDoublePFTau35TrackPt1MediumChargedIsolationDz02Reg')):
@@ -207,14 +224,14 @@ class TauTauTriggerAnalyzer(Analyzer):
             leptons.append(pyl)
         return (len(leptons)>0)
 
-    def matchTriggerObj(self, seldilep, event, trigObjs):
-        triggerBits = self.handles['triggerResultsHLT'].product()
-        names = event.input.object().triggerNames(triggerBits)
-        for lab, objs in trigObjs.iteritems():
-            for dilep in seldilep:
-                for leg in [dilep.leg1(), dilep.leg2()]:
-                    bm, dr = bestMatch(leg,objs)
-                    if dr >= 0.5:
-                        continue
-                    if triggerBits.accept(names.triggerIndex('HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v3')):
-                        setattr(leg, 'trigobj'+lab, bm)
+    # def matchTriggerObj(self, seldilep, event, trigObjs):
+    #     triggerBits = self.handles['triggerResultsHLT'].product()
+    #     names = event.input.object().triggerNames(triggerBits)
+    #     for lab, objs in trigObjs.iteritems():
+    #         for dilep in seldilep:
+    #             for leg in [dilep.leg1(), dilep.leg2()]:
+    #                 bm, dr = bestMatch(leg,objs)
+    #                 if dr >= 0.5:
+    #                     continue
+    #                 if triggerBits.accept(names.triggerIndex('HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v3')):
+    #                     setattr(leg, 'trigobj'+lab, bm)
