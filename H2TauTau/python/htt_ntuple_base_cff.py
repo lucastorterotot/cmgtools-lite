@@ -21,25 +21,25 @@ from CMGTools.H2TauTau.proto.analyzers.HiggsPtWeighter import HiggsPtWeighter
 from CMGTools.H2TauTau.proto.analyzers.VBFAnalyzer import VBFAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.RecoilCorrector import RecoilCorrector
 
-# TTH analyzers
-from CMGTools.TTHAnalysis.analyzers.ttHhistoCounterAnalyzer import ttHhistoCounterAnalyzer
-from CMGTools.TTHAnalysis.analyzers.susyParameterScanAnalyzer import susyParameterScanAnalyzer
+# # TTH analyzers
+# from CMGTools.TTHAnalysis.analyzers.ttHhistoCounterAnalyzer import ttHhistoCounterAnalyzer
+# from CMGTools.TTHAnalysis.analyzers.susyParameterScanAnalyzer import susyParameterScanAnalyzer
 
 puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/MC_Moriond17_PU25ns_V1.root'
 puFileData = '/afs/cern.ch/user/a/anehrkor/public/Data_Pileup_2016_271036-284044_80bins.root'
 
 
-susyCounter = cfg.Analyzer(
-    ttHhistoCounterAnalyzer, name="ttHhistoCounterAnalyzer",
-    SMS_max_mass=3000,  # maximum mass allowed in the scan
-    # SMS_mass_1='genSusyMScan1',  # first scanned mass
-    # SMS_mass_2='genSusyMScan2',  # second scanned mass
-    SMS_mass_1='genSusyMChargino',  # first scanned mass
-    SMS_mass_2='genSusyMNeutralino',  # second scanned mass
-    SMS_varying_masses=['genSusyMStau'],  # other mass variables that are expected to change in the tree (e.g., in T1tttt it should be set to ['genSusyMGluino','genSusyMNeutralino'])
-    SMS_regexp_evtGenMass='genSusyM.+',
-    bypass_trackMass_check=True  # bypass check that non-scanned masses are the same in all events
-)
+# susyCounter = cfg.Analyzer(
+#     ttHhistoCounterAnalyzer, name="ttHhistoCounterAnalyzer",
+#     SMS_max_mass=3000,  # maximum mass allowed in the scan
+#     # SMS_mass_1='genSusyMScan1',  # first scanned mass
+#     # SMS_mass_2='genSusyMScan2',  # second scanned mass
+#     SMS_mass_1='genSusyMChargino',  # first scanned mass
+#     SMS_mass_2='genSusyMNeutralino',  # second scanned mass
+#     SMS_varying_masses=['genSusyMStau'],  # other mass variables that are expected to change in the tree (e.g., in T1tttt it should be set to ['genSusyMGluino','genSusyMNeutralino'])
+#     SMS_regexp_evtGenMass='genSusyM.+',
+#     bypass_trackMass_check=True  # bypass check that non-scanned masses are the same in all events
+# )
 
 eventSelector = cfg.Analyzer(
     EventSelector,
@@ -94,11 +94,11 @@ pileUpAna = cfg.Analyzer(
 # genAna.savePreFSRParticleIds = [1, 2, 3, 4, 5, 21]
 
 # Save SUSY masses
-susyScanAna = cfg.Analyzer(
-    susyParameterScanAnalyzer, name="susyParameterScanAnalyzer",
-    doLHE=True,
-    useLumiInfo=False,
-)
+# susyScanAna = cfg.Analyzer(
+#     susyParameterScanAnalyzer, name="susyParameterScanAnalyzer",
+#     doLHE=True,
+#     useLumiInfo=False,
+# )
 
 httGenAna = cfg.Analyzer(
     HTTGenAnalyzer,
