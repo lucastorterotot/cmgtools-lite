@@ -118,7 +118,6 @@ class DiLeptonAnalyzer(Analyzer):
 
         # testing di-lepton itself
         selDiLeptons = event.diLeptons
-
         event.thirdLeptonVeto = False
         if self.thirdLeptonVeto(event.leptons, event.otherLeptons):
             if fillCounter:
@@ -218,10 +217,10 @@ class DiLeptonAnalyzer(Analyzer):
         event.selectedLeptons = [event.leg1, event.leg2]
 
         event.leptonAccept = False
-        if self.leptonAccept(event.leptons, event):
-            if fillCounter:
-                self.counters.counter('DiLepton').inc('lepton accept')
-            event.leptonAccept = True
+        # if self.leptonAccept(event.leptons, event):
+        #     if fillCounter:
+        #         self.counters.counter('DiLepton').inc('lepton accept')
+        #     event.leptonAccept = True
 
         return True
 

@@ -4,7 +4,7 @@ from PhysicsTools.HeppyCore.framework.config                          import pri
 
 from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer import VertexAnalyzer
 
-from CMGTools.H2TauTau.proto.analyzers.TauTauTriggerAnalyzerObjects import TauTauTriggerAnalyzer
+from CMGTools.H2TauTau.proto.analyzers.TauTauTriggerAnalyzerObjectsRate import TauTauTriggerAnalyzer
 
 from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerTauTauTriggerObjects import H2TauTauTreeProducerTrigger
 
@@ -12,7 +12,7 @@ from CMGTools.RootTools.utils.splitFactor                             import spl
 
 from CMGTools.H2TauTau.proto.samples.tsg17.doubletau_open_pt               import  HiggsGGH125, HiggsVBF125, DYJetsToLL
 
-from CMGTools.H2TauTau.proto.samples.tsg17.doubletau_open_pt import HiggsVBF125test, HiggsGGH125testeos, HiggsGGH125test2, HiggsGGH125test10oct
+from CMGTools.H2TauTau.proto.samples.tsg17.doubletau_open_pt import HiggsVBF125test, HiggsGGH125testeos, HiggsGGH125test2, HiggsGGH125test10oct, HLTPhysics35, HLTPhysics26, HLTPhysicsbothpath
 
 # Get all heppy options; set via '-o production' or '-o production=True'
 
@@ -24,7 +24,7 @@ cmssw         = False
 
 # import pdb; pdb.set_trace()
 
-samples = [HiggsGGH125test10oct]## [ HiggsVBF125, DYJetsToLL, HiggsGGH125]
+samples = [HLTPhysicsbothpath]#HiggsGGH125test10oct]## [ HiggsVBF125, DYJetsToLL, HiggsGGH125]
 
 split_factor = 1e5
 
@@ -49,6 +49,7 @@ selectedComponents = samples
 ###################################################
 triggerAna = cfg.Analyzer(
     TauTauTriggerAnalyzer,
+    threshold = 0,
     isolation='byVTightIsolationMVArun2v1DBoldDMwLT',
     triggerResultsHandle=('TriggerResults', '', 'MYHLT'),
     triggerObjectsHandle=('selectedPatTriggerCustom', '', 'MYHLT'),

@@ -59,7 +59,6 @@ class TriggerObjectAnalyzer(Analyzer):
 
         for leg in legs:
             for to in triggerObjects:
-
                 if deltaR(to, leg) >= self.cfg_ana.dR:
                     continue
 
@@ -68,7 +67,6 @@ class TriggerObjectAnalyzer(Analyzer):
                 for filter in self.cfg_ana.filters:
                     if filter in to.filterLabels():
                         setattr(leg, filter, to)
-
         return True
 
 setattr(TriggerObjectAnalyzer, 'defaultConfig',

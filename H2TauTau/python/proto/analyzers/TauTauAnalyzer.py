@@ -134,7 +134,7 @@ class TauTauAnalyzer(DiLeptonAnalyzer):
             # really no way to find a suitable di-lepton,
             # even in the control region
             return False
-        
+
         if not (hasattr(event, 'leg1') and hasattr(event, 'leg2')):
             return False
 
@@ -216,7 +216,7 @@ class TauTauAnalyzer(DiLeptonAnalyzer):
         for index, lep in enumerate(cmgLeptons):
             pyl = Muon(lep)
             pyl.associatedVertex = event.goodVertices[0]
-            if not pyl.muonID('POG_ID_Medium_ICHEP'):
+            if not pyl.muonID('POG_ID_Medium'):
                 continue
             if not pyl.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0) < 0.3:
                 continue
@@ -247,7 +247,10 @@ class TauTauAnalyzer(DiLeptonAnalyzer):
         # RIC: relaxed
         return (abs(leg.charge()) == 1 and  # RIC: ensure that taus have abs(charge) == 1
                 self.testTauVertex(leg) and
-                leg.tauID(iso) < isocut and
+                leg.tauID(iso) > 0.5 and
+                leg.tauID('againstElectronVLooseMVA6') and
+                leg.tauID('againstMuonLoose3') and
+                abs(leg.dz()) < 0.2 and
                 leg.pt() > leg_pt and
                 abs(leg.eta()) < leg_eta and
                 leg.tauID('decayModeFinding') > 0.5)

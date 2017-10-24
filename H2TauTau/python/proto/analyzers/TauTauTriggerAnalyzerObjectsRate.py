@@ -69,11 +69,29 @@ class TauTauTriggerAnalyzer(Analyzer):
         # import pdb; pdb.set_trace()
         ###
 
-        # index = names.triggerIndex('HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v8')
-        # event.trigged = triggerBits.accept(index)
-        index = names.triggerIndex('HLT_DoubleTightChargedIsoPFTau26_Trk1_TightID_eta2p1_Reg_v8')
-        event.Opentrigged = triggerBits.accept(index)
+        if self.cfg_ana.threshold in [35,0]:
+            index = names.triggerIndex('HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v8')
+            event.trigged = triggerBits.accept(index)
+            if self.cfg_ana.threshold==35:
+                if event.trigged:
+                    return True
+                else:
+                    return False
+        if self.cfg_ana.threshold in [26,0]:
+            index = names.triggerIndex('HLT_DoubleTightChargedIsoPFTau26_Trk1_TightID_eta2p1_Reg_v8')
+            event.Opentrigged = triggerBits.accept(index)
+            if not event.Opentrigged and self.cfg_ana.threshold==26:
+                return False
+        if self.cfg_ana.threshold==0 and (not event.Opentrigged) and (not event.trigged):
+            return False
         opentriggerObjects = [to for to in alltriggerObjects if to.path('HLT_DoubleTightChargedIsoPFTau26_Trk1_TightID_eta2p1_Reg_v8')]
+        openTriggerObjectsDict = {}
+        for to in opentriggerObjects:
+            fls = to.filterLabels()
+            for fl in fls:
+                if fl not in openTriggerObjectsDict:
+                    openTriggerObjectsDict[fl]=[]
+                openTriggerObjectsDict[fl].append(to)
         # if event.trigged:
         #     import pdb; pdb.set_trace()
 
@@ -111,76 +129,84 @@ class TauTauTriggerAnalyzer(Analyzer):
         #     return True
         ###
 
-        # ### standard tautau
-        event.goodVertices = event.vertices
-        taus = self.handles['taus'].product()
-        diLeps = self.buildDiLeptonsSingle(taus,event)
-        # if event.trigged:
-        #     import pdb;pdb.set_trace()
-        seldileps = {}
-        pt1list = [30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.]
-        pt2list = [25.,27.,29.,31.,33.,35.,37.,39.,41.,43.,45.]
-        for pt2 in pt2list:
-            for pt1 in [pt for pt in pt1list if pt>pt2]:
-                seldilep = self.selectionSequence(event, float(pt1),
-                                                  float(pt2), diLeps)
-                setattr(event, 'offline_'+str(int(pt2))+'_'+str(int(pt1)),
-                        1 if len(seldilep)>=1 else 0)
-                seldileps['{}_{}'.format(pt1,pt2)]=seldilep
-        passoff = any([len(seldilep)>=1 for pts,seldilep in seldileps.iteritems()])
-        setattr(event,'passoff', 1 if passoff else 0)
-        if (event.passoff==0):
-            return False ### not interested if doesn't pass offline selection
-        # else:
-        #     return True
-        ###
-
-        ### study how many events without trigobj when pass offline selection
-        # if not any([i for j,i in triggerObjects.iteritems()]):
-        #     event.notrigobj=1
-        #     return True
-        # else:
-        #     return True
+        # # ### standard tautau
+        # event.goodVertices = event.vertices
+        # taus = self.handles['taus'].product()
+        # diLeps = self.buildDiLeptonsSingle(taus,event)
+        # # if event.trigged:
+        # #     import pdb;pdb.set_trace()
+        # seldileps = {}
+        # pt1list = [30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.]
+        # pt2list = [25.,27.,29.,31.,33.,35.,37.,39.,41.,43.,45.]
+        # for pt2 in pt2list:
+        #     for pt1 in [pt for pt in pt1list if pt>pt2]:
+        #         seldilep = self.selectionSequence(event, float(pt1),
+        #                                           float(pt2), diLeps)
+        #         setattr(event, 'offline_'+str(int(pt2))+'_'+str(int(pt1)),
+        #                 1 if len(seldilep)>=1 else 0)
+        #         seldileps['{}_{}'.format(pt1,pt2)]=seldilep
+        # passoff = any([len(seldilep)>=1 for pts,seldilep in seldileps.iteritems()])
+        # setattr(event,'passoff', 1 if passoff else 0)
+        # if (event.passoff==0):
+        #     return False ### not interested if doesn't pass offline selection
+        # # else:
+        # #     return True
         # ###
 
-        ### getting the trigger objects
-        filterlabels = ['hltDoublePFTau35Reg', 'hltDoublePFTau35TrackPt1Reg', 'hltDoublePFTau26TrackPt1TightChargedIsolationAndTightOOSCPhotonsReg']#,'hltDoublePFTau35TrackPt1Reg','hltPFTauTrackReg','hltDoublePFTau35Reg','hltDoubleL2Tau0eta2p2', 'hltDoubleL2IsoTau0eta2p2']
-        # if event.Opentrigged:
-        #     import pdb;pdb.set_trace()
-        for pts, seldilep in seldileps.iteritems():
-            for dilep in seldilep:
-                dilep.triggerObjsleg1, dilep.triggerObjsleg2 = [], []
-                for to in opentriggerObjects:
-                    # if 'hltDoublePFTau0TrackPt1TightChargedIsolationAndTightOOSCPhotonsReg' not in to.filterLabels():
-                    #     continue
-                    # for fl in to.filterLabels():
-                    #     if fl not in filterlabels:
-                    #         filterlabels.append(fl)
-                    leg1match = deltaR(dilep.leg1().eta(), dilep.leg1().phi(), to.eta(), to.phi()) < 0.5
-                    leg2match = deltaR(dilep.leg2().eta(), dilep.leg2().phi(), to.eta(), to.phi()) < 0.5
-                    if leg1match and leg2match:
-                        leg = bestMatch(to, [dilep.leg1(), dilep.leg2()])
-                        if leg == dilep.leg1():
-                            dilep.triggerObjsleg1.append(to)
-                        else:
-                            dilep.triggerObjsleg2.append(to)
-                    elif leg1match:
-                        dilep.triggerObjsleg1.append(to)
-                    elif leg2match:
-                        dilep.triggerObjsleg2.append(to)
-        ###
+        # ### study how many events without trigobj when pass offline selection
+        # # if not any([i for j,i in triggerObjects.iteritems()]):
+        # #     event.notrigobj=1
+        # #     return True
+        # # else:
+        # #     return True
+        # # ###
+
+        # ### getting the trigger objects
+        # filterlabels = ['hltDoublePFTau35Reg', 'hltDoublePFTau35TrackPt1Reg', 'hltDoublePFTau26TrackPt1TightChargedIsolationAndTightOOSCPhotonsReg']#,'hltDoublePFTau35TrackPt1Reg','hltPFTauTrackReg','hltDoublePFTau35Reg','hltDoubleL2Tau0eta2p2', 'hltDoubleL2IsoTau0eta2p2']
+        # # if event.Opentrigged:
+        # #     import pdb;pdb.set_trace()
+        # for pts, seldilep in seldileps.iteritems():
+        #     for dilep in seldilep:
+        #         dilep.triggerObjsleg1, dilep.triggerObjsleg2 = [], []
+        #         for to in opentriggerObjects:
+        #             # if 'hltDoublePFTau0TrackPt1TightChargedIsolationAndTightOOSCPhotonsReg' not in to.filterLabels():
+        #             #     continue
+        #             # for fl in to.filterLabels():
+        #             #     if fl not in filterlabels:
+        #             #         filterlabels.append(fl)
+        #             leg1match = deltaR(dilep.leg1().eta(), dilep.leg1().phi(), to.eta(), to.phi()) < 0.5
+        #             leg2match = deltaR(dilep.leg2().eta(), dilep.leg2().phi(), to.eta(), to.phi()) < 0.5
+        #             if leg1match and leg2match:
+        #                 leg = bestMatch(to, [dilep.leg1(), dilep.leg2()])
+        #                 if leg == dilep.leg1():
+        #                     dilep.triggerObjsleg1.append(to)
+        #                 else:
+        #                     dilep.triggerObjsleg2.append(to)
+        #             elif leg1match:
+        #                 dilep.triggerObjsleg1.append(to)
+        #             elif leg2match:
+        #                 dilep.triggerObjsleg2.append(to)
+        # ###
 
         ### test triggerobjects for different pt values
         pt1list = [30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.]
         pt2list = [25.,27.,29.,31.,33.,35.,37.,39.,41.,43.,45.]
         for pt2 in pt2list:
             for pt1 in [pt for pt in pt1list if pt>pt2]:
-                trig = False
-                seldilep = seldileps['{}_{}'.format(pt1,pt2)]
-                for dilep in seldilep:
-                    if all([self.testTriggerObjects(dilep, pt1, pt2, fl) for fl in filterlabels]):
-                        trig = True
-                setattr(event, 'trigger_'+str(int(pt2))+'_'+str(int(pt1)), trig)
+                trigs = []
+                for fl, tos in openTriggerObjectsDict.iteritems():
+                    for lega, legb in itertools.combinations(opentriggerObjects,2):
+                        if lega.pt()>legb.pt():
+                            if lega.pt()>pt1 and legb.pt()>pt2:
+                                trigs.append(True)
+                        else:
+                            if legb.pt()>pt1 and lega.pt()>pt2:
+                                trigs.append(True)
+                # seldilep = seldileps['{}_{}'.format(pt1,pt2)]
+                # for dilep in seldilep:
+                #     if all([self.testTriggerObjects(dilep, pt1, pt2, fl) for fl in filterlabels]):
+                #         trig = True
+                setattr(event, 'trigger_'+str(int(pt2))+'_'+str(int(pt1)), all(trigs) if len(trigs)>0 else False)
         ###
 
         # ### match best trigger object of every label to each leg

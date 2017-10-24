@@ -13,7 +13,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff                            import puF
 from CMGTools.H2TauTau.proto.analyzers.EventAnalyzer                  import EventAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer                import TriggerAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.LightTriggerAnalyzer           import LightTriggerAnalyzer
-from CMGTools.H2TauTau.proto.analyzers.L1Stage2TriggerAnalyzer        import L1Stage2TriggerAnalyzer, Stage2L1ObjEnum
+# from CMGTools.H2TauTau.proto.analyzers.L1Stage2TriggerAnalyzer        import L1Stage2TriggerAnalyzer, Stage2L1ObjEnum
 from CMGTools.H2TauTau.proto.analyzers.L2TriggerAnalyzer              import L2TriggerAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.TauDiscriminatorAnalyzer       import TauDiscriminatorAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.TauTauRateAnalyzer             import TauTauRateAnalyzer
@@ -62,89 +62,89 @@ eventAna = cfg.Analyzer(
 ###################################################
 ###              TRIGGER ANALYZER               ###
 ###################################################
-# triggerAna = cfg.Analyzer(
-#     TriggerAnalyzer,
-#     name='TriggerAnalyzer',
-#     addTriggerObjects=True,
-#     requireTrigger=False,
-#     usePrescaled=False,
-#     triggerResultsHandle=('TriggerResults', '', 'TEST'),
-#     triggerObjectsHandle=('selectedPatTriggerCustom', '', 'TEST'),
-# )
-
 triggerAna = cfg.Analyzer(
-    LightTriggerAnalyzer,
-    name='LightTriggerAnalyzer',
+    TriggerAnalyzer,
+    name='TriggerAnalyzer',
+    addTriggerObjects=True,
     requireTrigger=False,
-    triggerResultsHandle=('TriggerResults', '', 'TEST')
+    usePrescaled=False,
+    triggerResultsHandle=('TriggerResults', '', 'TEST'),
+    triggerObjectsHandle=('selectedPatTriggerCustom', '', 'TEST'),
 )
+
+# triggerAna = cfg.Analyzer(
+#     LightTriggerAnalyzer,
+#     name='LightTriggerAnalyzer',
+#     requireTrigger=False,
+#     triggerResultsHandle=('TriggerResults', '', 'TEST')
+# )
 
 ###################################################
 ###         TAU DISCRIMINATOR ANALYZER          ###
 ###################################################
-tauDiscriminatorAna = cfg.Analyzer(
-    TauDiscriminatorAnalyzer,
-    name='TauDiscriminatorAnalyzer',
-    inputs = {
-        'trigger_charged3hits'    : 'hltPFTauCharged3HitsPtSum'           ,
-        'trigger_charged5hits'    : 'hltPFTauCharged5HitsPtSum'           ,
-        'trigger_charged8hits'    : 'hltPFTauCharged8HitsPtSum'           ,
-        'trigger_neutral'         : 'hltPFTauNeutralPtSum'                ,
-        'trigger_photons'         : 'hltPFTauPhotonPtOutsideSignalCone'   ,
+# tauDiscriminatorAna = cfg.Analyzer(
+#     TauDiscriminatorAnalyzer,
+#     name='TauDiscriminatorAnalyzer',
+#     inputs = {
+#         'trigger_charged3hits'    : 'hltPFTauCharged3HitsPtSum'           ,
+#         'trigger_charged5hits'    : 'hltPFTauCharged5HitsPtSum'           ,
+#         'trigger_charged8hits'    : 'hltPFTauCharged8HitsPtSum'           ,
+#         'trigger_neutral'         : 'hltPFTauNeutralPtSum'                ,
+#         'trigger_photons'         : 'hltPFTauPhotonPtOutsideSignalCone'   ,
 
-        'trigger_charged3hits_reg': 'hltPFTauCharged3HitsPtSumReg'        ,
-        'trigger_charged5hits_reg': 'hltPFTauCharged5HitsPtSumReg'        ,
-        'trigger_charged8hits_reg': 'hltPFTauCharged8HitsPtSumReg'        ,
-        'trigger_neutral_reg'     : 'hltPFTauNeutralPtSumReg'             ,
-        'trigger_photons_reg'     : 'hltPFTauPhotonPtOutsideSignalConeReg',
+#         'trigger_charged3hits_reg': 'hltPFTauCharged3HitsPtSumReg'        ,
+#         'trigger_charged5hits_reg': 'hltPFTauCharged5HitsPtSumReg'        ,
+#         'trigger_charged8hits_reg': 'hltPFTauCharged8HitsPtSumReg'        ,
+#         'trigger_neutral_reg'     : 'hltPFTauNeutralPtSumReg'             ,
+#         'trigger_photons_reg'     : 'hltPFTauPhotonPtOutsideSignalConeReg',
 
-        'trigger_lead_trk_finding': 'hltPFTauTrackFindingDiscriminator'   ,
-        'trigger_lead_trk_reg_pt1': 'hltPFTauTrackPt1DiscriminatorReg'    ,
-    },
-    tomatch=lambda event : [],
-    ptcut=20., 
-    maxTriggerTaus=10,
-)
+#         'trigger_lead_trk_finding': 'hltPFTauTrackFindingDiscriminator'   ,
+#         'trigger_lead_trk_reg_pt1': 'hltPFTauTrackPt1DiscriminatorReg'    ,
+#     },
+#     tomatch=lambda event : [],
+#     ptcut=20., 
+#     maxTriggerTaus=10,
+# )
 
 ###################################################
 ###              TAU RATE ANALYZER              ###
 ###################################################
-ttRateAna = cfg.Analyzer(
-    TauTauRateAnalyzer,
-    name='TauTauRateAnalyzer',
-    discriminators = [
-        'trigger_charged3hits'    ,
-        'trigger_charged5hits'    ,
-        'trigger_charged8hits'    ,
-        'trigger_neutral'         ,
-        'trigger_photons'         ,
+# ttRateAna = cfg.Analyzer(
+#     TauTauRateAnalyzer,
+#     name='TauTauRateAnalyzer',
+#     discriminators = [
+#         'trigger_charged3hits'    ,
+#         'trigger_charged5hits'    ,
+#         'trigger_charged8hits'    ,
+#         'trigger_neutral'         ,
+#         'trigger_photons'         ,
 
-        'trigger_charged3hits_reg',
-        'trigger_charged5hits_reg',
-        'trigger_charged8hits_reg',
-        'trigger_neutral_reg'     ,
-        'trigger_photons_reg'     ,
+#         'trigger_charged3hits_reg',
+#         'trigger_charged5hits_reg',
+#         'trigger_charged8hits_reg',
+#         'trigger_neutral_reg'     ,
+#         'trigger_photons_reg'     ,
 
-        'trigger_lead_trk_finding',
-        'trigger_lead_trk_reg_pt1',
-    ], 
-    ptcut = 20.,
-    addOfflineTaus=False,
-    filtersToMatch=[
-        'hltPFTau20TrackPt1Reg',
-        'hltPFTau20Track',
-    ],
-)
+#         'trigger_lead_trk_finding',
+#         'trigger_lead_trk_reg_pt1',
+#     ], 
+#     ptcut = 20.,
+#     addOfflineTaus=False,
+#     filtersToMatch=[
+#         'hltPFTau20TrackPt1Reg',
+#         'hltPFTau20Track',
+#     ],
+# )
 
 ###################################################
 ###               TAU L2 ANALYZER               ###
 ###################################################
-level2Ana = cfg.Analyzer(
-    L2TriggerAnalyzer,
-    name='L2TriggerAnalyzer',
-    tomatch=lambda event : event.trigger_taus, 
-    verbose=False,
-)
+# level2Ana = cfg.Analyzer(
+#     L2TriggerAnalyzer,
+#     name='L2TriggerAnalyzer',
+#     tomatch=lambda event : event.trigger_taus, 
+#     verbose=False,
+# )
 
 ###################################################
 ###               TAU L1 ANALYZER               ###
@@ -159,10 +159,10 @@ level1Ana.labelmuons = 'hltGtStage2Digis'
 ###################################################
 ###                TREE PRODUCER                ###
 ###################################################
-treeProducerAna = cfg.Analyzer(
-    H2TauTauTreeProducerTauTauRate,
-    name='H2TauTauTreeProducerTauTauRate',
-)
+# treeProducerAna = cfg.Analyzer(
+#     H2TauTauTreeProducerTauTauRate,
+#     name='H2TauTauTreeProducerTauTauRate',
+# )
  
 ###################################################
 ###                  SEQUENCE                   ###
@@ -172,11 +172,11 @@ sequence = cfg.Sequence([
     triggerAna, # First analyser that applies selections
     #vertexAna,
     pileUpAna,
-    tauDiscriminatorAna,
-    ttRateAna,
-    level1Ana,
-    level2Ana,
-    treeProducerAna,
+    # tauDiscriminatorAna,
+    # ttRateAna,
+    # level1Ana,
+    # level2Ana,
+    # treeProducerAna,
 ])
     
 print sequence
@@ -224,10 +224,10 @@ if not production:
     comp.splitFactor     = 1
     comp.fineSplitFactor = 1
     comp.files           = comp.files[:1]
-#     comp.files           = [
-#         'file:/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_1_0_pre3/src/HLTrigger/Configuration/test/open_iso/outputFULL.root',
-#         'file:/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_1_0_pre3/src/HLTrigger/Configuration/test/open_iso/outputFULL_rate1.root'
-#     ]
+    comp.files           = [
+        'file:/afs/cern.ch/work/g/gtouquet/Trigger/CMSSW_9_2_3_patch1/src/HLTrigger/Configuration/test/test/outputFULL.root'
+        # 'file:/afs/cern.ch/work/m/manzoni/tauHLT/2017/CMSSW_9_1_0_pre3/src/HLTrigger/Configuration/test/open_iso/outputFULL_rate1.root'
+    ]
 
 preprocessor = None
 if cmssw:

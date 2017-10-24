@@ -89,6 +89,8 @@ class TauTauRateAnalyzer(Analyzer):
         triggerEvent   = self.handles['triggerevent'  ].product()
         
         nFilters = triggerEvent.sizeFilters()
+
+        import pdb; pdb.set_trace()
         
         if hasattr(self.cfg_ana, 'filtersToMatch'):
             filtersToMatch = OrderedDict()
