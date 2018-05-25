@@ -10,6 +10,7 @@ from PhysicsTools.Heppy.physicsobjects.PhysicsObject import PhysicsObject
 from PhysicsTools.Heppy.physicsobjects.GenParticle import GenParticle
 from PhysicsTools.Heppy.physicsutils.TauDecayModes import tauDecayModes
 
+from CMGTools.H2TauTau.proto.weights.ScaleFactor import ScaleFactor
 from CMGTools.H2TauTau.proto.analyzers.TauGenTreeProducer import TauGenTreeProducer
 
 if "/sDYReweighting_cc.so" not in ROOT.gSystem.GetLibraries(): 
@@ -21,6 +22,18 @@ class HTTGenAnalyzer(Analyzer):
 
     '''Add generator information to hard leptons.
     '''
+    def __init__(self, cfg_ana, cfg_comp, looperName):
+        super(HTTGenAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
+        # if hasattr(self.cfg_ana, 'DYscaleFactorFiles'):
+        #     sf_file = self.cfg_ana.DYscaleFactorFiles
+        #     self.DYscalefactor = ScaleFactor(sf_file[0], sf_file[1])
+        if hasattr(self.cfg_ana, 'filepath'):
+            filepath = self.cfg_ana.filepath
+            f = ROOT.TFile(filepath)
+            self.w = f.Get("w")
+            f.Close()
+            # self.zpt_weight = self.w.function("zpt_weight_nom").functor(ROOT.RooArgList(self.w.argSet("z_gen_mass,z_gen_pt")))
+
     def declareHandles(self):
         super(HTTGenAnalyzer, self).declareHandles()
 
@@ -87,7 +100,7 @@ class HTTGenAnalyzer(Analyzer):
             self.getTopPtWeight(event)
 
         if self.cfg_comp.name.find('DY') != -1:
-            self.getDYMassPtWeight(event)
+            self.getDYWeight(event)
 
 
         ptcut = 0.
@@ -101,6 +114,17 @@ class HTTGenAnalyzer(Analyzer):
         event.ptSelGenSummary = []
 
         return True
+
+    def getDYWeight(self, event):
+        if not hasattr(event, 'parentBoson'):
+            event.parentBoson = HTTGenAnalyzer.getParentBoson(event)
+        z_gen_mass = event.parentBoson.mass()
+        z_gen_pt = event.parentBoson.pt()
+        # event.dy_weight = getScaleFactor(z_gen_mass, z_gen_pt)
+        self.w.var("z_gen_mass").setVal(z_gen_mass)
+        self.w.var("z_gen_pt").setVal(z_gen_pt)
+        zpt_weight_scalefactor = self.w.function("zpt_weight_nom").getVal()
+        event.dy_weight = zpt_weight_scalefactor
 
     @staticmethod
     def attachGenStatusFlag(lepton):        
@@ -313,4 +337,4 @@ class HTTGenAnalyzer(Analyzer):
         if len(initialSusyParticles) != 2:
             import pdb; pdb.set_trace()
         return initialSusyParticles[0].p4() + initialSusyParticles[1].p4()
-
+        

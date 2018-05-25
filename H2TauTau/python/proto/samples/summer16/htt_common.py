@@ -136,7 +136,7 @@ for sample in [WJetsToLNu_LO, WJetsToLNu_LO_ext] + WNJets: #
 WJetsHT = [] # WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf
 
 # Backgrounds
-diboson_nlo = [ZZTo4L, WZTo1L3Nu, WWTo1L1Nu2Q, ZZTo2L2Q,  WZTo2L2Q, WZTo1L1Nu2Q, VVTo2L2Nu, WZTo3LNu_amcatnlo]
+diboson_nlo = [ZZTo4L, WZTo1L3Nu, WWTo1L1Nu2Q, ZZTo2L2Q,  WZTo2L2Q, WZTo1L1Nu2Q, VVTo2L2Nu]
 
 essential = [TT_pow, DYJetsToLL_M50_LO, DYJetsToLL_M50_LO_ext2, DYJetsToLL_M10to50_LO, TBar_tWch, T_tWch, TBar_tch_powheg, T_tch_powheg, WJetsToLNu_LO]  # WJetsToLNu, 
 
