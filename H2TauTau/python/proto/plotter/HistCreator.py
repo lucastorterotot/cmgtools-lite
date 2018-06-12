@@ -117,6 +117,7 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                 var_hist_tuples.append('{var} >> {hist}'.format(var=vcfg.drawname, hist=hists[vcfg.name].GetName()))
 
             # Implement the multidraw.
+            # import pdb;pdb.set_trace()
             ttree.MultiDraw(var_hist_tuples, norm_cut)
 
             # Do another multidraw here, if needed, and reset the scales in a separate loop
@@ -125,7 +126,7 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                 ttree.Project(hname, vcfg.drawname, shape_cut)
                 hist.Scale(scale/hist.Integral())
 
-            stack = all_stack or (not cfg.is_data and not cfg.is_signal)
+            stack = all_stack or (not cfg.is_data and not cfg.is_signal) or cfg.name in ['jetFakes']
             # if cfg.name=='WJets':
             #     import pdb;pdb.set_trace()
             # Loop again over the variables and add histograms to plots one by one
@@ -138,16 +139,16 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                 if cfg.name in plot:
                     print 'Histogram', cfg.name, 'already exists; adding...', cfg.dir_name
                     hist_to_add = Histogram(cfg.name, hist)
-                    if not cfg.is_data:
-                        # if cfg.name in ['WJets','ZTT']:
+                    if (not cfg.is_data) and not cfg.name=='jetFakes':
+                        # if cfg.name in ['TT']:
                         #     import pdb;pdb.set_trace()
                         hist_to_add.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
                     plot[cfg.name].Add(hist_to_add)
                 else:
                     plot_hist = plot.AddHistogram(cfg.name, hist, stack=stack)
 
-                    if not cfg.is_data:
-                        # if cfg.name in ['WJets','ZTT']:
+                    if (not cfg.is_data) and not cfg.name=='jetFakes':
+                        # if cfg.name in ['TT']:
                         #     import pdb;pdb.set_trace()
                         plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
 
@@ -229,13 +230,13 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False, friend_func=None):
             if cfg.name in plot:
                 print 'Histogram', cfg.name, 'already exists; adding...', cfg.dir_name
                 hist_to_add = Histogram(cfg.name, hist)
-                if not cfg.is_data:
+                if (not cfg.is_data) and not cfg.name=='jetFakes':
                     hist_to_add.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
                 plot[cfg.name].Add(hist_to_add)
             else:
                 plot_hist = plot.AddHistogram(cfg.name, hist, stack=stack)
 
-                if not cfg.is_data:
+                if (not cfg.is_data) and not cfg.name=='jetFakes':
                     plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
 
     plot._ApplyPrefs()
@@ -277,7 +278,7 @@ def fillIntoTree(out_tree, branches, cfg, hist_cfg, vcfgs, total_scale, plot, ve
 
     # and this one too
     sample_weight = cfg.scale * total_scale
-    if not cfg.is_data:
+    if (not cfg.is_data) and not cfg.name=='jetFakes':
         sample_weight *= hist_cfg.lumi*cfg.xsec/cfg.sumweights
 
     formula = TTreeFormula('weight_formula', norm_cut, ttree)

@@ -70,5 +70,7 @@ def qcd_estimation(B_cut, C_cut, D_cut, all_samples, int_lumi, total_weight, sca
     all_samples_qcd = copy.deepcopy(all_samples)
     all_samples_qcd = [qcd_b_region_hist] + all_samples_qcd
     
+    import pdb;pdb.set_trace()
+
     return all_samples_qcd
 

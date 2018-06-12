@@ -181,7 +181,7 @@ def getVariables(mode):
         variables = getVars(['_norm_', 'mvis', 'mt2', 'l1_pt', 'l2_pt', 'delta_phi_l1_l2', 'delta_eta_l1_l2', 'met_pt', 'mt_total', 'mt_total_mssm', 'mt_sum', 'pzeta_met', 'l2_mt', 'mt', 'pzeta_vis', 'pzeta_disc', 'pthiggs', 'jet1_pt', 'n_jets', 'dil_pt', 'l1_byCombinedIsolationDeltaBetaCorrRaw3Hits', 'l1_byIsolationMVArun2v1DBoldDMwLTraw', 'l1_dz_sig', 'l1_log_dz', 'l1_dxy_sig', 'l1_log_dxy', 'l1_decayMode', 'l1_chargedIsoPtSum', 'l1_neutralIsoPtSum', 'l1_puCorrPtSum', 'l1_photonPtSumOutsideSignalCone', 'l1_zImpact', 'l1_jet_charge', 'l1_jet_pt_div_l1_pt'], channel='tautau')
     if mode == 'mssm':
         # variables = getVars(['mt_total', 'mt_total_mssm', 'mt_total_mssm_fine', 'mvis_extended', 'l1_pt', 'dil_pt'], channel='tautau')
-        variables = getVars(['mt_total_mssm_fine'], channel='tautau')#, 'mt_total_mssm'
+        variables = getVars(['mt_total_mssm_fine'], channel='tautau')#, 'mt_total_mssm''mt_total_mssm', 
     # variables += [
     #     VariableCfg(name='mt2', binning={'nbinsx':15, 'xmin':0., 'xmax':150.}, unit='GeV', xtitle='m_{T2}')
     # ]
@@ -244,7 +244,6 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
             charge_cut = Cut('l1_charge != l2_charge')
             isSS = 'SS' in cut.name
             # all_samples_qcd = [x for x in all_samples]# if x.name in ['WJets','ZTT']]
-            all_samples_qcd = jetFakesEstimation(all_samples)
             # all_samples_qcd = qcd_estimation(
             #     cut.cut & iso_sideband_cut & (charge_cut if not isSS else ~charge_cut),  # shape sideband
             #     cut.cut & iso_cut & (~charge_cut),  # norm sideband 1
@@ -258,6 +257,12 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
 
             # now include charge and isolation too
             the_cut = MyCut(cut.name+iso_cut_name, cut.cut & iso_cut & (charge_cut if not isSS else ~charge_cut))
+
+            
+            all_samples_qcd = jetFakesEstimation(all_samples,
+                                                 cut.cut & charge_cut,
+                                                 int_lumi,
+                                                 total_weight)
 
             # for variable in variables:
             cfg_total = HistogramCfg(name=the_cut.name, vars=variables, cfgs=all_samples_qcd, cut=str(the_cut.cut), lumi=int_lumi, weight=total_weight)
@@ -282,7 +287,7 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
                 plot.Group('ZL', ['ZL', 'ZL1Jets', 'ZL2Jets', 'ZL3Jets', 'ZL4Jets','ZL_10_50'])
                 plot.Group('ZLL', ['ZLL', 'ZLL1Jets', 'ZLL2Jets', 'ZLL3Jets', 'ZLL4Jets','ZLL_10_50'])
                 plot.Group('W', ['WJets', 'WJets_ext', 'W1Jets', 'W2Jets_ext', 'W2Jets', 'W3Jets_ext', 'W3Jets', 'W4Jets', 'W4Jets_ext', 'W4Jets_ext2'])
-                plot.Group('jetFakes',['JetFakes1','JetFakes2','JetFakes3','JetFakes4','JetFakes5','JetFakes6','JetFakes7','JetFakes8'])
+                # plot.Group('jetFakes',['JetFakes1','JetFakes2','JetFakes3','JetFakes4','JetFakes5','JetFakes6','JetFakes7','JetFakes8'])
                 # plot.Group('Electroweak', ['W', 'VV', 'Single t', 'ZJ'])
 
                 if optimisation:
@@ -321,7 +326,6 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
                 # plot.Group('VV', ['VV', 'Single t'])
                 if variable.name in ['mt_total', 'svfit_mass', 'mt_total_mssm', 'mt_total_mssm_fine']:
                     plot.WriteDataCard(filename=plot_dir+'/htt_tt.inputs-sm-13TeV_{var}{postfix}.root'.format(var=variable.name, postfix=dc_postfix), dir='tt_' + cut.name, mode='RECREATE')
-                    import pdb;pdb.set_trace()
 
             # Save AMS dict
             import pickle
@@ -364,7 +368,7 @@ if __name__ == '__main__':
         gROOT.ProcessLine(".L %s/src/CMGTools/H2TauTau/python/proto/plotter/FakeFactor.cc+" % os.environ['CMSSW_BASE']);
         from ROOT import getFFWeight
 
-    total_weight = 'weight*getTauWeight(l1_gen_match, l1_pt, l1_eta, l1_decayMode)*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode)'
+    total_weight = 'weight'
 
     optimisation = False
     make_plots = True
