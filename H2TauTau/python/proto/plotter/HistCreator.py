@@ -61,6 +61,8 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                 if cfg.total_scale is not None:
                     total_hist.Scale(cfg.total_scale)
                     # print 'Scaling total', hist_cfg.name, 'by', cfg.total_scale
+                # if cfg.name=='jetFakes':
+                #     import pdb;pdb.set_trace()
         else:
             # It's a sample cfg
 
@@ -117,7 +119,9 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                 var_hist_tuples.append('{var} >> {hist}'.format(var=vcfg.drawname, hist=hists[vcfg.name].GetName()))
 
             # Implement the multidraw.
-            # import pdb;pdb.set_trace()
+            # if cfg.name == 'data_obs':
+            #     import pdb;pdb.set_trace()
+            print cfg.name
             ttree.MultiDraw(var_hist_tuples, norm_cut)
 
             # Do another multidraw here, if needed, and reset the scales in a separate loop

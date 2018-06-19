@@ -287,6 +287,7 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
                 plot.Group('ZL', ['ZL', 'ZL1Jets', 'ZL2Jets', 'ZL3Jets', 'ZL4Jets','ZL_10_50'])
                 plot.Group('ZLL', ['ZLL', 'ZLL1Jets', 'ZLL2Jets', 'ZLL3Jets', 'ZLL4Jets','ZLL_10_50'])
                 plot.Group('W', ['WJets', 'WJets_ext', 'W1Jets', 'W2Jets_ext', 'W2Jets', 'W3Jets_ext', 'W3Jets', 'W4Jets', 'W4Jets_ext', 'W4Jets_ext2'])
+                plot.Group('jetFakes', ['jetFakes_direct','jetFakes_tosubstract'])
                 # plot.Group('jetFakes',['JetFakes1','JetFakes2','JetFakes3','JetFakes4','JetFakes5','JetFakes6','JetFakes7','JetFakes8'])
                 # plot.Group('Electroweak', ['W', 'VV', 'Single t', 'ZJ'])
 
@@ -368,7 +369,7 @@ if __name__ == '__main__':
         gROOT.ProcessLine(".L %s/src/CMGTools/H2TauTau/python/proto/plotter/FakeFactor.cc+" % os.environ['CMSSW_BASE']);
         from ROOT import getFFWeight
 
-    total_weight = 'weight'
+    total_weight = 'weight*getTauWeight(l1_gen_match, l1_pt, l1_eta, l1_decayMode,1)*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1)'
 
     optimisation = False
     make_plots = True
