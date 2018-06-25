@@ -30,6 +30,10 @@ from CMGTools.H2TauTau.proto.analyzers.METFilter import METFilter
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 
 import  CMGTools.H2TauTau.proto.samples.summer16.miniaod_CL.higgs_susy as higgs_susy
+import  CMGTools.H2TauTau.proto.samples.summer16.miniaod_CL.DYJets as DYJets
+import  CMGTools.H2TauTau.proto.samples.summer16.miniaod_CL.DYNJets as DYNJets
+#import  CMGTools.H2TauTau.proto.samples.summer16.miniaod_CL.backgrounds_mu as backgrounds_mu
+
 from CMGTools.H2TauTau.proto.samples.component_index import ComponentIndex
 
 # from CMGTools.H2TauTau.proto.samples.summer16.htt_common import backgrounds_mu, sm_signals, mssm_signals, data_single_muon, sync_list
@@ -60,11 +64,13 @@ correct_recoil = getHeppyOption('correct_recoil', True)
 add_iso_info = getHeppyOption('add_iso_info', False)
 add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 
-compindex = ComponentIndex(higgs_susy)
+compindex = ComponentIndex(DYJets)
 data_list = compindex.glob('data_single_muon')
 
-samples = compindex.glob('*BB1000*')
+samples = compindex.glob('*DY*')
 nevts_per_file = 1e4
+comp = samples[0]
+comp.files=comp.files[:20]
 
 if (not cmssw) or production:
     cmssw_reuse = False
