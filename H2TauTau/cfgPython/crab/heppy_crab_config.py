@@ -19,6 +19,9 @@ config.section_("Data")
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventBased'
 config.Data.outLFNDirBase = '/store/user/' + os.environ["USER"]
+if os.environ["USER"] == 'torterotot':
+    config.Data.outLFNDirBase = '/store/user/ltortero'
+print 'Data.outLFNDirBase = {}'.format(config.Data.outLFNDirBase)
 config.Data.publication = False
 
 config.section_("Site")

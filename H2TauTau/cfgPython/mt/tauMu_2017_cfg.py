@@ -71,8 +71,8 @@ samples = backgrounds #compindex.glob('*DY*')
 nevts_per_file = 1e4
 #comp = samples[0]
 #comp.files=comp.files[:20]
-for comp in samples:
-    comp.files=comp.files[:3]
+#for comp in samples:
+#    comp.files=comp.files[:3]
 
 if (not cmssw) or production:
     cmssw_reuse = False
