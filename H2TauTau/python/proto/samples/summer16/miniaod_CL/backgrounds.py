@@ -64,8 +64,15 @@ DY4JetsToLL_M50_LO,
 
 #T_tWch_ext
 #TBar_tWch_ext
-#TBar_tch_powheg
 #T_tch_powheg
+#TBar_tch_powheg
+
+Ttch = [
+#T_tWch_ext,
+#TBar_tWch_ext,
+#T_tch_powheg,
+#TBar_tch_powheg,
+]
 
 
 WJetsToLNu_LO = creator.makeMCComponent(
@@ -122,9 +129,26 @@ W4JetsToLNu_LO_all,
 #ZZTo2L2Q
 #ZZTo4L
 
+diboson = [
+#VVTo2L2Nu,
+#VVTo2L2Nu_ext,
+#WWTo1L1Nu2Q,
+#WZTo1L1Nu2Q,
+#WZTo1L3Nu,
+#WZTo2L2Q,
+#WZTo3LNu_amcatnlo,
+#WZJToLLLNu,
+#ZZTo2L2Q,
+#ZZTo4L,
+]
+
 
 
 backgrounds = []
 backgrounds.extend(TTbar)
 backgrounds.extend(WJets)
+#backgrounds.extend(WNJets)
 backgrounds.extend(DYJets)
+#backgrounds.extend(DYNJets)
+#backgrounds.extend(Ttch)
+#backgrounds.extend(diboson)
