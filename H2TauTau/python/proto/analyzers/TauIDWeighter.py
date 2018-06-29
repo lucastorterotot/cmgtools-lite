@@ -11,6 +11,8 @@ from ROOT import getTauWeight
 class TauIDWeighter(Analyzer):
 
     def process(self, event):
+        if not  self.cfg_comp.isMC:
+            return True
         legs_to_process = self.cfg_ana.legs
         channel = self.cfg_ana.channel
         ele_WP  = self.cfg_ana.ele_WP
