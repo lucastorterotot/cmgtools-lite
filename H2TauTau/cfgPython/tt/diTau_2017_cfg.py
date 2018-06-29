@@ -385,7 +385,7 @@ if cmssw:
             comp.files = ['preprocessed_files/'+comp.name+'/cmsswPreProcessing.root']
     else:
         sequence.append(fileCleaner)
-        cfg_name = "$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_ditau_data_cfg.py" if data else "$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_ditau_cfg.py"
+        cfg_name = "$CMSSW_BASE/python/CMGTools/H2TauTau/preprocessor/h2TauTauMiniAOD_ditau_data_cfg.py" if data else "$CMSSW_BASE/python/CMGTools/H2TauTau/preprocessor/h2TauTauMiniAOD_ditau_cfg.py"
         preprocessor = CmsswPreprocessor(cfg_name, addOrigAsSecondary=False)
 
 # the following is declared in case this cfg is used in input to the
