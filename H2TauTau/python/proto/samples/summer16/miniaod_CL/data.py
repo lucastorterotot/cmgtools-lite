@@ -9,12 +9,12 @@ json='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReR
 
 #kreator.makeDataComponent("JetHT_Run2016B_PromptReco_v2"         , "/JetHT/Run2016B-PromptReco-v2/MINIAOD"         , "CMS",      ".*root", json)
 
-data_single_muon_B_to_G = creator.makeDataComponent(
+data_single_muon_B_to_H = creator.makeDataComponent(
     "data_single_muon", 
-   "/SingleMuon/cbernet-MINIAOD_CL_2-3ac6ceef15bb149c4b22dc59e3cfeade/USER", # not the right one ?
-    "CMS", ".*root", json)
-
-data_single_muon = [data_single_muon_B_to_G]
+    "/SingleMuon/ltortero-MINIAOD_CL_2-3ac6ceef15bb149c4b22dc59e3cfeade/USER", 
+    "CMS", ".*root", json, dbsInstance=dbsInstance)
+#"/SingleMuon/cbernet-MINIAOD_CL_2-3ac6ceef15bb149c4b22dc59e3cfeade/USER", # not the right one ?
+data_single_muon = [data_single_muon_B_to_H]
 
 
 data_single_electron = [] #[SingleElectron_Run2016B_23Sep2016, SingleElectron_Run2016C_23Sep2016, SingleElectron_Run2016D_23Sep2016, SingleElectron_Run2016E_23Sep2016, SingleElectron_Run2016F_23Sep2016, SingleElectron_Run2016G_23Sep2016]
