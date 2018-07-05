@@ -30,14 +30,14 @@ def getHeppyOption(option, default):
 # Get all heppy options; set via '-o production' or '-o production=True'
 
 # production = True run on batch, production = False (or unset) run locally
-production = getHeppyOption('production', True)
+production = getHeppyOption('production', False)
 pick_events = getHeppyOption('pick_events', False)
 syncntuple = getHeppyOption('syncntuple', True)
 cmssw = getHeppyOption('cmssw', True)
-cmssw_reuse = getHeppyOption('cmssw_reuse', True)
+cmssw_reuse = getHeppyOption('cmssw_reuse', False)
 doSUSY = getHeppyOption('susy', False)
 computeSVfit = getHeppyOption('computeSVfit', False)
-data = getHeppyOption('data', False)
+data = getHeppyOption('data', True)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', False)
 calibrateTaus = getHeppyOption('calibrateTaus', False)
@@ -385,7 +385,7 @@ if cmssw:
             comp.files = ['preprocessed_files/'+comp.name+'/cmsswPreProcessing.root']
     else:
         sequence.append(fileCleaner)
-        cfg_name = "$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_ditau_data_cfg.py" if data else "$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_ditau_cfg.py"
+        cfg_name = "$CMSSW_BASE/python/CMGTools/H2TauTau/preprocessor/h2TauTauMiniAOD_ditau_data_cfg.py" if data else "$CMSSW_BASE/python/CMGTools/H2TauTau/preprocessor/h2TauTauMiniAOD_ditau_cfg.py" 
         preprocessor = CmsswPreprocessor(cfg_name, addOrigAsSecondary=False)
 
 # the following is declared in case this cfg is used in input to the

@@ -47,7 +47,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, puFileData, pu
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-production = getHeppyOption('production', False)
+production = getHeppyOption('production', True)
 pick_events = getHeppyOption('pick_events', False)
 syncntuple = getHeppyOption('syncntuple', True)
 cmssw = getHeppyOption('cmssw', False)
@@ -69,10 +69,10 @@ add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 samples = data_list #backgrounds #compindex.glob('*DY*')
 
 nevts_per_file = 1e4
-samples = [samples[0]]
+#samples = [samples[0]]
 #comp.files=comp.files[:20]
-for comp in samples:
-    comp.files=[comp.files[0]]
+#for comp in samples:
+#    comp.files=[comp.files[0]]
 
 if (not cmssw) or production:
     cmssw_reuse = False
