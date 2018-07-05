@@ -32,7 +32,7 @@ if useDYWeight or splitDY:
     #     dy_exps.append('')
     dy_exp = '*({})'.format(' + '.join(dy_exps))
     if useDYWeight:
-        dy_exp += '*getDYWeight(genboson_mass, genboson_pt)'
+        dy_exp += '*weight_dy'#'*getDYWeight(genboson_mass, genboson_pt)'
     print 'Using DY expression', dy_exp
 
 w_exps = []
@@ -136,7 +136,7 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
     samples_essential += [
             SampleCfg(name='T_tWch_T', dir_name='T_tWch_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=T_tWch.xSection, sumweights=T_tWch.nGenEvents, weight_expr='(l1_gen_match<6 && l2_gen_match<6)'),
             SampleCfg(name='TBar_tWch_T', dir_name='TBar_tWch_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=TBar_tWch.xSection, sumweights=TBar_tWch.nGenEvents, weight_expr='(l1_gen_match<6 && l2_gen_match<6)')]
-    samples_additional = [
+    samples_additional += [
         SampleCfg(name='TToLeptons_tch_powheg_T', dir_name='T_tch_powheg', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=T_tch_powheg.xSection, sumweights=T_tch_powheg.nGenEvents, weight_expr='(l1_gen_match<6 && l2_gen_match<6)'),
         SampleCfg(name='TBarToLeptons_tch_powheg_T', dir_name='TBar_tch_powheg', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=TBar_tch_powheg.xSection, sumweights=TBar_tch_powheg.nGenEvents, weight_expr='(l1_gen_match<6 && l2_gen_match<6)'),
     ]
@@ -197,7 +197,7 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
     if no_data:
         samples_data = []
 
-    samples_additional = [
+    samples_additional += [
         SampleCfg(name='TToLeptons_tch_powheg', dir_name=T_tch_powheg.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=T_tch_powheg.xSection, sumweights=T_tch_powheg.nGenEvents),
         SampleCfg(name='TBarToLeptons_tch_powheg', dir_name=TBar_tch_powheg.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=TBar_tch_powheg.xSection, sumweights=TBar_tch_powheg.nGenEvents),
     ]
@@ -209,8 +209,8 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
         SampleCfg(name='WZTo2L2Q', dir_name='WZTo2L2Q', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=WZTo2L2Q.xSection, sumweights=WZTo2L2Q.nGenEvents),
         SampleCfg(name='WZTo1L3Nu', dir_name='WZTo1L3Nu', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=WZTo1L3Nu.xSection, sumweights=WZTo1L3Nu.nGenEvents),
         SampleCfg(name='WZTo1L1Nu2Q', dir_name='WZTo1L1Nu2Q', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=WZTo1L1Nu2Q.xSection, sumweights=WZTo1L1Nu2Q.nGenEvents),
-        SampleCfg(name='VVTo2L2Nu', dir_name='VVTo2L2Nu', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=VVTo2L2Nu.xSection, sumweights=VVTo2L2Nu.nGenEvents, weight_expr='((11.95*2852958.0)/((2852958.0+6888511.0)*(2852958.0+6888511.0)))'),
-        SampleCfg(name='VVTo2L2Nu_ext', dir_name='VVTo2L2Nu_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=VVTo2L2Nu_ext.xSection, sumweights=VVTo2L2Nu_ext.nGenEvents, weight_expr='((11.95*6888511.0)/((2852958.0+6888511.0)*(2852958.0+6888511.0)))'),
+        SampleCfg(name='VVTo2L2Nu', dir_name='VVTo2L2Nu', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=VVTo2L2Nu.xSection, sumweights=VVTo2L2Nu.nGenEvents),
+        SampleCfg(name='VVTo2L2Nu_ext', dir_name='VVTo2L2Nu_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=VVTo2L2Nu_ext.xSection, sumweights=VVTo2L2Nu_ext.nGenEvents),
         SampleCfg(name='WWTo1L1Nu2Q', dir_name='WWTo1L1Nu2Q', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=WWTo1L1Nu2Q.xSection, sumweights=WWTo1L1Nu2Q.nGenEvents),
         SampleCfg(name='WZJToLLLNu', dir_name='WZJToLLLNu', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=WZJToLLLNu.xSection, sumweights=WZJToLLLNu.nGenEvents),
     ]
@@ -338,7 +338,7 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
     weighted_list = []
     weighted_list += [s.name for s in samples_susy]
     ###GAEL
-    weighted_list += ['WJets', 'WJets_ext', 'W1Jets', 'W2Jets_ext', 'W2Jets', 'W3Jets_ext', 'W3Jets', 'W4Jets', 'W4Jets_ext', 'W4Jets_ext2','ZLL','VVTo2L2Nu_ext','VVTo2L2Nu']
+    weighted_list += ['WJets', 'WJets_ext', 'W1Jets', 'W2Jets_ext', 'W2Jets', 'W3Jets_ext', 'W3Jets', 'W4Jets', 'W4Jets_ext', 'W4Jets_ext2','ZLL']
     ###GAEL
     # import pdb;pdb.set_trace()
     if splitDY:
@@ -346,7 +346,7 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
                           'ZJ', 'ZJ1Jets', 'ZJ2Jets', 'ZJ3Jets', 'ZJ4Jets',
                           'ZL', 'ZL1Jets', 'ZL2Jets', 'ZL3Jets', 'ZL4Jets',
                           'ZTTM150', 'ZJM150', 'ZLM150','ZLL1Jets','ZLL2Jets','ZLL3Jets','ZLL4Jets']
-    
+    # import pdb;pdb.set_trace()
     for sample in samples_mc:
         if sample.name not in weighted_list:
             setSumWeights(sample, 'MCWeighter' if channel not in ['tau_fr'] else 'SkimAnalyzerCount')
@@ -369,11 +369,20 @@ def setSumWeights(sample, weight_dir='MCWeighter'):
         return
 
     pckfile = '/'.join([sample.ana_dir, sample.dir_name, weight_dir, 'SkimReport.pck'])
+    if sample.name in ['VVTo2L2Nu', 'VVTo2L2Nu_T', 'VVTo2L2Nu_J']:
+        pckfile2 = '/'.join([sample.ana_dir,'VVTo2L2Nu_ext' , weight_dir, 'SkimReport.pck'])
+    if sample.name in ['VVTo2L2Nu_ext', 'VVTo2L2Nu_ext_T', 'VVTo2L2Nu_ext_J']:
+        pckfile2 = '/'.join([sample.ana_dir,'VVTo2L2Nu' , weight_dir, 'SkimReport.pck'])
     try:
         pckobj = pickle.load(open(pckfile, 'r'))
         counters = dict(pckobj)
-        if 'Sum Weights' in counters:
-            sample.sumweights = counters['Sum Weights']
+        if 'Sum Unity Weights' in counters:
+            sample.sumweights = counters['Sum Unity Weights']
+        if sample.name in ['VVTo2L2Nu', 'VVTo2L2Nu_ext', 'VVTo2L2Nu_ext_T', 'VVTo2L2Nu_ext_J', 'VVTo2L2Nu_T', 'VVTo2L2Nu_J']:
+            pckobj2 = pickle.load(open(pckfile2, 'r'))
+            counters2 = dict(pckobj2)
+            if 'Sum Unity Weights' in counters2:
+                sample.sumweights += counters2['Sum Unity Weights']
     except IOError:
         print 'Warning: could not find sum weights information for sample', sample.name
         pass
