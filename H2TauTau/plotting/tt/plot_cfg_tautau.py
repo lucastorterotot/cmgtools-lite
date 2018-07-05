@@ -56,9 +56,9 @@ def prepareCuts(mode):
         # cuts.append(MyCut('mva_met_sig_1_low_deta', inc_cut & Cut('met_pt/sqrt(met_cov00 + met_cov11) > 1. && delta_eta_l1_l2 < 2.')))
 
     if mode == 'mssm':
-        # cuts.append(MyCut('nobtag', inc_cut & Cut('n_bjets==0')))
+        cuts.append(MyCut('nobtag', inc_cut & Cut('n_bjets==0')))
         cuts.append(MyCut('inclusive', inc_cut & Cut('1')))
-        # cuts.append(MyCut('btag', inc_cut & Cut('n_bjets>=1')))
+        cuts.append(MyCut('btag', inc_cut & Cut('n_bjets>=1')))
         # cuts.append(MyCut('1bjet', inc_cut & Cut('n_bjets==1')))
         # # cuts.append(MyCut('0jet', inc_cut & Cut('n_bjets==1 && n_jets==0')))
 
@@ -370,7 +370,7 @@ if __name__ == '__main__':
         gROOT.ProcessLine(".L %s/src/CMGTools/H2TauTau/python/proto/plotter/FakeFactor.cc+" % os.environ['CMSSW_BASE']);
         from ROOT import getFFWeight
 
-    total_weight = 'weight*getTauWeight(l1_gen_match, l1_pt, l1_eta, l1_decayMode,1)*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1)'
+    total_weight = 'weight*getTauWeight(l1_gen_match, l1_pt, l1_eta, l1_decayMode,1,2,3)*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1,2,3)'
 
     optimisation = False
     make_plots = True

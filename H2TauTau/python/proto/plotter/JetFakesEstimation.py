@@ -23,7 +23,7 @@ def jetFakesEstimation(all_samples, cut, int_lumi, total_weight):
     for sample in to_substract:
         sample.scale = scale if sample.name == 'data_obs' else -scale
 
-    jet_fakes_expr_tosubstract = '(((l1_byIsolationMVArun2v1DBoldDMwLT>0.5 && l1_byIsolationMVArun2v1DBoldDMwLT<2.5 && l2_byIsolationMVArun2v1DBoldDMwLT>2.5)*(0.5*getFFWeight(l1_pt,l2_pt,l1_decayMode,n_jets,mvis,mt_total))*(l1_gen_match<6)) + ((l2_byIsolationMVArun2v1DBoldDMwLT>0.5 && l2_byIsolationMVArun2v1DBoldDMwLT<2.5 && l1_byIsolationMVArun2v1DBoldDMwLT>2.5)*(0.5*getFFWeight(l2_pt,l1_pt,l2_decayMode,n_jets,mvis,mt_total))*(l2_gen_match<6)))'
+    jet_fakes_expr_tosubstract = '(((l1_byIsolationMVArun2v1DBoldDMwLT>0.5 && l1_byIsolationMVArun2v1DBoldDMwLT<2.5 && l2_byIsolationMVArun2v1DBoldDMwLT>2.5)*(0.5*getFFWeight(l1_pt,l2_pt,l1_decayMode,n_jets,mvis,mt_total))*(l1_gen_match<6)) + ((l2_byIsolationMVArun2v1DBoldDMwLT>0.5 && l2_byIsolationMVArun2v1DBoldDMwLT<2.5 && l1_byIsolationMVArun2v1DBoldDMwLT>2.5)*(0.5*getFFWeight(l2_pt,l1_pt,l2_decayMode,n_jets,mvis,mt_total))*(l2_gen_match<6)))'#*((getTauWeight(l1_gen_match, l1_pt, l1_eta, l1_decayMode,1,2,1)*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1,2,1))/(getTauWeight(l1_gen_match, l1_pt, l1_eta, l1_decayMode,1,2,3)*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1,2,3)))
 
     # for sample in all_samples:
     #     if (not sample.is_signal) and (not sample.is_data):
@@ -53,13 +53,15 @@ def jetFakesEstimation(all_samples, cut, int_lumi, total_weight):
     #         sample.weight_expr='1'
     #     sample.weight_expr = '('+sample.weight_expr+')'+jet_fakes_expr
 
-    JetFakes = HistogramCfg(name='jetFakes_direct', var=None, cfgs=JetFakes_samples, cut=str(cut), lumi=int_lumi, weight=jet_fakes_expr)
+    JetFakes_direct = HistogramCfg(name='jetFakes_direct', var=None, cfgs=JetFakes_samples, cut=str(cut), lumi=int_lumi, weight=jet_fakes_expr)
 
     to_substract_expr = jet_fakes_expr
 
     JetFakes_tosubstract = HistogramCfg(name='jetFakes_tosubstract', var=None, cfgs=to_substract, cut=str(cut), lumi=int_lumi, weight=jet_fakes_expr_tosubstract)
+    # JetFakes = HistogramCfg(name='jetFakes', var=None, cfgs=[JetFakes_direct,JetFakes_tosubstract], cut=str(cut), lumi=int_lumi)
 
     # all_samples = [x for x in all_samples if x.name in ['data_obs']]
-    all_samples.append(JetFakes)
+    all_samples.append(JetFakes_direct)
+    all_samples.append(JetFakes_tosubstract)
     # all_samples = [JetFakes, to_substract_expr]
     return all_samples
