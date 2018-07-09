@@ -273,9 +273,14 @@ dict_tautau_vars = {}
 for v in tautau_vars:
     dict_tautau_vars[v.name] = v
 
+dict_taumu_vars = {}
+for v in taumu_vars:
+    dict_taumu_vars[v.name] = v
+
 dict_channel_vars = {
     'all':dict_all_vars,
-    'tautau':dict_tautau_vars
+    'tautau':dict_tautau_vars,
+    'taumu':dict_taumu_vars
 }
 
 def getVars(names, channel='all'):

@@ -1,377 +1,403 @@
-import copy
 from collections import namedtuple
 from operator import itemgetter
 
-from numpy import array
-
-from CMGTools.H2TauTau.proto.plotter.PlotConfigs import HistogramCfg, VariableCfg
-from CMGTools.H2TauTau.proto.plotter.categories_TauMu import cat_Inc
+from CMGTools.H2TauTau.proto.samples.summer16.htt_common import lumi
+from CMGTools.H2TauTau.proto.plotter.PlotConfigs import SampleCfg, HistogramCfg, VariableCfg
+from CMGTools.H2TauTau.proto.plotter.categories_TauMu import inc_sig
+from CMGTools.H2TauTau.proto.plotter.categories_common import cat_J1, cat_VBF
 from CMGTools.H2TauTau.proto.plotter.HistCreator import createHistograms, createTrees
 from CMGTools.H2TauTau.proto.plotter.HistDrawer import HistDrawer
 from CMGTools.H2TauTau.proto.plotter.Variables import taumu_vars, getVars
-from CMGTools.H2TauTau.proto.plotter.helper_methods import getVertexWeight
-from CMGTools.H2TauTau.proto.samples.spring16.htt_common import lumi, lumi_2016G
-
-from CMGTools.H2TauTau.proto.plotter.qcdEstimationMSSMltau import estimateQCDWMSSM, createQCDWHistograms
-from CMGTools.H2TauTau.proto.plotter.defaultGroups import createDefaultGroups
-
 from CMGTools.H2TauTau.proto.plotter.Samples import createSampleLists
-from CMGTools.H2TauTau.proto.plotter.metrics import ams_hists
+from CMGTools.H2TauTau.proto.plotter.qcdEstimation import qcd_estimation
+from CMGTools.H2TauTau.proto.plotter.JetFakesEstimation import jetFakesEstimation
+from CMGTools.H2TauTau.proto.plotter.cut import Cut
+from CMGTools.H2TauTau.proto.plotter.metrics import ams_hists_rebin
 
-Cut = namedtuple('Cut', ['name', 'cut'])
+MyCut = namedtuple('MyCut', ['name', 'cut'])
 
-binning_mssm = array([0.,10.,20.,30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.,200.,225.,250.,275.,300.,325.,350.,400.,500.,700.,900.,1100.,1300.,1500.,1700.,1900.,2100.,2300.,2500.,2700.,2900.,3100.,3300.,3500.,3700.,3900.])
-
-binning_mssm_btag = array([0.,20.,40.,60.,80.,100.,120.,140.,160.,180.,200.,250.,300.,350.,400.,500.,700.,900.,1100.,1300.,1500.,1700.,1900.,2100.,2300.,2500.,2700.,2900.,3100.,3300.,3500.,3700.,3900.])
-
-binning_mva = array([0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.925, 0.95, 0.975, 0.985, 0.9925, 1.001])
-binning_mva2 = array([0., 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.925, 0.95, 0.975, 1.001])
+inc_sig = inc_sig & Cut('Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_goodVertices && Flag_eeBadScFilter && Flag_globalTightHalo2016Filter && passBadMuonFilter && passBadChargedHadronFilter && badMuonMoriond2017 && badCloneMuonMoriond2017')
 
 def prepareCuts(mode):
     cuts = []
-    inc_cut = '&&'.join([cat_Inc])
-    # inc_cut += '&& l2_decayModeFinding'
 
-    mt_cut = 'mt<30'
-    if mode in ['sm', 'iso', 'cp', 'mva']:
-        mt_cut = 'mt<40'
-        inc_cut += '&& n_bjets==0'
+    # categories, do not include charge and iso cuts
+    inc_cut = inc_sig
+    jet1_cut = inc_sig & Cut(cat_J1)
+    vbf_cut = inc_sig & Cut(cat_VBF)
+
+    # append categories to plot
+    if mode == 'control':
+        # cuts.append(MyCut('inclusive', inc_cut & Cut('n_bjets==0')))
+        # cuts.append(MyCut('dilpt50', inc_cut & Cut('n_bjets==0 && dil_pt>50')))
+
+        cuts.append(MyCut('2bjet', inc_cut & Cut('n_bjets>=2')))
+        cuts.append(MyCut('gr1bjet', inc_cut & Cut('n_bjets>=1')))
+
+        # cuts.append(MyCut('sm_dysel_new_mz', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>50 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60. && mvis<100')))
+        # cuts.append(MyCut('sm_dysel_ptgr100_mz', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>100 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60. && mvis<100')))
+
+        # cuts.append(MyCut('sm_dysel_new', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>50 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60.')))
+        # cuts.append(MyCut('sm_dysel_ptgr100', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>100 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60.')))
+        # cuts.append(MyCut('sm_dysel_ptgr200', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>200 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60.')))
+        # cuts.append(MyCut('sm_dysel_pt150_200', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>150 && l1_pt<200 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60.')))
+        # cuts.append(MyCut('sm_dysel_pt100_150', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>100 && l1_pt<150 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60.')))
+        # cuts.append(MyCut('sm_dysel_pt80_100', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>80 && l1_pt<100 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60.')))
+        # cuts.append(MyCut('sm_dysel_pt50_80', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>50 && l1_pt<80 && l2_pt>40 && abs(l1_eta - l2_eta)<1. && pzeta_vis>60.')))
+
+        # cuts.append(MyCut('inclusive_SS', inc_cut))
+        # cuts.append(MyCut('mZ', inc_cut & Cut('mvis < 110.')))
+        # cuts.append(MyCut('low_deta', inc_cut & Cut('delta_eta_l1_l2 < 1.5')))
+        # cuts.append(MyCut('high_deta', inc_cut & Cut('delta_eta_l1_l2 > 1.5')))
+
+        # cuts.append(MyCut('mZ_0jet', inc_cut & Cut('mvis < 110. && n_jets==0')))
+        # cuts.append(MyCut('mZ_1jet', inc_cut & Cut('mvis < 110. && n_jets>=1')))
+        # Next is a failed attempt to get a W+jets-enriched control region
+        # cuts.append(MyCut('mva_met_sig_1_low_deta', inc_cut & Cut('met_pt/sqrt(met_cov00 + met_cov11) > 1. && delta_eta_l1_l2 < 2.')))
+
+    if mode == 'mssm':
+        cuts.append(MyCut('nobtag', inc_cut & Cut('n_bjets==0')))
+        cuts.append(MyCut('inclusive', inc_cut & Cut('1')))
+        cuts.append(MyCut('btag', inc_cut & Cut('n_bjets>=1')))
+        # cuts.append(MyCut('1bjet', inc_cut & Cut('n_bjets==1')))
+        # # cuts.append(MyCut('0jet', inc_cut & Cut('n_bjets==1 && n_jets==0')))
+
+        # # cuts.append(MyCut('inclusive_largedphi', inc_cut & Cut('n_bjets==0 && abs(TVector2::Phi_mpi_pi(l1_phi - l2_phi))>1.5')))
+        # cuts.append(MyCut('inclusive_tau1pt60', inc_cut & Cut('n_bjets==0 && l1_pt>60')))
+        # cuts.append(MyCut('inclusive_tau1ptl60', inc_cut & Cut('n_bjets==0 && l1_pt<60')))
+        # cuts.append(MyCut('inclusive_tau1pt75', inc_cut & Cut('n_bjets==0 && l1_pt>75')))
+        # cuts.append(MyCut('inclusive_tau1ptl75', inc_cut & Cut('n_bjets==0 && l1_pt<75')))
+        # cuts.append(MyCut('inclusive_tau1pt100', inc_cut & Cut('n_bjets==0 && l1_pt>100')))
+        # cuts.append(MyCut('inclusive_tau1ptl100', inc_cut & Cut('n_bjets==0 && l1_pt<100')))
+        # cuts.append(MyCut('inclusive_tau1pt150', inc_cut & Cut('n_bjets==0 && l1_pt>150')))
+        # cuts.append(MyCut('inclusive_tau1ptl150', inc_cut & Cut('n_bjets==0 && l1_pt<150')))
+        # cuts.append(MyCut('inclusive_lowdphimetl2', inc_cut & Cut('n_bjets==0 && abs(TVector2::Phi_mpi_pi(l2_phi-met_phi))<0.5')))
+        # cuts.append(MyCut('inclusive_lowdphimetl2_highdphimetl1', inc_cut & Cut('n_bjets==0 && abs(TVector2::Phi_mpi_pi(l2_phi-met_phi))<0.5 && abs(TVector2::Phi_mpi_pi(l1_phi-met_phi))>2')))
+        
+        # cuts.append(MyCut('inclusive_mttotal300', inc_cut & Cut('n_bjets==0 && mt_total>300')))
+
+
+    if mode == 'sm':
+        #cuts.append(MyCut('sm_1jet', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>50 && l2_pt>40')))
+        #cuts.append(MyCut('sm_0jet', inc_cut & Cut('n_bjets==0 && n_jets==0 && l1_pt>50 && l2_pt>40')))
+        cuts.append(MyCut('sm_1jet', inc_cut & Cut('n_bjets==0 && n_jets>=1 && l1_pt>23 && l2_pt>30')))
+        cuts.append(MyCut('sm_0jet', inc_cut & Cut('n_bjets==0 && n_jets==0 && l1_pt>23 && l2_pt>30')))
+        cuts.append(MyCut('1jet', jet1_cut)) # with VBF veto
+        cuts.append(MyCut('vbf', vbf_cut))
+
+
+    if mode == 'susy':
+        # cuts.append(MyCut('mva_met_sig_3', inc_cut & Cut('met_pt/sqrt(met_cov00 + met_cov11) > 3.')))
+
+        # cuts.append(MyCut('met200', inc_cut & Cut('met_pt > 200.')))
+
+
+        # cuts.append(MyCut('susy_loose_met', inc_cut & Cut('mvis>100 && n_bjets==0 && met_pt>100.')))
+        # cuts.append(MyCut('susy_loose', inc_cut & Cut('mvis>100 && n_bjets==0 && pzeta_disc < -40.')))
+
+        # cuts.append(MyCut('susy_mtsum200', inc_cut & Cut('n_bjets==0 && mt + mt_leg2>200.')))
+        # cuts.append(MyCut('susy_highmva', inc_cut & Cut('n_bjets==0 && mva1>0.75')))
+
+        # cuts.append(MyCut('susy_mva_mtsum200_mt2_20', inc_cut & Cut('n_bjets==0 && mt2>20 && mt + mt_leg2>200. && mva1>0.85')))
+        # cuts.append(MyCut('susy_mva2_mtsum200_mt2_20', inc_cut & Cut('n_bjets==0 && mt2>20 && mt + mt_leg2>200. && mva1>0.90')))
+        # cuts.append(MyCut('susy_mva3_mtsum200_mt2_20', inc_cut & Cut('n_bjets==0 && mt2>20 && mt + mt_leg2>200. && mva1>0.95')))
+        # cuts.append(MyCut('susy_mtsum200_mt2_20', inc_cut & Cut('n_bjets==0 && mt2>20 && mt + mt_leg2>200.')))
+
+        # cuts.append(MyCut('pieter_1', inc_cut & Cut('n_bjets==0 && mt2>90. && abs(TVector2::Phi_mpi_pi(l1_phi - l2_phi))>1.5')))
+        # cuts.append(MyCut('pieter_2', inc_cut & Cut('n_bjets==0 && mt2>40. && mt2<90. && mt2>40. && abs(TVector2::Phi_mpi_pi(l1_phi - l2_phi))>1.5 && mt + mt_leg2>300. && mt + mt_leg2<300. ')))
+        # cuts.append(MyCut('pieter_3', inc_cut & Cut('n_bjets==0 && mt2>40. && mt2<90. && mt2>40. && abs(TVector2::Phi_mpi_pi(l1_phi - l2_phi))>1.5 && mt + mt_leg2>350.')))
+
+        # cuts.append(MyCut('maryam_incl', inc_cut & Cut('n_bjets==0 && mt2>20. && mvis>85. && pfmet_pt>30.')))
+        
+        # cuts.append(MyCut('maryam_1', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30.')))
+        # cuts.append(MyCut('maryam_1_0jet', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30. && n_jets==0')))
+        # cuts.append(MyCut('maryam_1_1jet', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30. && n_jets>=1')))
+
+        # cuts.append(MyCut('maryam_1_SS', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30.')))
+        # cuts.append(MyCut('maryam_1_0jet_SS', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30. && n_jets==0')))
+        # cuts.append(MyCut('maryam_1_1jet_SS', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30. && n_jets>=1')))
+
+
+        cuts.append(MyCut('maryam_1_mt2sideband_1jet', inc_cut & Cut('n_bjets==0 && mt2>75. && mt2<90. && mvis>85. && pfmet_pt>30. && n_jets>=1')))
+        cuts.append(MyCut('maryam_1_mt2sideband_1jet_SS', inc_cut & Cut('n_bjets==0 && mt2>75. && mt2<90. && mvis>85. && pfmet_pt>30. && n_jets>=1')))
+
+        # cuts.append(MyCut('maryam_1_tight', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30. && l1_pt>100.')))
+        # cuts.append(MyCut('maryam_1_tight_1jet', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30. && l1_pt>100. && n_jets>=1')))
+        # cuts.append(MyCut('maryam_1_tight_0jet', inc_cut & Cut('n_bjets==0 && mt2>90. && mvis>85. && pfmet_pt>30. && l1_pt>100. && n_jets==0')))
+        # cuts.append(MyCut('maryam_2', inc_cut & Cut('n_bjets==0 && mt2<90. && mvis>85. && pfmet_pt>30. && mt + mt_leg2 > 250. && l1_pt>100.')))
+
+        # cuts.append(MyCut('susy_onlytaupt', inc_cut & Cut('mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20.')))
+        # cuts.append(MyCut('susy_taupt', inc_cut & Cut('mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && mt>50.')))
+        # cuts.append(MyCut('susy_taupt_pzetamet', inc_cut & Cut(
+        #     'mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && mt>50. && pzeta_met<-50. && delta_eta_l1_l2<3. && (min(abs(TVector2::Phi_mpi_pi(met_phi - jet2_phi)) + 20*(jet2_phi<-50), abs(TVector2::Phi_mpi_pi(met_phi - jet1_phi))+ 20*(jet1_phi<-50)) > 0.8 || jet1_pt<30.)')))
+        # cuts.append(MyCut('susy_jan_opt', inc_cut & Cut('met_pt/sqrt(met_cov00 + met_cov11) > 2. && mvis>100 && mt + mt_leg2 > 200. && n_bjets==0 && pzeta_disc < -40.')))
+        # cuts.append(MyCut('susy_jan_tight', inc_cut & Cut(
+        #     'met_pt/sqrt(met_cov00 + met_cov11) > 1. && mvis>100 && mt + mt_leg2 > 150. && n_bjets==0 && pzeta_disc < -40. && abs(abs(TVector2::Phi_mpi_pi(l1_phi - l2_phi))) > 1. && mt_total>300.')))
+
+        # cuts.append(MyCut('susy_onlytaupt_0jet', inc_cut & Cut('mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && n_jets==0')))
+        # cuts.append(MyCut('susy_taupt_0jet', inc_cut & Cut('mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && mt>50. && n_jets==0')))
+        # cuts.append(MyCut('susy_taupt_pzetamet_0jet', inc_cut & Cut(
+        #     'mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && mt>50. && pzeta_met<-50. && delta_eta_l1_l2<3. && (min(abs(TVector2::Phi_mpi_pi(met_phi - jet2_phi)) + 20*(jet2_phi<-50), abs(TVector2::Phi_mpi_pi(met_phi - jet1_phi))+ 20*(jet1_phi<-50)) > 0.8 || jet1_pt<30.) && n_jets==0')))
+        # cuts.append(MyCut('susy_jan_opt_0jet', inc_cut & Cut('met_pt/sqrt(met_cov00 + met_cov11) > 2. && mvis>100 && mt + mt_leg2 > 200. && n_bjets==0 && pzeta_disc < -40. && n_jets==0')))
+        # cuts.append(MyCut('susy_jan_tight_0jet', inc_cut & Cut(
+        #     'met_pt/sqrt(met_cov00 + met_cov11) > 1. && mvis>100 && mt + mt_leg2 > 150. && n_bjets==0 && pzeta_disc < -40. && abs(abs(TVector2::Phi_mpi_pi(l1_phi - l2_phi))) > 1. && mt_total>300. && n_jets==0')))
+
+
+        # cuts.append(MyCut('susy_onlytaupt_gr1jet', inc_cut & Cut('mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && n_jets>0')))
+        # cuts.append(MyCut('susy_taupt_gr1jet', inc_cut & Cut('mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && mt>50. && n_jets>0')))
+        # cuts.append(MyCut('susy_taupt_pzetamet_gr1jet', inc_cut & Cut(
+        #     'mvis>100 && n_bjets==0 && l1_pt>60 && met_pt>20. && mt>50. && pzeta_met<-50. && delta_eta_l1_l2<3. && (min(abs(TVector2::Phi_mpi_pi(met_phi - jet2_phi)) + 20*(jet2_phi<-50), abs(TVector2::Phi_mpi_pi(met_phi - jet1_phi))+ 20*(jet1_phi<-50)) > 0.8 || jet1_pt<30.) && n_jets>0')))
+        # cuts.append(MyCut('susy_jan_opt_gr1jet', inc_cut & Cut(
+        #     'met_pt/sqrt(met_cov00 + met_cov11) > 2. && mvis>100 && mt + mt_leg2 > 200. && n_bjets==0 && pzeta_disc < -40. && n_jets>0')))
+        # cuts.append(MyCut('susy_jan_tight_gr1jet', inc_cut & Cut(
+        #     'met_pt/sqrt(met_cov00 + met_cov11) > 1. && mvis>100 && mt + mt_leg2 > 150. && n_bjets==0 && pzeta_disc < -40. && abs(abs(TVector2::Phi_mpi_pi(l1_phi - l2_phi))) > 1. && mt_total>300. && n_jets>0')))
+
+        # cuts.append(MyCut('susy_jan_nomet', inc_cut & Cut('mvis>100 && n_bjets==0 && mt + mt_leg2 > 150.')))
+
+    return cuts
+
+    # if optimisation:
+    #     cuts = []
+    #     met_sig_cuts = [2, 3]
+    #     # met_sig_cuts = [1]
+    #     sum_mt_cuts = [0, 50, 100, 150, 200, 250]
+    #     # pzeta_disc_cuts = [-40, 0, 1000]
+    #     pzeta_disc_cuts = [-40, 1000]
+
+    #     for met_sig_cut in met_sig_cuts:
+    #         for sum_mt_cut in sum_mt_cuts:
+    #             for pzeta_cut in pzeta_disc_cuts:
+    #                 cut_name = 'susy_jan_{c1}_{c2}_{c3}'.format(c1=met_sig_cut, c2=sum_mt_cut, c3=pzeta_cut)
+    #                 cut = 'met_pt/sqrt(met_cov00 + met_cov11) > {met_sig_cut} && mvis>100 && mt + mt_leg2 > {sum_mt_cut} && n_bjets==0 && pzeta_disc < {pzeta_disc_cut}'.format(met_sig_cut=met_sig_cut, sum_mt_cut=sum_mt_cut, pzeta_disc_cut=pzeta_cut)
+    #                 cuts.append(MyCut(cut_name, inc_cut & cut))
+
+
+    # cuts.append(MyCut('susy_jan_SS', inc_cut & Cut('met_pt/sqrt(met_cov00 + met_cov11) > 1. && mvis>100 && mt + mt_leg2 > 150. && n_bjets==0 && pzeta_disc < -40.')))
 
     
-    # cuts.append(Cut('inclusive_tauisosideband', inc_cut.replace('l2_byIsolationMVArun2v1DBoldDMwLT>3.5', 'l2_byIsolationMVArun2v1DBoldDMwLT<3.5&&l2_byIsolationMVArun2v1DBoldDMwLT>0.5') + '&& l1_charge != l2_charge'))
 
-    # cuts.append(Cut('inclusive', inc_cut + '&& l1_charge != l2_charge'))
-    # cuts.append(Cut('inclusivemt40', inc_cut + '&& l1_charge != l2_charge && mt<40'))
-
-    # MSSM Categories
-
-    if 'mssm' in mode:
-        cuts.append(Cut('nobtag', inc_cut + '&& l1_charge != l2_charge && n_bjets==0 && mt<30'))
-        cuts.append(Cut('btag', inc_cut + '&& l1_charge != l2_charge && n_bjets>=1 && n_jets<=1 && mt<30'))
-    if mode == 'mssm_signal':
-        cuts.append(Cut('nobtag_highmtos', inc_cut + '&& l1_charge != l2_charge && n_bjets==0 && mt>70'))
-        cuts.append(Cut('nobtag_highmtss', inc_cut + '&& l1_charge == l2_charge && n_bjets==0 && mt>70'))
-        cuts.append(Cut('nobtag_lowmtss', inc_cut + '&& l1_charge == l2_charge && n_bjets==0 && mt<30'))
-
-    if mode == 'mssm_signal':
-        cuts.append(Cut('btag_highmtos', inc_cut + '&& l1_charge != l2_charge && n_bjets>=1 && n_jets<=1 && mt>70'))
-        cuts.append(Cut('btag_highmtss', inc_cut + '&& l1_charge == l2_charge && n_bjets>=1 && n_jets<=1 && mt>70'))
-        cuts.append(Cut('btag_lowmtss', inc_cut + '&& l1_charge == l2_charge && n_bjets>=1 && n_jets<=1 && mt<30'))
-
-    if mode == 'sm':
-        cuts.append(Cut('inclusive', inc_cut + '&&  l1_charge != l2_charge'))
-        # cuts.append(Cut('inclusive_dm0', inc_cut + '&&  l1_charge != l2_charge && l2_decayMode==0'))
-        # cuts.append(Cut('inclusive_dm1', inc_cut + '&&  l1_charge != l2_charge && l2_decayMode==1'))
-        # cuts.append(Cut('inclusive_dm10', inc_cut + '&&  l1_charge != l2_charge && l2_decayMode==10'))
-        # mssm_pt_cuts = '&& l2_pt>30'
-        # cuts.append(Cut('inclusive_mssmcuts', inc_cut + mssm_pt_cuts + '&&  l1_charge != l2_charge'))
-        # cuts.append(Cut('inclusive_mssmcuts_dm0', inc_cut + mssm_pt_cuts + '&&  l1_charge != l2_charge && l2_decayMode==0'))
-        # cuts.append(Cut('inclusive_mssmcuts_dm1', inc_cut + mssm_pt_cuts + '&&  l1_charge != l2_charge && l2_decayMode==1'))
-        # cuts.append(Cut('inclusive_mssmcuts_dm10', inc_cut + mssm_pt_cuts + '&&  l1_charge != l2_charge && l2_decayMode==10'))
-
-        # cuts.append(Cut('inclusive_btag', inc_cut.replace('n_bjets==0', 'n_bjets>0') + '&&  l1_charge != l2_charge'))
-        # cuts.append(Cut('inclusive_btag_pfmtgr70', inc_cut.replace('n_bjets==0', 'n_bjets>0') + '&&  l1_charge != l2_charge && pfmet_mt1>70'))
-        # cuts.append(Cut('inclusive_pfmtgr70', inc_cut + '&&  l1_charge != l2_charge && pfmet_mt1>70'))
-        # cuts.append(Cut('inclusive_pfmt40', inc_cut + '&&  l1_charge != l2_charge && pfmet_mt1<40'))
-        # cuts.append(Cut('0jet_pfmt40', inc_cut + '&& l1_charge != l2_charge && pfmet_mt1<40 && n_jets<0.5'))
-        # cuts.append(Cut('gr1jet_pfmt40', inc_cut + '&& l1_charge != l2_charge && pfmet_mt1<40 && n_jets>0.5'))
-
-
-        do_run1_cats = False
-        if do_run1_cats:
-            cuts.append(Cut('0jet_medium', inc_cut + '&& l1_charge != l2_charge && mt<40 && n_jets<0.5 && l2_pt>30. && l2_pt<45.'))
-            cuts.append(Cut('0jet_high', inc_cut + '&& l1_charge != l2_charge && mt<40 && n_jets<0.5 && l2_pt>45.'))
-
-            cut_vbf = '(vbf_mjj>500. && abs(vbf_deta)>3.5 && vbf_n_central==0.)'
-            cut_vbf_tight = '(vbf_mjj>700. && abs(vbf_deta)>4.0 && vbf_n_central==0. && pthiggs>100.)'
-            cut_vbf_loose = '({cut_vbf} && !({cut_vbf_tight}))'.format(cut_vbf=cut_vbf, cut_vbf_tight=cut_vbf_tight)
-
-            cuts.append(Cut('1jet_medium', inc_cut + '&& l1_charge != l2_charge && mt<40 && n_jets>0.5 && l2_pt>30. && l2_pt<45. && !{vbf}'.format(vbf=cut_vbf)))
-            cuts.append(Cut('1jet_high_lowhiggspt', inc_cut + '&& l1_charge != l2_charge && mt<40 && n_jets>0.5 && l2_pt>45. && pthiggs<100. && !{vbf}'.format(vbf=cut_vbf)))
-            cuts.append(Cut('1jet_high_highhiggspt', inc_cut + '&& l1_charge != l2_charge && mt<40 && n_jets>0.5 && l2_pt>45. && pthiggs>100. && !{vbf}'.format(vbf=cut_vbf)))
-            cuts.append(Cut('vbf', inc_cut + '&& l1_charge != l2_charge && mt<40 && {vbf}'.format(vbf=cut_vbf)))
-
-            cuts.append(Cut('vbf_loose', inc_cut + '&& l1_charge != l2_charge && l2_pt>30. && mt<40 && {vbf}'.format(vbf=cut_vbf_loose)))
-            cuts.append(Cut('vbf_tight', inc_cut + '&& l1_charge != l2_charge && l2_pt>30. && mt<40 && {vbf}'.format(vbf=cut_vbf_tight)))
-    if mode == 'mva':
-        # cuts.append(Cut('mva_high', inc_cut + '&& l1_charge != l2_charge && mt<40 && mva>0.2'))
-        # cuts.append(Cut('mva_vhigh', inc_cut + '&& l1_charge != l2_charge && mt<40 && mva>0.5'))
-        # cuts.append(Cut('mva_low', inc_cut + '&& l1_charge != l2_charge && mt<40 && mva<0.2'))
-
-        # for mva_cut in ['0.5', '0.6', '0.7']:
-        #     cuts.append(Cut('mva_gr{cut}_vbf'.format(cut=mva_cut).replace('.', ''), inc_cut + '&& l1_charge != l2_charge && mt<40 && mva>{cut} && vbf_mjj>300 && abs(vbf_deta)>3.5'.format(cut=mva_cut)))
-        #     cuts.append(Cut('mva_l{cut}_vbf'.format(cut=mva_cut).replace('.', ''), inc_cut + '&& l1_charge != l2_charge && mt<40 && mva<{cut} && vbf_mjj>300 && abs(vbf_deta)>3.5'.format(cut=mva_cut)))
-        #     cuts.append(Cut('mva_gr{cut}_1jet'.format(cut=mva_cut).replace('.', ''), inc_cut + '&& l1_charge != l2_charge && mt<40 && mva>{cut} && !(vbf_mjj>300 && abs(vbf_deta)>3.5) && n_jets>0.5'.format(cut=mva_cut)))
-        #     cuts.append(Cut('mva_l{cut}_1jet'.format(cut=mva_cut).replace('.', ''), inc_cut + '&& l1_charge != l2_charge && mt<40 && mva<{cut} && !(vbf_mjj>300 && abs(vbf_deta)>3.5) && n_jets>0.5'.format(cut=mva_cut)))
-
-        #     cuts.append(Cut('mva_gr{cut}_0jet'.format(cut=mva_cut).replace('.', ''), inc_cut + '&& l1_charge != l2_charge && mt<40 && mva>{cut} && !(vbf_mjj>300 && abs(vbf_deta)>3.5) && n_jets<0.5'.format(cut=mva_cut)))
-        #     cuts.append(Cut('mva_l{cut}_0jet'.format(cut=mva_cut).replace('.', ''), inc_cut + '&& l1_charge != l2_charge && mt<40 && mva<{cut} && !(vbf_mjj>300 && abs(vbf_deta)>3.5) && n_jets<0.5'.format(cut=mva_cut)))
-        # cuts.append(Cut('1jet_novbf', inc_cut + '&& l1_charge != l2_charge && mt<40 && n_jets>0.5 && !{vbf}'.format(vbf=cut_vbf)))
-        
-        cut_vbf = '(vbf_mjj>500. && abs(vbf_deta)>3.5 && vbf_n_central==0. && jet1_pt>50 && jet2_pt>30)'
-
-        # cuts.append(Cut('0jet_lowmva0', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && n_jets<0.5 && mva0<0.1'.format(mt_cut=mt_cut)))
-        # cuts.append(Cut('0jet_highmva0', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && n_jets<0.5 && mva0>0.1'.format(mt_cut=mt_cut)))
-        cuts.append(Cut('vbf_lowmva0_jetpt5030', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && {vbf} && mva0<0.1'.format(mt_cut=mt_cut, vbf=cut_vbf)))
-        cuts.append(Cut('vbf_highmva0_jetpt5030', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && {vbf} && mva0>0.1'.format(mt_cut=mt_cut, vbf=cut_vbf)))
-        # cuts.append(Cut('1jet_novbf_verylowmva0', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && n_jets>0.5 && !{vbf} && mva0<0.1'.format(mt_cut=mt_cut, vbf=cut_vbf)))
-        # cuts.append(Cut('1jet_novbf_lowmva0', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && n_jets>0.5 && !{vbf} && mva0<0.2'.format(mt_cut=mt_cut, vbf=cut_vbf)))
-        # cuts.append(Cut('1jet_novbf_highmva0', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && n_jets>0.5 && !{vbf} && mva0>0.1'.format(mt_cut=mt_cut, vbf=cut_vbf)))
-
-        # cuts.append(Cut('1jet_novbf_lowmva0lowmva1', inc_cut + '&& l1_charge != l2_charge && {mt_cut} && n_jets>0.5 && !{vbf} && mva0<0.2 && mva1<0.2'.format(mt_cut=mt_cut, vbf=cut_vbf)))
-
-    if mode == 'cp':
-        cuts.append(Cut('inclusivemt40', inc_cut + '&&  l1_charge != l2_charge && mt<40 && mvis>40 && mvis<90 && l2_nc_ratio>-99'))
-
-    if mode == 'iso':
-        cuts = []
-        cuts.append(Cut('inclusivemtgr60', inc_cut + '&& l1_charge != l2_charge && mt>70 && n_jets<0.5'))
-        # cuts.append(Cut('inclusivemtgr40antiiso', inc_cut.replace('l1_reliso05<0.1', 'l1_reliso05>0.2') + '&& l1_charge != l2_charge && mt>40'))
-        cuts.append(Cut('inclusivemtgr60antiiso', inc_cut.replace('l2_byIsolationMVArun2v1DBoldDMwLT>3.5', 'l2_byIsolationMVArun2v1DBoldDMwLT<3.5') + '&& l1_charge != l2_charge && mt>70 && n_jets<0.5'))
-
-    # cuts.append(Cut('SS', inc_cut + '&& l1_charge == l2_charge'))
-    # cuts.append(Cut('SS_muantiiso', inc_cut.replace('l1_reliso05<0.1', 'l1_reliso05>0.2') + '&& l1_charge == l2_charge'))
-    # cuts.append(Cut('SSmt40', inc_cut + '&& l1_charge == l2_charge && mt<40'))
-    # cuts.append(Cut('SShighmt40', inc_cut + '&& l1_charge == l2_charge && mt>40'))
-
-    return cuts, mt_cut
-
-def createSamples(mode, analysis_dir, total_weight, qcd_from_same_sign, w_qcd_mssm_method, r_qcd_os_ss):
-    hist_dict = {}
-    sample_dict = {}
-
-    samples_mc, samples_data, samples, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir)
-
-    if mode == 'mssm_control' or not 'mssm' in mode:
-        all_samples = [s for s in all_samples if not 'ggH' in s.name and not 'bbH' in s.name]
-
-    sample_dict['all_samples'] = all_samples
-
-    if qcd_from_same_sign and not w_qcd_mssm_method:
-        samples_qcdfromss = [s for s in all_samples if s.name != 'QCD']
-        samples_ss = copy.deepcopy(samples_qcdfromss)
-
-        samples_ss = [s for s in samples_ss if not s.is_signal]
-
-        for sample in samples_ss:
-            if sample.name != 'data_obs':
-                # Subtract background from data
-                sample.scale = -1.
-
-        qcd = HistogramCfg(name='QCD', var=None, cfgs=samples_ss, cut=None, total_scale=r_qcd_os_ss, lumi=int_lumi, weight=total_weight)
-
-        samples_qcdfromss.append(qcd)
-        sample_dict['samples_qcdfromss'] = samples_qcdfromss
-
-    if w_qcd_mssm_method:
-        sample_dict['samples_mssm_method'] = createQCDWHistograms(samples, hist_dict, int_lumi, weight=total_weight, r_qcd_os_ss=r_qcd_os_ss)
-
-    return sample_dict, hist_dict
-
-def createVariables(mode):
-    # Taken from Variables.py; can get subset with e.g. getVars(['mt', 'mvis'])
+def getVariables(mode):
+    # Taken from Variables.py, can get subset with e.g. getVars(['mt', 'mvis'])
     # variables = taumu_vars
-    # variables = getVars(['_norm_', 'mt', 'mvis', 'l1_pt', 'l2_pt', 'l1_eta', 'l2_eta', 'n_vertices', 'n_jets', 'n_bjets'])
-
-    variables = []
-    if mode == 'sm':
-        variables = [
-            # VariableCfg(name='mva', binning={'nbinsx':20, 'xmin':0., 'xmax':1.}, unit='', xtitle='s_{BDT}'),
-            # VariableCfg(name='svfit_mass', binning={'nbinsx':20, 'xmin':50., 'xmax':250}, unit='GeV', xtitle='m_{SVFit}'),
-            # VariableCfg(name='mva0', binning={'nbinsx':20, 'xmin':0., 'xmax':1.0001}, unit='', xtitle='s_{BDT} (BG)'),
-            # VariableCfg(name='mva1', binning={'nbinsx':20, 'xmin':0., 'xmax':1.0001}, unit='', xtitle='s_{BDT} (ZTT)'),
-            # VariableCfg(name='mva2', binning=binning_mva2, unit='', xtitle='s_{BDT} (Higgs)'),
-            # VariableCfg(name='mva2div1', drawname='mva2/(mva1+mva2)', binning={'nbinsx':20, 'xmin':0., 'xmax':1.0001}, unit='', xtitle='s_{BDT}^{Higgs}/s_{BDT}^{ZTT}'),
-            # VariableCfg(name='mva2div1', drawname='mva2/(mva1+mva2)', binning=binning_mva, unit='', xtitle='s_{BDT}^{Higgs}/s_{BDT}^{ZTT}'),
-        ]
-
-        # MVA training variables, and others
-        variables += getVars(['mt', 'l2_mt', 'n_jets', 'met_pt', 'pthiggs', 'vbf_mjj', 'vbf_deta', 'vbf_n_central', 'l2_pt', 'l1_pt','mvis', 'l1_eta', 'l2_eta', 'delta_phi_l1_l2', 'delta_eta_l1_l2', 'pt_l1l2', 'delta_phi_j1_met', 'pzeta_disc', 'jet1_pt', 'jet1_eta'])#  'svfit_transverse_mass', 
-
-        variables = taumu_vars
-
+    if mode == 'control':
+        variables = getVars(['_norm_', 'mvis', 'mt2', 'l1_pt', 'l2_pt', 'delta_phi_l1_l2', 'delta_eta_l1_l2', 'met_pt', 'mt_total', 'mt_total_mssm', 'mt_sum', 'pzeta_met', 'l2_mt', 'mt', 'pzeta_vis', 'pzeta_disc', 'pthiggs', 'jet1_pt', 'n_jets', 'dil_pt', 'l1_byCombinedIsolationDeltaBetaCorrRaw3Hits', 'l1_byIsolationMVArun2v1DBoldDMwLTraw', 'l1_dz_sig', 'l1_log_dz', 'l1_dxy_sig', 'l1_log_dxy', 'l1_decayMode', 'l1_chargedIsoPtSum', 'l1_neutralIsoPtSum', 'l1_puCorrPtSum', 'l1_photonPtSumOutsideSignalCone', 'l1_zImpact', 'l1_jet_charge', 'l1_jet_pt_div_l1_pt'], channel='taumu')
+    if mode == 'mssm':
+        # variables = getVars(['mt_total', 'mt_total_mssm', 'mt_total_mssm_fine', 'mvis_extended', 'l1_pt', 'dil_pt'], channel='taumu')
+        variables = getVars(['mt_total_mssm_fine'], channel='taumu')#, 'mt_total_mssm''mt_total_mssm', 
+    # variables += [
+    #     VariableCfg(name='mt2', binning={'nbinsx':15, 'xmin':0., 'xmax':150.}, unit='GeV', xtitle='m_{T2}')
+    # ]
     if mode == 'mva':
-        variables = [
-            VariableCfg(name='mva0', binning={'nbinsx':20, 'xmin':0., 'xmax':1.0001}, unit='', xtitle='s_{BDT} (BG)'),
-            VariableCfg(name='mva1', binning={'nbinsx':20, 'xmin':0., 'xmax':1.0001}, unit='', xtitle='s_{BDT} (ZTT)'),
-            VariableCfg(name='mva2', binning=binning_mva2, unit='', xtitle='s_{BDT} (Higgs)'),
-            VariableCfg(name='mva2div1', drawname='mva2/(mva1+mva2)', binning={'nbinsx':20, 'xmin':0., 'xmax':1.0001}, unit='', xtitle='s_{BDT}^{Higgs}/s_{BDT}^{ZTT}'),
-            VariableCfg(name='mva2div1_fine', drawname='mva2/(mva1+mva2)', binning=binning_mva, unit='', xtitle='s_{BDT}^{Higgs}/s_{BDT}^{ZTT}'),
+        variables += getVars(['_norm_'])
+        variables += [
+            VariableCfg(name='mva1', binning={'nbinsx':10, 'xmin':0., 'xmax':1.}, unit='', xtitle='Stau MVA')
         ]
 
-        # variables += getVars(['mt', 'n_jets', 'met_pt', 'pthiggs', 'vbf_mjj', 'vbf_deta', 'vbf_n_central', 'l2_pt', 'l1_pt', 'mvis', 'n_vertices', 'l1_eta', 'l2_eta', 'delta_phi_l1_l2', 'delta_eta_l1_l2', '_norm_'])
-        variables += taumu_vars
-
-    if mode == 'cp':
-        variables = getVars(['l2_nc_ratio'])
-
-    if mode == 'mssm_signal':
-        variables = [
-            VariableCfg(name='svfit_transverse_mass', binning=binning_mssm, unit='GeV', xtitle='m_{T,SVFit}'),
-            VariableCfg(name='svfit_mass', binning=binning_mssm, unit='GeV', xtitle='m_{SVFit}'),
-            VariableCfg(name='mvis', binning=binning_mssm, unit='GeV', xtitle='m_{vis}'),
-        ]
-
-    if mode == 'iso':
-        variables = getVars(['mt', 'l1_pt', 'l2_pt', 'l1_eta', 'l2_eta'])
+    if mode == 'susy':
+        variables = getVars(['l1_pt', '_norm_', 'l2_pt', 'mt2', 'mt', 'mt_leg2', 'mt_total_mssm', 'min_delta_phi_tau1tau2_met'], channel='taumu')
 
     return variables
 
-def makePlots(variables, cuts, total_weight, sample_dict, hist_dict, qcd_from_same_sign, w_qcd_mssm_method, mt_cut, friend_func, dc_postfix, make_plots=True, create_trees=False):
-    ams_dict = {}
+
+
+def createSamples(mode, analysis_dir, optimisation=False):
+    samples_mc, samples_data, samples, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir, channel='mt', mode=mode, ztt_cut='(l2_gen_match == 5 && l1_gen_match == 5)', zl_cut='(l1_gen_match < 6 && l2_gen_match < 6 && !(l1_gen_match == 5 && l2_gen_match == 5))',
+                                                                                   zj_cut='(l2_gen_match == 6 || l1_gen_match == 6)', signal_scale=1. if optimisation else 20.)
+    # import pdb;pdb.set_trace()
+    # all_samples = [s for s in all_samples if s.name not in ['WZJToLLLNu_J','WZJToLLLNu','WZJToLLLNu_T','WZTo1L3Nu_J','WZTo1L3Nu_T','WZTo1L3Nu']]#'TTT','TTJ','TT','data_obs']]
+    # samples = [s for s in samples if s.name not in ['WZJToLLLNu_J','WZJToLLLNu','WZJToLLLNu_T','WZTo1L3Nu_J','WZTo1L3Nu_T','WZTo1L3Nu']]#['TTT','TTJ','TT','data_obs']]
+    return all_samples, samples
+
+
+def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, mode='control', dc_postfix='', make_plots=True, optimisation=False):
     sample_names = set()
+    ams_dict = {}
+
+    from CMGTools.H2TauTau.proto.plotter.cut import Cut
+
+    # def_iso_cut = inc_sig_tau1_iso & inc_sig_tau2_iso
+    iso_cuts = {
+        # 'vvtight':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>5.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>5.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>3.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>3.5')),
+        # 'vtight_relax2nd':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>4.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>4.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>2.5')),
+        # 'loose_not_vtight':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>1.5 && l1_byIsolationMVArun2v1DBoldDMwLT<4.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>1.5&&l2_byIsolationMVArun2v1DBoldDMwLT<4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT<1.5 && l1_byIsolationMVArun2v1DBoldDMwLT>0.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT<1.5 && l2_byIsolationMVArun2v1DBoldDMwLT>0.5')),
+        # 'one_loose_other_vtight':(Cut('(l1_byIsolationMVArun2v1DBoldDMwLT>4.5 && (l2_byIsolationMVArun2v1DBoldDMwLT>1.5&&l2_byIsolationMVArun2v1DBoldDMwLT<4.5)) || (l2_byIsolationMVArun2v1DBoldDMwLT>4.5 && (l1_byIsolationMVArun2v1DBoldDMwLT>1.5&&l1_byIsolationMVArun2v1DBoldDMwLT<4.5)) '), Cut('l1_byIsolationMVArun2v1DBoldDMwLT<1.5 && l1_byIsolationMVArun2v1DBoldDMwLT>0.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT<1.5 && l2_byIsolationMVArun2v1DBoldDMwLT>0.5')),
+        # 'vtight':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>4.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>2.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>2.5')),
+        # 'tight':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>3.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>3.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>3.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>1.5')),
+        'medium':(Cut('l2_byIsolationMVArun2v1DBoldDMwLT>2.5'), Cut('l2_byIsolationMVArun2v1DBoldDMwLT>0.5')),
+        # 'loose':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>1.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>1.5'), Cut('1')),
+        # 'vloose':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>0.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>0.5'), Cut('1')),
+    }
+
+    # iso_cuts = {
+    #     'l1_vvtight':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>5.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>5.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>3.5')),
+    #     'l1_vtight':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>4.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>4.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>2.5')),
+    #     'l1_tight':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>3.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>3.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>1.5')),
+    #     'l1_medium':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>2.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>2.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>0.5')),
+    #     'l1_loose':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>1.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'), Cut('l1_byIsolationMVArun2v1DBoldDMwLT>1.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>0.5')),
+    #     'l1_vloose':(Cut('l1_byIsolationMVArun2v1DBoldDMwLT>0.5') & Cut('l2_byIsolationMVArun2v1DBoldDMwLT>4.5'),Cut('l1_byIsolationMVArun2v1DBoldDMwLT>0.5') & Cut('1')),
+    # }
+
     for cut in cuts:
-        if qcd_from_same_sign and not 'SS' in cut.name and not w_qcd_mssm_method:
-            cfg_main = HistogramCfg(name=cut.name, var=None, cfgs=sample_dict['samples_qcdfromss'], cut=cut.cut, lumi=int_lumi, weight=total_weight)
-        elif w_qcd_mssm_method:
-            cfg_main = HistogramCfg(name=cut.name, var=None, cfgs=sample_dict['samples_mssm_method'], cut=cut.cut, lumi=int_lumi, weight=total_weight)
-            hist_dict['wjets'].cut = cut.cut # since wjets is a sub-HistogramCfg
-        else:
-            cfg_main = HistogramCfg(name=cut.name, var=None, cfgs=sample_dict['all_samples'], cut=cut.cut, lumi=int_lumi, weight=total_weight)
-        
-        if qcd_from_same_sign and not 'SS' in cut.name:
-            hist_dict['qcd'].cut = cut.cut.replace('l1_charge != l2_charge', 'l1_charge == l2_charge')
+        for iso_cut_name, (iso_cut, max_iso_cut) in iso_cuts.items():
+            
+            # iso and charge cuts, need to have them explicitly for the QCD estimation
+            # max_iso_cut = Cut('l1_byIsolationMVArun2v1DBoldDMwLT > 2.5 && l2_byIsolationMVArun2v1DBoldDMwLT > 2.5')
+            iso_sideband_cut = (~iso_cut) & max_iso_cut
+            charge_cut = Cut('l1_charge != l2_charge')
+            isSS = 'SS' in cut.name
+            # all_samples_qcd = [x for x in all_samples]# if x.name in ['WJets','ZTT']]
+            # all_samples_qcd = qcd_estimation(
+            #     cut.cut & iso_sideband_cut & (charge_cut if not isSS else ~charge_cut),  # shape sideband
+            #     cut.cut & iso_cut & (~charge_cut),  # norm sideband 1
+            #     cut.cut & iso_sideband_cut & (~charge_cut),  # norm sideband 2
+            #     all_samples if mode in ['mssm'] else samples,
+            #     int_lumi,
+            #     total_weight,
+            #     verbose=verbose,
+            #     friend_func=friend_func
+            # )
+            all_samples_qcd = all_samples
 
-        if w_qcd_mssm_method:
-            estimateQCDWMSSM(hist_dict, cut, mt_cut, friend_func=friend_func, r_qcd_os_ss=r_qcd_os_ss)
+            # now include charge and isolation too
+            the_cut = MyCut(cut.name+iso_cut_name, cut.cut & iso_cut & (charge_cut if not isSS else ~charge_cut))
 
-        cfg_main.vars = variables
-        if qcd_from_same_sign:
-            hist_dict['qcd'].vars = variables # Can put into function but we will not want it by default if we take normalisations from e.g. high MT
-        if w_qcd_mssm_method:
-            hist_dict['wjets'].vars = variables # Can put into function but we will not want it by default if we take normalisations from e.g. high MT
-            hist_dict['qcd'].vars = variables
-            hist_dict['wjets_ss'].vars = variables
+            
+            # all_samples_qcd = jetFakesEstimation(all_samples,
+            #                                      cut.cut & charge_cut,
+            #                                      int_lumi,
+            #                                      total_weight)
 
-        for variable in variables:
-            if variable.name in ['svfit_mass', 'svfit_transverse_mass', 'mvis'] and 'mssm' in mode:
-                if cut.name in ['inclusive', 'nobtag']:
-                    variable.binning = binning_mssm
-                elif cut.name in ['btag']:
-                    variable.binning = binning_mssm_btag
+            # for variable in variables:
+            cfg_total = HistogramCfg(name=the_cut.name, vars=variables, cfgs=all_samples_qcd, cut=str(the_cut.cut), lumi=int_lumi, weight=total_weight)
+            # all_samples_qcd[-1].vars = variables
 
-        if create_trees:
-            createTrees(cfg_main, '/data1/steggema/mt/MVATrees', verbose=True)
-            continue
+            if mode == 'mva_train':
+                #createTrees(cfg_total, '/data1/steggema/tt/MVATrees', verbose=True)
+                continue
 
-        plots = createHistograms(cfg_main, verbose=False, friend_func=friend_func)
-        for variable in variables:
-        # for plot in plots.itervalues():
-            plot = plots[variable.name]
-            createDefaultGroups(plot)
-            if not w_qcd_mssm_method:
-                plot.Group('W', ['W', 'W1Jets', 'W2Jets', 'W3Jets', 'W4Jets'])
-            plot.Group('Electroweak', ['VV', 'W'])
-            # plot.Group('Single t', ['T_tWch', 'TBar_tWch', 'TToLeptons_sch', 'TToLeptons_tch'])
-            plot.Group('ZTT', ['ZTT', 'ZJ'], style=plot.Hist('ZTT').style)
-            if make_plots:
-                HistDrawer.draw(plot, plot_dir='plots/'+cut.name)
-            if variable.name in ['mvis', 'svfit_transverse_mass', 'svfit_mass', 'mva', 'mva2div1', 'mva1', 'mva2', 'l2_nc_ratio']:
-                plot.WriteDataCard(filename='datacard_{mode}_{var}.root'.format(mode=mode, var=variable.name), dir='mt_' + cut.name, mode='UPDATE', postfix=dc_postfix) #mt = mu-tau
-            for signal_hist in plot.SignalHists():
-                sample_names.add(signal_hist.name)
-                ams_dict[variable.name + '__' + cut.name + '__' + signal_hist.name + '_'] = ams_hists(signal_hist.weighted, plot.BGHist().weighted)
+            plots = createHistograms(cfg_total, verbose=True, friend_func=friend_func)
 
-    print '\nOptimisation results:'
-    all_vals = ams_dict.items()
-    for sample_name in sample_names:
-        vals = [v for v in all_vals if sample_name + '_' in v[0]]
-        vals.sort(key=itemgetter(1))
-        for key, item in vals:
-            print item, key
+            for variable in variables:
+                plot = plots[variable.name]
+                plot.Group('Single t', ['T_tWch', 'TBar_tWch', 'TToLeptons_tch_powheg', 'TBarToLeptons_tch_powheg'])  # 'TToLeptons_sch',
+                plot.Group('VV', ['VVTo2L2Nu', 'ZZTo2L2Q', 'WWTo1L1Nu2Q', 'WZTo1L3Nu', 'ZZTo4L',  'WZTo2L2Q', 'WZTo1L1Nu2Q', 'Single t', 'VVTo2L2Nu_ext', 'WZJToLLLNu'])  # 'WZTo3L',
+                plot.Group('Single t T', ['T_tWch_T', 'TBar_tWch_T', 'TToLeptons_tch_powheg_T', 'TBarToLeptons_tch_powheg_T'])
+                plot.Group('Single t J', ['T_tWch_J', 'TBar_tWch_J', 'TToLeptons_tch_powheg_J', 'TBarToLeptons_tch_powheg_J'])
+                plot.Group('VVT', ['VVTo2L2Nu_T', 'ZZTo2L2Q_T', 'WWTo1L1Nu2Q_T', 'WZTo1L3Nu_T', 'ZZTo4L_T',  'WZTo2L2Q_T', 'WZTo1L1Nu2Q_T', 'Single t T', 'VVTo2L2Nu_ext_T', 'WZJToLLLNu_T'])
+                plot.Group('VVJ', ['VVTo2L2Nu_J', 'ZZTo2L2Q_J', 'WWTo1L1Nu2Q_J', 'WZTo1L3Nu_J', 'ZZTo4L_J',  'WZTo2L2Q_J', 'WZTo1L1Nu2Q_J', 'Single t J', 'VVTo2L2Nu_ext_J', 'WZJToLLLNu_J'])
+                plot.Group('ZTT', ['ZTT', 'ZTT1Jets', 'ZTT2Jets', 'ZTT3Jets', 'ZTT4Jets','ZTT_10_50'])
+                plot.Group('ZJ', ['ZJ', 'ZJ1Jets', 'ZJ2Jets', 'ZJ3Jets', 'ZJ4Jets','ZJ_10_50'])
+                plot.Group('ZL', ['ZL', 'ZL1Jets', 'ZL2Jets', 'ZL3Jets', 'ZL4Jets','ZL_10_50'])
+                plot.Group('ZLL', ['ZLL', 'ZLL1Jets', 'ZLL2Jets', 'ZLL3Jets', 'ZLL4Jets','ZLL_10_50'])
+                plot.Group('W', ['WJets', 'WJets_ext', 'W1Jets', 'W2Jets_ext', 'W2Jets', 'W3Jets_ext', 'W3Jets', 'W4Jets', 'W4Jets_ext', 'W4Jets_ext2'])
+                plot.Group('jetFakes', ['jetFakes_direct','jetFakes_tosubstract'])
+                # plot.Group('jetFakes',['JetFakes1','JetFakes2','JetFakes3','JetFakes4','JetFakes5','JetFakes6','JetFakes7','JetFakes8'])
+                # plot.Group('Electroweak', ['W', 'VV', 'Single t', 'ZJ'])
 
-        print '\nBy variable'
-        for variable in variables:
-            name = variable.name
-            print '\nResults for variable', name
+                if optimisation:
+                    plot.DrawStack('HIST')
+                    print plot
+                    for signal_hist in plot.SignalHists():
+                        sample_names.add(signal_hist.name)
+                        ams = ams_hists_rebin(signal_hist.weighted, plot.BGHist().weighted)
+                        if variable.name == 'mt_total_mssm' and signal_hist.name == 'ggH1800':
+                            print ams_hists_rebin(signal_hist.weighted, plot.BGHist().weighted, debug=True)
+                            # import pdb; pdb.set_trace()
+                        ams_dict[variable.name + '__' + the_cut.name + '__' + signal_hist.name + '_'] = ams
+                
+                if not make_plots:
+                    continue
+
+                blindxmin = 0.7 if 'mva' in variable.name else None
+                blindxmax = 1.00001 if 'mva' in variable.name else None
+
+                if variable.name == 'mt2':
+                    blindxmin = 60.
+                    blindxmax = variable.binning['xmax']
+
+                if variable.name == 'mt_sum':
+                    blindxmin = 250.
+                    blindxmax = variable.binning['xmax']
+
+                if variable.name == 'mt_total':
+                    blindxmin = 200.
+                    blindxmax = variable.binning['xmax']
+                plot_dir = 'plot_' + the_cut.name
+                HistDrawer.draw(plot, channel='#mu#tau_{h}', plot_dir=plot_dir, blindxmin=blindxmin, blindxmax=blindxmax)
+                # HistDrawer.drawRatio(plot, channel='#tau_{h}#tau_{h}')
+
+                # plot.UnGroup('Electroweak')#, ['W', 'VV', 'Single t', 'ZJ'])
+                # plot.Group('VV', ['VV', 'Single t'])
+                if variable.name in ['mt_total', 'svfit_mass', 'mt_total_mssm', 'mt_total_mssm_fine']:
+                    plot.WriteDataCard(filename=plot_dir+'/htt_tt.inputs-sm-13TeV_{var}{postfix}.root'.format(var=variable.name, postfix=dc_postfix), dir='mt_' + cut.name, mode='RECREATE')
+
+            # Save AMS dict
+            import pickle
+            pickle.dump(ams_dict, open('opt.pkl', 'wb'))
+            
+
+    if optimisation:
+        print '\nOptimisation results:'
+        all_vals = ams_dict.items()
+        for sample_name in sample_names:
+            vals = [v for v in all_vals if sample_name + '_' in v[0]]
+            vals.sort(key=itemgetter(1))
             for key, item in vals:
-                if key.startswith(name + '__'):
-                    print item, key
+                print item, key
+
+            print '\nBy variable'
+            for variable in variables:
+                name = variable.name
+                print '\nResults for variable', name
+                for key, item in vals:
+                    if key.startswith(name + '__'):
+                        print item, key
+
 
 if __name__ == '__main__':
-        
-    # mode = 'iso'
-    # mode = 'sm'
-    mode = 'mva'
-    # mode = 'cp'
-    # mode = 'mssm_signal' 
-    # mode = 'mssm_control'
+    mode = 'mssm' # 'control' 'mssm' 'mva_train' 'susy' 'sm'
 
-    data2016G = False
-
-    friend_func = None
-    
     int_lumi = lumi
-
-    if data2016G:
-        int_lumi = lumi_2016G
-        
-    qcd_from_same_sign = True
-    w_qcd_mssm_method = True
-    r_qcd_os_ss = 1.17
-
-    if mode == 'mva':
-        friend_func = lambda f: f.replace('MC', 'MVA')
-
-    if mode == 'iso':
-        qcd_from_same_sign = False
-        w_qcd_mssm_method = False
-        friend_func = None
-
-    run_central = True
-    add_ttbar_sys = False
-    add_tes_sys = False
-
-
-    analysis_dir = '/data1/steggema/mt/051016/MuTauMC/'
-
+    analysis_dir = '/eos/user/l/ltortero/Prod/Samples_v1/'
+    verbose = True
     total_weight = 'weight'
-    total_weight = 'weight * (1. - 0.0772790*(l2_gen_match == 5 && l2_decayMode==0) - 0.138582*(l2_gen_match == 5 && l2_decayMode==1) - 0.220793*(l2_gen_match == 5 && l2_decayMode==10) )' # Tau ID eff scale factor
 
-    if data2016G:
-        total_weight = '(' + total_weight + '*' + getVertexWeight(True) + ')'
+    import os
+    from ROOT import gSystem, gROOT
+    # if "/sHTTEfficiencies_cc.so" not in gSystem.GetLibraries(): 
+    #     gROOT.ProcessLine(".L %s/src/CMGTools/H2TauTau/python/proto/plotter/HTTEfficiencies.cc+" % os.environ['CMSSW_BASE']);
+    gSystem.Load("libCMGToolsH2TauTau")
+    from ROOT import getTauWeight
 
-    print total_weight
+    if "/sFakeFactor_cc.so" not in gSystem.GetLibraries(): 
+        gROOT.ProcessLine(".L %s/src/CMGTools/H2TauTau/python/proto/plotter/FakeFactor.cc+" % os.environ['CMSSW_BASE']);
+        from ROOT import getFFWeight
 
-    cuts, mt_cut = prepareCuts(mode)
+    total_weight = 'weight*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1,2,3)'
 
-    variables = createVariables(mode)
+    optimisation = False
+    make_plots = True
 
-    if run_central:
-        sample_dict, hist_dict = createSamples(mode, analysis_dir, total_weight, qcd_from_same_sign, w_qcd_mssm_method, r_qcd_os_ss)
-        makePlots(variables, cuts, total_weight, sample_dict, hist_dict, qcd_from_same_sign, w_qcd_mssm_method, mt_cut, friend_func, dc_postfix='', create_trees=False)
+    # Check whether friend trees need to be added
+    friend_func = None
+    if mode == 'mva':
+        # friend_func = lambda f: f.replace('MC', 'MCMVAmt200')
+        friend_func = lambda f: f.replace('MC', 'MCMVAmt200_7Vars')
 
-    if add_ttbar_sys:
-
-        weight_ttbar_up = 'weight * gen_top_weight'
-
-        sample_dict, hist_dict = createSamples(mode, analysis_dir, weight_ttbar_up, qcd_from_same_sign=False, w_qcd_mssm_method=False, r_qcd_os_ss=None)
-
-        sample_dict_ttbar = {'all_samples':[s for s in sample_dict['all_samples'] if s.name == 'TT']}
-
-        makePlots(variables, cuts, weight_ttbar_up, sample_dict_ttbar, hist_dict={}, qcd_from_same_sign=False, w_qcd_mssm_method=False, mt_cut=mt_cut, friend_func=friend_func, dc_postfix='_CMS_htt_ttbarShape_13TeVUp', make_plots=False)
-
-        weight_ttbar_down = 'weight / gen_top_weight'
-
-        sample_dict, hist_dict = createSamples(mode, analysis_dir, weight_ttbar_up, qcd_from_same_sign=False, w_qcd_mssm_method=False, r_qcd_os_ss=None)
-
-        sample_dict_ttbar = {'all_samples':[s for s in sample_dict['all_samples'] if s.name == 'TT']}
-
-
-        makePlots(variables, cuts, weight_ttbar_down, sample_dict_ttbar, hist_dict={}, qcd_from_same_sign=False, w_qcd_mssm_method=False, mt_cut=mt_cut, friend_func=friend_func, dc_postfix='_CMS_htt_ttbarShape_13TeVDown', make_plots=False)
-
-    if add_tes_sys:
-        tes_samples = ['ZTT', 'ZTTM10', 'HiggsGGH125', 'HiggsVBF125']
-
-        analysis_dir = '/data1/steggema/mt/070416/TauMuSVFitTESUp/'
-        sample_dict, hist_dict = createSamples(mode, analysis_dir, total_weight, qcd_from_same_sign=False, w_qcd_mssm_method=False, r_qcd_os_ss=None)
-        sample_dict_tes = {'all_samples':[s for s in sample_dict['all_samples'] if s.name in tes_samples]}
-        makePlots(variables, cuts, total_weight, sample_dict_tes, hist_dict={}, qcd_from_same_sign=False, w_qcd_mssm_method=False, mt_cut=mt_cut, friend_func=lambda f: f.replace('TESUp', 'TESUpMultiMVA'), dc_postfix='_CMS_scale_t_mt_13TeVUp', make_plots=False)
-
-        analysis_dir = '/data1/steggema/mt/070416/TauMuSVFitTESDown/'
-        sample_dict, hist_dict = createSamples(mode, analysis_dir, total_weight, qcd_from_same_sign=False, w_qcd_mssm_method=False, r_qcd_os_ss=None)
-        sample_dict_tes = {'all_samples':[s for s in sample_dict['all_samples'] if s.name in tes_samples]}
-
-        makePlots(variables, cuts, total_weight, sample_dict_tes, hist_dict={}, qcd_from_same_sign=False, w_qcd_mssm_method=False, mt_cut=mt_cut, friend_func=lambda f: f.replace('TESDown', 'TESDownMultiMVA'), dc_postfix='_CMS_scale_t_mt_13TeVDown', make_plots=False)
-
-
+    cuts = prepareCuts(mode)
+    all_samples, samples = createSamples(mode, analysis_dir, optimisation)
+    ########### Lucas debug internship
+    import os
+    selected_all_samples_to_plot = []
+    for sample in all_samples:
+        if sample.dir_name in os.listdir(analysis_dir):
+            selected_all_samples_to_plot.append(sample)
+    all_samples = selected_all_samples_to_plot
+    selected_samples_to_plot = []
+    for sample in samples:
+        if sample.dir_name in os.listdir(analysis_dir):
+            selected_samples_to_plot.append(sample)
+    samples = selected_samples_to_plot
+    ###########
+    variables = getVariables(mode)
+    makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, mode=mode, optimisation=optimisation)

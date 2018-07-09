@@ -244,25 +244,25 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
             charge_cut = Cut('l1_charge != l2_charge')
             isSS = 'SS' in cut.name
             # all_samples_qcd = [x for x in all_samples]# if x.name in ['WJets','ZTT']]
-            # all_samples_qcd = qcd_estimation(
-            #     cut.cut & iso_sideband_cut & (charge_cut if not isSS else ~charge_cut),  # shape sideband
-            #     cut.cut & iso_cut & (~charge_cut),  # norm sideband 1
-            #     cut.cut & iso_sideband_cut & (~charge_cut),  # norm sideband 2
-            #     all_samples if mode in ['mssm'] else samples,
-            #     int_lumi,
-            #     total_weight,
-            #     verbose=verbose,
-            #     friend_func=friend_func
-            # )
+            all_samples_qcd = qcd_estimation(
+                cut.cut & iso_sideband_cut & (charge_cut if not isSS else ~charge_cut),  # shape sideband
+                cut.cut & iso_cut & (~charge_cut),  # norm sideband 1
+                cut.cut & iso_sideband_cut & (~charge_cut),  # norm sideband 2
+                all_samples if mode in ['mssm'] else samples,
+                int_lumi,
+                total_weight,
+                verbose=verbose,
+                friend_func=friend_func
+            )
 
             # now include charge and isolation too
             the_cut = MyCut(cut.name+iso_cut_name, cut.cut & iso_cut & (charge_cut if not isSS else ~charge_cut))
 
             
-            all_samples_qcd = jetFakesEstimation(all_samples,
-                                                 cut.cut & charge_cut,
-                                                 int_lumi,
-                                                 total_weight)
+            # all_samples_qcd = jetFakesEstimation(all_samples,
+            #                                      cut.cut & charge_cut,
+            #                                      int_lumi,
+            #                                      total_weight)
 
             # for variable in variables:
             cfg_total = HistogramCfg(name=the_cut.name, vars=variables, cfgs=all_samples_qcd, cut=str(the_cut.cut), lumi=int_lumi, weight=total_weight)
