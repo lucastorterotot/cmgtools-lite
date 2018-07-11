@@ -195,8 +195,13 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
         ]
 
     ########### Lucas debug internship
-    if channel == 'mt' and 'data_single_muon' in os.listdir(analysis_dir):
-         samples_data = [SampleCfg(name='data_obs', dir_name='data_single_muon', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, is_data=True)]
+    if channel == 'mt' and 'data_single_muon_1' in os.listdir(analysis_dir):
+        samples_data = [
+            SampleCfg(name='data_obs', dir_name='data_single_muon_1', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, is_data=True),
+            SampleCfg(name='data_obs', dir_name='data_single_muon_2', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, is_data=True),
+            SampleCfg(name='data_obs', dir_name='data_single_muon_3', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, is_data=True),
+            SampleCfg(name='data_obs', dir_name='data_single_muon_4', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, is_data=True),
+            ]
     ###########
 
     if no_data:

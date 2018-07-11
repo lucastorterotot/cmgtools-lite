@@ -56,9 +56,10 @@ def prepareCuts(mode):
         # cuts.append(MyCut('mva_met_sig_1_low_deta', inc_cut & Cut('met_pt/sqrt(met_cov00 + met_cov11) > 1. && delta_eta_l1_l2 < 2.')))
 
     if mode == 'mssm':
-        cuts.append(MyCut('nobtag', inc_cut & Cut('n_bjets==0')))
+        #cuts.append(MyCut('nobtag', inc_cut & Cut('n_bjets==0')))
         cuts.append(MyCut('inclusive', inc_cut & Cut('1')))
-        cuts.append(MyCut('btag', inc_cut & Cut('n_bjets>=1')))
+        #cuts.append(MyCut('btag', inc_cut & Cut('n_bjets>=1')))
+        
         # cuts.append(MyCut('1bjet', inc_cut & Cut('n_bjets==1')))
         # # cuts.append(MyCut('0jet', inc_cut & Cut('n_bjets==1 && n_jets==0')))
 
@@ -245,18 +246,17 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
             iso_sideband_cut = (~iso_cut) & max_iso_cut
             charge_cut = Cut('l1_charge != l2_charge')
             isSS = 'SS' in cut.name
-            # all_samples_qcd = [x for x in all_samples]# if x.name in ['WJets','ZTT']]
-            # all_samples_qcd = qcd_estimation(
-            #     cut.cut & iso_sideband_cut & (charge_cut if not isSS else ~charge_cut),  # shape sideband
-            #     cut.cut & iso_cut & (~charge_cut),  # norm sideband 1
-            #     cut.cut & iso_sideband_cut & (~charge_cut),  # norm sideband 2
-            #     all_samples if mode in ['mssm'] else samples,
-            #     int_lumi,
-            #     total_weight,
-            #     verbose=verbose,
-            #     friend_func=friend_func
-            # )
-            all_samples_qcd = all_samples
+            all_samples_qcd = qcd_estimation(
+                cut.cut & iso_sideband_cut & (charge_cut if not isSS else ~charge_cut),  # shape sideband
+                cut.cut & iso_cut & (~charge_cut),  # norm sideband 1
+                cut.cut & iso_sideband_cut & (~charge_cut),  # norm sideband 2
+                all_samples if mode in ['mssm'] else samples,
+                int_lumi,
+                total_weight,
+                verbose=verbose,
+                friend_func=friend_func
+            )
+            #all_samples_qcd = all_samples
 
             # now include charge and isolation too
             the_cut = MyCut(cut.name+iso_cut_name, cut.cut & iso_cut & (charge_cut if not isSS else ~charge_cut))
@@ -373,7 +373,7 @@ if __name__ == '__main__':
         gROOT.ProcessLine(".L %s/src/CMGTools/H2TauTau/python/proto/plotter/FakeFactor.cc+" % os.environ['CMSSW_BASE']);
         from ROOT import getFFWeight
 
-    total_weight = 'weight*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1,2,3)'
+    total_weight = 'weight' # 'weight*getTauWeight(l2_gen_match, l2_pt, l2_eta, l2_decayMode,1,2,3)'
 
     optimisation = False
     make_plots = True
@@ -387,15 +387,14 @@ if __name__ == '__main__':
     cuts = prepareCuts(mode)
     all_samples, samples = createSamples(mode, analysis_dir, optimisation)
     ########### Lucas debug internship
-    import os
     selected_all_samples_to_plot = []
     for sample in all_samples:
-        if sample.dir_name in os.listdir(analysis_dir):
+        if sample.dir_name in ['TT_pow','data_single_muon_1'] : # os.listdir(analysis_dir):
             selected_all_samples_to_plot.append(sample)
     all_samples = selected_all_samples_to_plot
     selected_samples_to_plot = []
     for sample in samples:
-        if sample.dir_name in os.listdir(analysis_dir):
+        if sample.dir_name in ['TT_pow','data_single_muon_1'] : # os.listdir(analysis_dir):
             selected_samples_to_plot.append(sample)
     samples = selected_samples_to_plot
     ###########
