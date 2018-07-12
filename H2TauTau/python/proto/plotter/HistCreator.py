@@ -34,7 +34,7 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
         print 'ERROR in createHistograms: No variable configs passed', hist_cfg.name
 
     plots = {}
-
+    
     for vcfg in vcfgs:
         plot = DataMCPlot(vcfg.name)
         plot.lumi = hist_cfg.lumi
@@ -44,6 +44,7 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
 
     for cfg in hist_cfg.cfgs:
         # First check whether it's a sub-histo or not
+        #import pdb; pdb.set_trace()
         if isinstance(cfg, HistogramCfg):
             hists = createHistograms(cfg, all_stack=True, vcfgs=vcfgs)
             for vcfg in vcfgs:
@@ -134,6 +135,7 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
             # if cfg.name=='WJets':
             #     import pdb;pdb.set_trace()
             # Loop again over the variables and add histograms to plots one by one
+            
             for vcfg in vcfgs:
                 hist = hists[vcfg.name]
                 plot = plots[vcfg.name]
@@ -146,7 +148,18 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                     if (not cfg.is_data) and not cfg.name=='jetFakes':
                         # if cfg.name in ['TT']:
                         #     import pdb;pdb.set_trace()
-                        hist_to_add.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
+                        ### Renormalisation debug Lucas
+                        lumi_fb = hist_cfg.lumi * 1.e-3
+                        Nevts = lumi_fb*cfg.xsec
+                        plot_hist.SetWeight(1)
+                        ref_scale = plot_hist.Integral()*cfg.sumweights
+                        #import pdb; pdb.set_trace()
+                        if ref_scale == 0:
+                            hist_to_add.SetWeight(0)
+                        else:
+                            hist_to_add.SetWeight(Nevts/ref_scale)
+                         # hist_to_add.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
+                        print cfg.name, 'sumweight = ', cfg.sumweights
                     plot[cfg.name].Add(hist_to_add)
                 else:
                     plot_hist = plot.AddHistogram(cfg.name, hist, stack=stack)
@@ -154,8 +167,17 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                     if (not cfg.is_data) and not cfg.name=='jetFakes':
                         # if cfg.name in ['TT']:
                         #     import pdb;pdb.set_trace()
-                        plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
-
+                        ### Renormalisation debug Lucas
+                        lumi_fb = hist_cfg.lumi * 1.e-3
+                        Nevts = lumi_fb*cfg.xsec
+                        plot_hist.SetWeight(1)
+                        ref_scale = plot_hist.Integral()*cfg.sumweights
+                        #import pdb; pdb.set_trace()
+                        if ref_scale == 0:
+                            plot_hist.SetWeight(0)
+                        else:
+                            plot_hist.SetWeight(Nevts/ref_scale)
+                        # plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
     for plot in plots.itervalues():
         plot._ApplyPrefs()
     return plots
