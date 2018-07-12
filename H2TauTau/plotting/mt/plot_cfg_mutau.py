@@ -16,7 +16,7 @@ from CMGTools.H2TauTau.proto.plotter.metrics import ams_hists_rebin
 
 MyCut = namedtuple('MyCut', ['name', 'cut'])
 
-inc_sig = inc_sig & Cut('Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_goodVertices && Flag_eeBadScFilter && Flag_globalTightHalo2016Filter && passBadMuonFilter && passBadChargedHadronFilter && badMuonMoriond2017 && badCloneMuonMoriond2017')
+inc_sig = inc_sig # & Cut('Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_goodVertices && Flag_eeBadScFilter && Flag_globalTightHalo2016Filter && passBadMuonFilter && passBadChargedHadronFilter && badMuonMoriond2017 && badCloneMuonMoriond2017')
 
 def prepareCuts(mode):
     cuts = []
@@ -185,6 +185,10 @@ def getVariables(mode):
     if mode == 'mssm':
         # variables = getVars(['mt_total', 'mt_total_mssm', 'mt_total_mssm_fine', 'mvis_extended', 'l1_pt', 'dil_pt'], channel='taumu')
         variables = getVars(['mt_total_mssm_fine'], channel='taumu')#, 'mt_total_mssm''mt_total_mssm', 
+        from numpy import array
+        binning_mttotal_fine = array([0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 225., 250., 275., 300., 325., 350., 400., 500., 700., 900., 1100., 1300., 1500., 1700., 1900., 2100., 2300., 2500., 2700., 2900., 3100., 3300., 3500., 3700., 3900.])
+        binning_mttotal_fine = array([0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 225., 250., 275., 300., 325., 350., 400., 500.])
+        variables = [VariableCfg(name='mt_total_mssm_fine', drawname='mt_total', binning=binning_mttotal_fine, unit='GeV', xtitle='M_{T}^{total}')]
     # variables += [
     #     VariableCfg(name='mt2', binning={'nbinsx':15, 'xmin':0., 'xmax':150.}, unit='GeV', xtitle='m_{T2}')
     # ]
@@ -202,8 +206,15 @@ def getVariables(mode):
 
 
 def createSamples(mode, analysis_dir, optimisation=False):
-    samples_mc, samples_data, samples, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir, channel='mt', mode=mode, ztt_cut='(l2_gen_match == 5 && l1_gen_match == 5)', zl_cut='(l1_gen_match < 6 && l2_gen_match < 6 && !(l1_gen_match == 5 && l2_gen_match == 5))',
-                                                                                   zj_cut='(l2_gen_match == 6 || l1_gen_match == 6)', signal_scale=1. if optimisation else 20.)
+    samples_mc, samples_data, samples, all_samples, sampleDict = createSampleLists(
+        analysis_dir = analysis_dir,
+        channel = 'mt',
+        mode = mode,
+        ztt_cut = '(l2_gen_match == 5)',
+        zl_cut = '(l2_gen_match < 5)',
+        zj_cut = '(l2_gen_match == 6)',
+        signal_scale=1. if optimisation else 20.
+        )
     # import pdb;pdb.set_trace()
     # all_samples = [s for s in all_samples if s.name not in ['WZJToLLLNu_J','WZJToLLLNu','WZJToLLLNu_T','WZTo1L3Nu_J','WZTo1L3Nu_T','WZTo1L3Nu']]#'TTT','TTJ','TT','data_obs']]
     # samples = [s for s in samples if s.name not in ['WZJToLLLNu_J','WZJToLLLNu','WZJToLLLNu_T','WZTo1L3Nu_J','WZTo1L3Nu_T','WZTo1L3Nu']]#['TTT','TTJ','TT','data_obs']]
@@ -244,22 +255,23 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
             # iso and charge cuts, need to have them explicitly for the QCD estimation
             # max_iso_cut = Cut('l1_byIsolationMVArun2v1DBoldDMwLT > 2.5 && l2_byIsolationMVArun2v1DBoldDMwLT > 2.5')
             iso_sideband_cut = (~iso_cut) & max_iso_cut
-            charge_cut = Cut('l1_charge != l2_charge')
-            isSS = 'SS' in cut.name
-            all_samples_qcd = qcd_estimation(
-                cut.cut & iso_sideband_cut & (charge_cut if not isSS else ~charge_cut),  # shape sideband
-                cut.cut & iso_cut & (~charge_cut),  # norm sideband 1
-                cut.cut & iso_sideband_cut & (~charge_cut),  # norm sideband 2
-                all_samples if mode in ['mssm'] else samples,
-                int_lumi,
-                total_weight,
-                verbose=verbose,
-                friend_func=friend_func
-            )
-            #all_samples_qcd = all_samples
+            OS_cut = Cut('l1_charge != l2_charge')
+            SS_cut = ~OS_cut
+            # all_samples_qcd = qcd_estimation(
+            #     cut.cut & iso_cut          & SS_cut,  # shape sideband
+            #     cut.cut & iso_sideband_cut & OS_cut,  # norm sideband 1
+            #     cut.cut & iso_sideband_cut & SS_cut,  # norm sideband 2
+            #     all_samples if mode in ['mssm'] else samples,
+            #     int_lumi,
+            #     total_weight,
+            #     verbose=verbose,
+            #     friend_func=friend_func
+            # )
+            all_samples_qcd = all_samples
 
             # now include charge and isolation too
-            the_cut = MyCut(cut.name+iso_cut_name, cut.cut & iso_cut & (charge_cut if not isSS else ~charge_cut))
+            isSS = 'SS' in cut.name
+            the_cut = MyCut(cut.name+iso_cut_name, cut.cut & iso_cut & (OS_cut if not isSS else SS_cut))
 
             
             # all_samples_qcd = jetFakesEstimation(all_samples,
@@ -388,13 +400,14 @@ if __name__ == '__main__':
     all_samples, samples = createSamples(mode, analysis_dir, optimisation)
     ########### Lucas debug internship
     selected_all_samples_to_plot = []
+    samples_to_ignore = ['DYJetsToLL_M10to50_LO', 'DYJetsToLL_M50_LO_ext', 'DYJetsToLL_M50_LO_ext2', 'WJetsToLNu_LO', 'WJetsToLNu_LO_ext','data_single_muon_1', 'data_single_muon_2', 'data_single_muon_3']
     for sample in all_samples:
-        if sample.dir_name in ['TT_pow','data_single_muon_1'] : # os.listdir(analysis_dir):
+        if sample.dir_name in os.listdir(analysis_dir) and sample.dir_name not in samples_to_ignore:
             selected_all_samples_to_plot.append(sample)
     all_samples = selected_all_samples_to_plot
     selected_samples_to_plot = []
     for sample in samples:
-        if sample.dir_name in ['TT_pow','data_single_muon_1'] : # os.listdir(analysis_dir):
+        if sample.dir_name in os.listdir(analysis_dir) and sample.dir_name not in samples_to_ignore:
             selected_samples_to_plot.append(sample)
     samples = selected_samples_to_plot
     ###########
