@@ -16,7 +16,7 @@ from CMGTools.H2TauTau.proto.plotter.metrics import ams_hists_rebin
 
 MyCut = namedtuple('MyCut', ['name', 'cut'])
 
-inc_sig = inc_sig # & Cut('Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_goodVertices && Flag_eeBadScFilter && Flag_globalTightHalo2016Filter && passBadMuonFilter && passBadChargedHadronFilter && badMuonMoriond2017 && badCloneMuonMoriond2017')
+inc_sig = inc_sig & Cut('Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_goodVertices && Flag_eeBadScFilter && Flag_globalTightHalo2016Filter && passBadMuonFilter && passBadChargedHadronFilter && badMuonMoriond2017 && badCloneMuonMoriond2017')
 
 def prepareCuts(mode):
     cuts = []
@@ -400,7 +400,7 @@ if __name__ == '__main__':
     all_samples, samples = createSamples(mode, analysis_dir, optimisation)
     ########### Lucas debug internship
     selected_all_samples_to_plot = []
-    samples_to_ignore = ['DYJetsToLL_M10to50_LO', 'DYJetsToLL_M50_LO_ext', 'DYJetsToLL_M50_LO_ext2', 'WJetsToLNu_LO', 'WJetsToLNu_LO_ext','data_single_muon_1', 'data_single_muon_2', 'data_single_muon_3']
+    samples_to_ignore = ['WJetsToLNu_LO', 'WJetsToLNu_LO_ext'] # ['DYJetsToLL_M10to50_LO', 'TT_pow', 'DYJetsToLL_M50_LO_ext','DYJetsToLL_M50_LO_ext2']#, 'WJetsToLNu_LO', 'WJetsToLNu_LO_ext']
     for sample in all_samples:
         if sample.dir_name in os.listdir(analysis_dir) and sample.dir_name not in samples_to_ignore:
             selected_all_samples_to_plot.append(sample)

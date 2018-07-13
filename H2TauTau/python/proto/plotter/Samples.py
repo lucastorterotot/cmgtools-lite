@@ -7,7 +7,7 @@ from ROOT import gSystem, gROOT
 from CMGTools.H2TauTau.proto.plotter.PlotConfigs import SampleCfg, HistogramCfg
 from CMGTools.H2TauTau.proto.samples.spring16.sms_xsec import get_xsec
 
-from CMGTools.H2TauTau.proto.samples.summer16.htt_common import TT_pow, DYJetsToLL_M50_LO, DYJetsToLL_M50_LO_ext2, DYJetsToLL_M10to50_LO, DYNJets, WJetsToLNu_LO, WJetsToLNu_LO_ext, WNJets, WWTo2L2Nu, T_tWch, TBar_tWch, VVTo2L2Nu, VVTo2L2Nu_ext, WZJToLLLNu, ZZTo4L, WZTo1L3Nu, WWTo1L1Nu2Q, ZZTo2L2Q, WZTo2L2Q, WZTo1L1Nu2Q, TBar_tch_powheg, T_tch_powheg, HiggsGGH125, HiggsVBF125, mssm_signals, dy_weight_dict, w_weight_dict, data_tau
+from CMGTools.H2TauTau.proto.samples.summer16.htt_common import TT_pow, DYJetsToLL_M50_LO, DYJetsToLL_M50_LO_ext2, DYJetsToLL_M10to50_LO, DYNJets, WJetsToLNu_LO, WJetsToLNu_LO_ext, WNJets, WWTo2L2Nu, T_tWch, TBar_tWch, VVTo2L2Nu, VVTo2L2Nu_ext, WZJToLLLNu, ZZTo4L, WZTo1L3Nu, WWTo1L1Nu2Q, ZZTo2L2Q, WZTo2L2Q, WZTo1L1Nu2Q, TBar_tch_powheg, T_tch_powheg, HiggsGGH125, HiggsVBF125, mssm_signals, dy_weight_dict, w_weight_dict, data_tau, dy_xsec, w_xsec
 
 
 # WJetsToLNu_LO, TToLeptons_tch_amcatnlo, WZTo3LNu_amcatnlo, , WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, DYJetsToTauTau_M150_LO, DYJetsToLL_M10to50_ext1
@@ -15,7 +15,7 @@ from CMGTools.H2TauTau.proto.samples.summer16.htt_common import TT_pow, DYJetsTo
 gSystem.Load("libCMGToolsH2TauTau")
 from ROOT import getDYWeight
 
-splitDY = True
+splitDY = False # True
 useDYWeight = True
 # data2016G = True
 
@@ -100,11 +100,11 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
     else:
         samples_essential += [
             SampleCfg(name='ZTT', dir_name=DYJetsToLL_M50_LO_ext2.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name,
-                      xsec=DYJetsToLL_M50_LO_ext2.xSection, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=ztt_cut),
+                      xsec=dy_xsec*3.370/100, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=ztt_cut),
             SampleCfg(name='ZL', dir_name=DYJetsToLL_M50_LO_ext2.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name,
-                      xsec=DYJetsToLL_M50_LO_ext2.xSection, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=zl_cut),
+                      xsec=dy_xsec*(3.366+3.370)/100, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=zl_cut),
             SampleCfg(name='ZJ', dir_name=DYJetsToLL_M50_LO_ext2.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name,
-                      xsec=DYJetsToLL_M50_LO_ext2.xSection, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=zj_cut),
+                      xsec=dy_xsec*0.6991, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=zj_cut),
             ]
 
     if channel == 'tt':
@@ -154,8 +154,8 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
             samples_essential += [
                 SampleCfg(name='ZLL'+n_jet_name, dir_name=sample.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=1., sumweights=1., weight_expr='('+zl_cut+' || '+zj_cut+')'+dy_exp)]
     samples_essential += [
-        SampleCfg(name='WJets', dir_name='WJetsToLNu_LO', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=1., sumweights=1., weight_expr=w_exp), #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
-        SampleCfg(name='WJets_ext', dir_name='WJetsToLNu_LO_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=1., sumweights=1., weight_expr=w_exp)] #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
+        SampleCfg(name='WJets', dir_name='WJetsToLNu_LO', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=w_xsec, sumweights=1., weight_expr=w_exp), #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
+        SampleCfg(name='WJets_ext', dir_name='WJetsToLNu_LO_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=w_xsec, sumweights=1., weight_expr=w_exp)] #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
             ###GAEL
     for sample in WNJets:
         n_jet_name = str(sample.name[sample.name.find('Jets')-1])+'Jets'

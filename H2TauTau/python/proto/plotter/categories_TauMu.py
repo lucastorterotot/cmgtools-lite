@@ -2,7 +2,7 @@ from CMGTools.H2TauTau.proto.plotter.categories_common import categories_common
 from CMGTools.H2TauTau.proto.plotter.cut import Cut
 
 pt1 = 23
-pt2 = 20
+pt2 = 30 # 20
 
 inc_sig_tau = Cut(
     '!veto_dilepton && !veto_thirdlepton && !veto_otherlepton && l2_byIsolationMVArun2v1DBoldDMwLT>3.5 && l2_againstMuon3>1.5 && l2_againstElectronMVA6>0.5 && l2_decayModeFinding>0.5 && l2_pt>{pt2}'.format(pt2=pt2))
