@@ -13,6 +13,9 @@ logging.shutdown()
 reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
+from PhysicsTools.HeppyCore.framework.event import Event
+Event.print_patterns = ['*taus*', '*muons*']
+
 ###############
 # Options
 ###############
@@ -298,13 +301,17 @@ sel_muons = cfg.Analyzer(
 )
 
 
-sequence = [
+
+sequence_mutau = cfg.Sequence([
     taus,
     sel_taus,
     muons,
     sel_muons
-]
+])
 
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_init
+sequence = sequence_init
+sequence.extend( sequence_mutau )
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script

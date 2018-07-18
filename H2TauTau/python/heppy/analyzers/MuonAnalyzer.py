@@ -15,9 +15,10 @@ class MuonAnalyzer(Analyzer):
     def process(self, event):
         self.readCollections(event.input)
         muons = self.handles['muons'].product()
-        muons = map(Muon, muons)
-        setattr(event, self.cfg_ana.output, muons)
+        output_muons = []
+        for muon in muons:
+            hmu = Muon(muon)
+            hmu.associatedVertex = event.goodVertices[0]
+            output_muons.append(hmu)
+        setattr(event, self.cfg_ana.output, output_muons)
         
-    def evaluate_tauid(self, muons):
-        pass
-    
