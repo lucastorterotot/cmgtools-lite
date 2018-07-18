@@ -13,6 +13,7 @@ class TauAnalyzer(Analyzer):
         )
         
     def process(self, event):
+        self.readCollections(event.input)
         taus = self.handles['taus'].product()
         taus = map(Tau, taus)
         self.evaluate_tauid(taus)
