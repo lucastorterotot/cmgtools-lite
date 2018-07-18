@@ -2,7 +2,7 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Muon import Muon
 
-class MuAnalyzer(DiLeptonAnalyzer):
+class MuAnalyzer(Analyzer):
 
     def declareHandles(self):
         super(MuAnalyzer, self).declareHandles()

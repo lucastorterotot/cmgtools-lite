@@ -2,7 +2,7 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau
 
-class TauAnalyzer(DiLeptonAnalyzer):
+class TauAnalyzer(Analyzer):
 
     def declareHandles(self):
         super(TauAnalyzer, self).declareHandles()
