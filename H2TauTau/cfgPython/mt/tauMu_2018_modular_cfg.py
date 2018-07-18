@@ -317,6 +317,15 @@ one_muon = cfg.Analyzer(
     veto = False
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
+
+mutau = cfg.Analyzer(
+    DiLeptonAnalyzer,
+    output = 'mutaus',
+    l1 = 'sel_muons',
+    l2 = 'sel_taus',
+    dr_min = 0.5
+)
 
 sequence_mutau = cfg.Sequence([
     taus,
@@ -324,8 +333,10 @@ sequence_mutau = cfg.Sequence([
     one_tau,
     muons,
     sel_muons,
-    one_muon
+    one_muon,
+    mutau
 ])
+
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_init
 sequence = sequence_init
