@@ -281,11 +281,20 @@ sel_taus = cfg.Analyzer(
     filter_func = select_tau  
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
+one_tau = cfg.Analyzer(
+    EventFilter, 
+    'one_tau',
+    src = 'sel_taus',
+    min_number = 1,
+    veto = False
+)
+
 from CMGTools.H2TauTau.heppy.analyzers.MuonAnalyzer import MuonAnalyzer
 muons = cfg.Analyzer(
     MuonAnalyzer,
     output = 'muons',
-    muons = 'slimmedMuons'
+    muons = 'slimmedMuons',
 )
 
 def select_muon(muon):
@@ -300,13 +309,22 @@ sel_muons = cfg.Analyzer(
     filter_func = select_muon
 )
 
+one_muon = cfg.Analyzer(
+    EventFilter, 
+    'one_muon',
+    src = 'sel_muons',
+    min_number = 1,
+    veto = False
+)
 
 
 sequence_mutau = cfg.Sequence([
     taus,
     sel_taus,
+    one_tau,
     muons,
-    sel_muons
+    sel_muons,
+    one_muon
 ])
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_init
