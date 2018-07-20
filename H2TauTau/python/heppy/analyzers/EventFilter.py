@@ -53,6 +53,9 @@ class EventFilter  (Analyzer):
             passed = len(input_collection) >= self.cfg_ana.min_number
         if passed:
             self.counters['efficiency'].inc('Selected')
-        return passed
+        if hasattr(self.cfg_ana, 'output'):
+            setattr(event, self.cfg_ana.output, passed)
+        else:
+            return passed
             
 
