@@ -103,7 +103,7 @@ def select_electron_third_lepton_veto(electron):
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=False) < 0.3
+        electron.relIsoR(R=0.3, puCorr="rhoArea", allCharged=False) < 0.3
 sel_electrons_third_lepton_veto = cfg.Analyzer(
     Selector,
     output = 'sel_electrons_third_lepton_veto',
