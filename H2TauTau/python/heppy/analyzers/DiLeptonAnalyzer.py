@@ -1,5 +1,4 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaR2
 
 import itertools
@@ -7,6 +6,11 @@ import itertools
 class DiLepton(object):
 
     def __init__(self, l1, l2):
+        if abs(l1.pdgId()) == abs(l2.pdgId()):
+            # e.g. tau tau channel or any channel where the two legs 
+            # are of the same time 
+            if l2.pt() > l1.pt():
+                l1,l2=l2,l1
         self._l1 = l1 
         self._l2 = l2
         self._p4 = l1.p4()

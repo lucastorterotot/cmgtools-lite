@@ -14,7 +14,7 @@ reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
 from PhysicsTools.HeppyCore.framework.event import Event
-Event.print_patterns = ['*taus*', '*muons*']
+Event.print_patterns = ['*taus*', '*muons*','veto_*']
 
 ###############
 # Options
@@ -317,6 +317,31 @@ one_muon = cfg.Analyzer(
     veto = False
 )
 
+# dilepton veto 
+
+def select_muon_dilepton_veto(muon):
+    return muon.pt() > 15             and \
+        abs(muon.eta()) < 2.4         and \
+        muon.isLooseMuon()            and \
+        abs(muon.dxy()) < 0.045       and \
+        abs(muon.dz())  < 0.2         and \
+        muon.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=False) < 0.3
+sel_muons_dilepton_veto = cfg.Analyzer(
+    Selector,
+    output = 'sel_muons_dilepton_veto',
+    src = 'muons',
+    filter_func = select_muon_dilepton_veto
+)
+
+from  CMGTools.H2TauTau.heppy.analyzers.DiLeptonVeto import DiLeptonVeto
+dilepton_veto = cfg.Analyzer(
+    DiLeptonVeto,
+    output = 'veto_dilepton',
+    src = 'sel_muons_dilepton_veto',
+    drmin = 0.15
+)
+
+
 from CMGTools.H2TauTau.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 
 mutau = cfg.Analyzer(
@@ -334,6 +359,8 @@ sequence_mutau = cfg.Sequence([
     muons,
     sel_muons,
     one_muon,
+    sel_muons_dilepton_veto,
+    dilepton_veto,
     mutau
 ])
 
