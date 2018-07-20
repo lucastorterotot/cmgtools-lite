@@ -261,14 +261,6 @@ events_to_pick = []
 #     eventSelector.toSelect = events_to_pick
 #     sequence.insert(0, eventSelector)
 
-
-from CMGTools.H2TauTau.heppy.analyzers.TauAnalyzer import TauAnalyzer
-taus = cfg.Analyzer(
-    TauAnalyzer,
-    output = 'taus',
-    taus = 'slimmedTaus'
-)
-
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
     return tau.pt()    > 20  and \
@@ -288,13 +280,6 @@ one_tau = cfg.Analyzer(
     src = 'sel_taus',
     min_number = 1,
     veto = False
-)
-
-from CMGTools.H2TauTau.heppy.analyzers.MuonAnalyzer import MuonAnalyzer
-muons = cfg.Analyzer(
-    MuonAnalyzer,
-    output = 'muons',
-    muons = 'slimmedMuons',
 )
 
 def select_muon(muon):
@@ -341,77 +326,7 @@ dilepton_veto = cfg.Analyzer(
     drmin = 0.15
 )
 
-# third lepton veto ==============================================================
-
-
-
-def select_muon_third_lepton_veto(muon):
-    return muon.pt() > 10             and \
-        abs(muon.eta()) < 2.4         and \
-        muon.muonID('POG_ID_Medium')  and \
-        abs(muon.dxy()) < 0.045       and \
-        abs(muon.dz())  < 0.2         and \
-        muon.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=False) < 0.3
-sel_muons_third_lepton_veto = cfg.Analyzer(
-    Selector,
-    output = 'sel_muons_third_lepton_veto',
-    src = 'muons',
-    filter_func = select_muon_third_lepton_veto
-)
-
-from CMGTools.H2TauTau.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
-electrons = cfg.Analyzer(
-    ElectronAnalyzer,
-    output = 'electrons',
-    electrons = 'slimmedElectrons',
-)
-
-def select_electron_third_lepton_veto(electron):
-    return electron.pt() > 10             and \
-        abs(electron.eta()) < 2.5         and \
-        electron.mvaIDRun2("Fall17noIso","wp90")  and \
-        abs(electron.dxy()) < 0.045       and \
-        abs(electron.dz())  < 0.2         and \
-        electron.passConversionVeto()     and \
-        electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=False) < 0.3
-sel_electrons_third_lepton_veto = cfg.Analyzer(
-    Selector,
-    output = 'sel_electrons_third_lepton_veto',
-    src = 'electrons',
-    filter_func = select_electron_third_lepton_veto
-)
-
-third_lepton_veto_muons = cfg.Analyzer(
-    EventFilter, 
-    'third_lepton_veto_muons',
-    src = 'sel_muons_third_lepton_veto',
-    min_number = 2,
-    veto = True,
-    output = 'veto_third_lepton_muons_passed'
-)
-
-third_lepton_veto_electrons = cfg.Analyzer(
-    EventFilter, 
-    'third_lepton_veto_electrons',
-    src = 'sel_electrons_third_lepton_veto',
-    min_number = 1,
-    veto = True,
-    output = 'veto_third_lepton_electrons_passed'
-)
-
-
-
-sequence_third_lepton_veto = cfg.Sequence([
-        sel_muons_third_lepton_veto,
-        electrons, 
-        sel_electrons_third_lepton_veto,
-        third_lepton_veto_muons,
-        third_lepton_veto_electrons
-])
-
 # mu tau pair =====================================================================
-
 
 from CMGTools.H2TauTau.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 
@@ -424,19 +339,14 @@ mutau = cfg.Analyzer(
 )
 
 sequence_mutau = cfg.Sequence([
-    taus,
     sel_taus,
     one_tau,
-    muons,
     sel_muons,
     one_muon,
     sel_muons_dilepton_veto,
     dilepton_veto,
     mutau
 ])
-
-#TODO put at the right place in main sequence
-sequence_mutau.extend(sequence_third_lepton_veto)
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_init
 sequence = sequence_init

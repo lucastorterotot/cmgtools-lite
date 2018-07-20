@@ -19,6 +19,7 @@ class ElectronAnalyzer(Analyzer):
         for electron in electrons:
             helectron = Electron(electron)
             helectron.associatedVertex = event.goodVertices[0]
+            helectron.event = event.input.object()
             output_electrons.append(helectron)
         setattr(event, self.cfg_ana.output, output_electrons)
         
