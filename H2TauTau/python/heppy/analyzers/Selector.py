@@ -11,12 +11,12 @@ class Selector(Analyzer):
           Selector,
           'sel_leptons',
           output = 'leptons',
-          input_objects = 'rec_particles',
+          src = 'rec_particles',
           filter_func = lambda ptc: ptc.e()> 5. and abs(ptc.pdgid()) in [11, 13],
           nmax = 2
           )
 
-    @param input_objects: the input collection.
+    @param src: the input collection.
         If a dictionary, the filtering function is applied to the dictionary values,
         and not to the keys.
 
@@ -30,7 +30,7 @@ class Selector(Analyzer):
     def process(self, event):
         '''event must contain
         
-        * self.cfg_ana.input_objects: collection of objects to be selected
+        * self.cfg_ana.src: collection of objects to be selected
            These objects must be usable by the filtering function
            self.cfg_ana.filter_func.
         '''

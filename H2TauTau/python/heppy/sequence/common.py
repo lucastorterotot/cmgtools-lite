@@ -140,6 +140,15 @@ sequence_third_lepton_veto = cfg.Sequence([
 ])
 
 
+from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
+trigger_match = cfg.Analyzer(
+    TrigMatcher,
+    src='mutaus_sorted',
+    require_all_matched = False
+)
+
+
+# Definition of the main sequences =======================================
 
 sequence_beforedil = cfg.Sequence([
         json,
@@ -154,6 +163,7 @@ sequence_beforedil.extend(sequence_third_lepton_veto)
 
 sequence_afterdil = cfg.Sequence([
         trigger, 
+        trigger_match,
         lheweight,
         pileup, 
 ]) 

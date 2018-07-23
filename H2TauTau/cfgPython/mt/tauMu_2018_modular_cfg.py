@@ -327,7 +327,7 @@ dilepton_veto = cfg.Analyzer(
     drmin = 0.15
 )
 
-# mu tau pair =====================================================================
+# mu tau pair ================================================================
 
 from CMGTools.H2TauTau.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 
@@ -345,13 +345,21 @@ mutau_sorted = cfg.Analyzer(
     output = 'mutaus_sorted',
     src = 'mutaus',
     # sort by mu iso, mu pT, tau iso, tau pT
-    metric = lambda dl: (dl.leg1().relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False), 
+    metric = lambda dl: (dl.leg1().relIso(0.4, 'dbeta', 
+                                          dbeta_factor=0.5, 
+                                          all_charged=False), 
                          -dl.leg1().pt(), 
                          -dl.leg2().mva_score(), 
                          -dl.leg2().pt()),
     reverse = False
     )
-    
+
+from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
+trigger_match = cfg.Analyzer(
+    TrigMatcher,
+    src='mutaus_sorted',
+    both_legs = False
+)
 
 sequence_mutau = cfg.Sequence([
         sel_taus,
@@ -361,7 +369,7 @@ sequence_mutau = cfg.Sequence([
         sel_muons_dilepton_veto,
         dilepton_veto,
         mutau,
-        mutau_sorted
+        mutau_sorted,
         ])
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
