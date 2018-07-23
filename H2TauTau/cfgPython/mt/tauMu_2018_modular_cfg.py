@@ -14,7 +14,8 @@ reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
 from PhysicsTools.HeppyCore.framework.event import Event
-Event.print_patterns = ['*taus*', '*muons*','*electrons*', 'veto_*']
+Event.print_patterns = ['*taus*', '*muons*','*electrons*', 'veto_*', 
+                        '*jets*']
 
 ###############
 # Options
@@ -37,8 +38,7 @@ add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 # global tags
 ###############
 
-gt_mc = 'Fall17_17Nov2017_V6_MC'
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'
+from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data
 
 ###############
 # Components
@@ -354,12 +354,7 @@ mutau_sorted = cfg.Analyzer(
     reverse = False
     )
 
-from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
-trigger_match = cfg.Analyzer(
-    TrigMatcher,
-    src='mutaus_sorted',
-    both_legs = False
-)
+
 
 sequence_mutau = cfg.Sequence([
         sel_taus,
