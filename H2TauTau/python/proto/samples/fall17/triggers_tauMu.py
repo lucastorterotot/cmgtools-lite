@@ -21,9 +21,7 @@ data_triggerfilters = [
     
     TFM(leg1_names=['hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07','hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded'],
         leg2_names=['hltSelectedPFTau27LooseChargedIsolationAgainstMuonL1HLTMatched','hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded'],
-        triggers=['HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v*'], 
-        match_all_names_leg1=True, 
-        match_all_names_leg2=True),
+        triggers=['HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v*']),
 ]
 
 mc_triggers = [
@@ -40,9 +38,7 @@ mc_triggerfilters = [
     # IsoMu19_eta2p1_LooseIsoPFTau20
     TFM(leg1_names=['hltSelectedPFTau27LooseChargedIsolationAgainstMuonL1HLTMatched','hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded'], 
         leg2_names=['hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07','hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded'], 
-        triggers=['HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v*'], 
-        match_all_names_leg1=True, 
-        match_all_names_leg2=True), 
+        triggers=['HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v*']), 
 
 ]
 
