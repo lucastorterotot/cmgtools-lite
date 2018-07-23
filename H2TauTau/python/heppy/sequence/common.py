@@ -1,5 +1,7 @@
 import PhysicsTools.HeppyCore.framework.config as cfg
 
+import ROOT 
+
 # import all analysers:
 # Heppy analyzers
 from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer import JSONAnalyzer
@@ -87,9 +89,10 @@ def select_muon_third_lepton_veto(muon):
         muon.muonID('POG_ID_Medium')  and \
         abs(muon.dxy()) < 0.045       and \
         abs(muon.dz())  < 0.2         and \
-        muon.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=False) < 0.3
+        muon.relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False) < 0.3
 sel_muons_third_lepton_veto = cfg.Analyzer(
     Selector,
+    '3lepv_muons',
     output = 'sel_muons_third_lepton_veto',
     src = 'muons',
     filter_func = select_muon_third_lepton_veto
@@ -103,9 +106,10 @@ def select_electron_third_lepton_veto(electron):
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.relIsoR(R=0.3, puCorr="rhoArea", allCharged=False) < 0.3
+        electron.relIso(0.3, "EA", area='03', all_charged=False) < 0.3
 sel_electrons_third_lepton_veto = cfg.Analyzer(
     Selector,
+    '3lepv_electrons',
     output = 'sel_electrons_third_lepton_veto',
     src = 'electrons',
     filter_func = select_electron_third_lepton_veto
@@ -114,7 +118,7 @@ sel_electrons_third_lepton_veto = cfg.Analyzer(
 # TODO this is for mu tau, change filter func in cfg for other channels
 third_lepton_veto_muons = cfg.Analyzer(
     EventFilter,
-    'third_lepton_veto_muons',
+    '3lepv_muons',
     src = 'sel_muons_third_lepton_veto',
     filter_func = lambda x : len(x) <= 1,
     output = 'veto_third_lepton_muons_passed'
@@ -122,7 +126,7 @@ third_lepton_veto_muons = cfg.Analyzer(
 
 third_lepton_veto_electrons = cfg.Analyzer(
     EventFilter,
-    'third_lepton_veto_electrons',
+    '3lepv_electrons',
     src = 'sel_electrons_third_lepton_veto',
     filter_func = lambda x : len(x) == 0,
     output = 'veto_third_lepton_electrons_passed'
@@ -137,16 +141,19 @@ sequence_third_lepton_veto = cfg.Sequence([
 
 
 
-sequence_init = cfg.Sequence([
-    lheweight,
-    json,
-    skim,
-    trigger,  # First analyser that applies selections
-    vertex,
-    pileup,
-    taus, 
-    muons, 
-    electrons,
+sequence_beforedil = cfg.Sequence([
+        json,
+        skim,
+        vertex,
+        taus, 
+        muons, 
+        electrons,
 ])
 
-sequence_init.extend(sequence_third_lepton_veto)
+sequence_beforedil.extend(sequence_third_lepton_veto)
+
+sequence_afterdil = cfg.Sequence([
+        trigger, 
+        lheweight,
+        pileup, 
+]) 

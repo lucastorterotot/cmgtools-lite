@@ -267,7 +267,8 @@ def select_tau(tau):
         abs(tau.eta()) < 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2
 sel_taus = cfg.Analyzer(
-    Selector, 
+    Selector,
+    'sel_taus',
     output = 'sel_taus',
     src = 'taus',
     filter_func = select_tau  
@@ -288,6 +289,7 @@ def select_muon(muon):
         abs(muon.dz())  < 0.2
 sel_muons = cfg.Analyzer(
     Selector, 
+    'sel_muons',
     output = 'sel_muons',
     src = 'muons',
     filter_func = select_muon
@@ -308,9 +310,10 @@ def select_muon_dilepton_veto(muon):
         muon.isLooseMuon()            and \
         abs(muon.dxy()) < 0.045       and \
         abs(muon.dz())  < 0.2         and \
-        muon.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=False) < 0.3
+        muon.relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False) < 0.3
 sel_muons_dilepton_veto = cfg.Analyzer(
     Selector,
+    'dileptonveto_muons',
     output = 'sel_muons_dilepton_veto',
     src = 'muons',
     filter_func = select_muon_dilepton_veto
@@ -346,9 +349,10 @@ sequence_mutau = cfg.Sequence([
     mutau
 ])
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_init
-sequence = sequence_init
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
+sequence = sequence_beforedil
 sequence.extend( sequence_mutau )
+sequence.extend( sequence_afterdil )
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script

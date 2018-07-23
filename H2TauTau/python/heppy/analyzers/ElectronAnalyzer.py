@@ -20,6 +20,7 @@ class ElectronAnalyzer(Analyzer):
             helectron = Electron(electron)
             helectron.associatedVertex = event.goodVertices[0]
             helectron.event = event.input.object()
+            helectron.rho = event.rho
             output_electrons.append(helectron)
         setattr(event, self.cfg_ana.output, output_electrons)
         
