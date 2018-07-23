@@ -339,15 +339,30 @@ mutau = cfg.Analyzer(
     dr_min = 0.5
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.Sorter import Sorter
+mutau_sorted = cfg.Analyzer(
+    Sorter,
+    output = 'mutaus_sorted',
+    src = 'mutaus',
+    # sort by mu iso, mu pT, tau iso, tau pT
+    metric = lambda dl: (dl.leg1().relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False), 
+                         -dl.leg1().pt(), 
+                         -dl.leg2().mva_score(), 
+                         -dl.leg2().pt()),
+    reverse = False
+    )
+    
+
 sequence_mutau = cfg.Sequence([
-    sel_taus,
-    one_tau,
-    sel_muons,
-    one_muon,
-    sel_muons_dilepton_veto,
-    dilepton_veto,
-    mutau
-])
+        sel_taus,
+        one_tau,
+        sel_muons,
+        one_muon,
+        sel_muons_dilepton_veto,
+        dilepton_veto,
+        mutau,
+        mutau_sorted
+        ])
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
