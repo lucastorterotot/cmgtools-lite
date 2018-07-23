@@ -3,7 +3,7 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.statistics.counter import Counter
 
-class EventFilter  (Analyzer):
+class EventFilter(Analyzer):
     '''Filters events based on the contents of an input collection.
     
     When an event is rejected by the EventFilter, the analyzers
@@ -17,18 +17,17 @@ class EventFilter  (Analyzer):
     lepton_filter = cfg.Analyzer(
       EventFilter  ,
       'lepton_filter',
-      input_objects = 'leptons',
-      min_number = 1,
-      veto = True
+      src = 'leptons',
+      filter_func = lambda x: len(x) == 0, 
+      output = 'lepton_filter_passed' # optional
     )
     
-    * input_objects : the input collection.
+    * src : the input collection.
 
-    * min_number : minimum number of objects in input_objects to trigger the filtering
-    
-    * veto :
-      - if False: events are selected if there are >= min_number objects in input_objects
-      - if True: events are rejected if there are >= min_number objects in input_objects.
+    * filter_func : filtering function, acting on the collection
+
+    * output (optional): if provided this flag will be set on the event,
+       and event processing will continue, even if the event is rejected
     '''
 
     def beginLoop(self, setup):
@@ -40,22 +39,15 @@ class EventFilter  (Analyzer):
     def process(self, event):
         '''event should contain:
         
-        * self.cfg_ana.input_objects:
-             the list of input_objects to be counted, 
-             with the name specified in self.cfg_ana
+        * self.cfg_ana.collection:
+           the collection used to take a decision
         '''
+        coll = getattr(event, self.cfg_ana.src)
+        passed = self.cfg_ana.filter_func(coll) 
         self.counters['efficiency'].inc('All events')
-        input_collection = getattr(event, self.cfg_ana.src)
-        passed = False 
-        if self.cfg_ana.veto:
-            passed = not len(input_collection) >= self.cfg_ana.min_number
-        else:
-            passed = len(input_collection) >= self.cfg_ana.min_number
-        if passed:
+        if passed: 
             self.counters['efficiency'].inc('Selected')
         if hasattr(self.cfg_ana, 'output'):
             setattr(event, self.cfg_ana.output, passed)
-        else:
-            return passed
-            
-
+        else: 
+            return passed 

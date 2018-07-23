@@ -111,12 +111,12 @@ sel_electrons_third_lepton_veto = cfg.Analyzer(
     filter_func = select_electron_third_lepton_veto
 )
 
+# TODO this is for mu tau, change filter func in cfg for other channels
 third_lepton_veto_muons = cfg.Analyzer(
     EventFilter,
     'third_lepton_veto_muons',
     src = 'sel_muons_third_lepton_veto',
-    min_number = 2,
-    veto = True,
+    filter_func = lambda x : len(x) <= 1,
     output = 'veto_third_lepton_muons_passed'
 )
 
@@ -124,12 +124,9 @@ third_lepton_veto_electrons = cfg.Analyzer(
     EventFilter,
     'third_lepton_veto_electrons',
     src = 'sel_electrons_third_lepton_veto',
-    min_number = 1,
-    veto = True,
+    filter_func = lambda x : len(x) == 0,
     output = 'veto_third_lepton_electrons_passed'
 )
-
-
 
 sequence_third_lepton_veto = cfg.Sequence([
         sel_muons_third_lepton_veto,

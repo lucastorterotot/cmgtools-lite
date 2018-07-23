@@ -278,8 +278,7 @@ one_tau = cfg.Analyzer(
     EventFilter, 
     'one_tau',
     src = 'sel_taus',
-    min_number = 1,
-    veto = False
+    filter_func = lambda x : len(x)>0
 )
 
 def select_muon(muon):
@@ -298,8 +297,7 @@ one_muon = cfg.Analyzer(
     EventFilter, 
     'one_muon',
     src = 'sel_muons',
-    min_number = 1,
-    veto = False
+    filter_func = lambda x : len(x)>0
 )
 
 # dilepton veto ==================================================================
