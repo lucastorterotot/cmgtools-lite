@@ -198,7 +198,7 @@ sequence_third_lepton_veto = cfg.Sequence([
 from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
 trigger_match = cfg.Analyzer(
     TrigMatcher,
-    src='mutaus_sorted',
+    src='dileptons_sorted',
     require_all_matched = False
 )
 
@@ -229,14 +229,24 @@ jets_30 = cfg.Analyzer(
     Selector,
     'jets_30',
     output = 'jets_30',
-    src = 'jets',
+    src = 'clean_jets',
     filter_func = lambda x : x.pt()>30
+)
+
+from CMGTools.H2TauTau.heppy.analyzers.JetCleaner import JetCleaner
+jet_cleaner = cfg.Analyzer(
+    JetCleaner,
+    output = 'clean_jets',
+    dileptons = 'dileptons_sorted',
+    jets = 'jets_20',
+    drmin = 0.5
 )
 
 
 sequence_jets = cfg.Sequence([
         jets,
         jets_20,
+        jet_cleaner,
         jets_30
 ])
 
