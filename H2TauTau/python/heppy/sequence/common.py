@@ -140,6 +140,119 @@ sequence_third_lepton_veto = cfg.Sequence([
 ])
 
 
+from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
+trigger_match = cfg.Analyzer(
+    TrigMatcher,
+    src='mutaus_sorted',
+    require_all_matched = False
+)
+
+
+# Jet sequence ===========================================================
+
+gt_mc = 'Fall17_17Nov2017_V6_MC'
+gt_data = 'Fall17_17Nov2017{}_V6_DATA'
+
+from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
+jets = cfg.Analyzer(
+    JetAnalyzer, 
+    output = 'jets',
+    jets = 'slimmedJets',
+    do_jec = True,
+    gt_mc = gt_mc,
+)
+
+sel_electrons_third_lepton_veto = cfg.Analyzer(
+    Selector,
+    '3lepv_electrons',
+    output = 'sel_electrons_third_lepton_veto',
+    src = 'electrons',
+    filter_func = select_electron_third_lepton_veto
+)
+
+# TODO this is for mu tau, change filter func in cfg for other channels
+third_lepton_veto_muons = cfg.Analyzer(
+    EventFilter,
+    '3lepv_muons',
+    src = 'sel_muons_third_lepton_veto',
+    filter_func = lambda x : len(x) <= 1,
+    output = 'veto_third_lepton_muons_passed'
+)
+
+third_lepton_veto_electrons = cfg.Analyzer(
+    EventFilter,
+    '3lepv_electrons',
+    src = 'sel_electrons_third_lepton_veto',
+    filter_func = lambda x : len(x) == 0,
+    output = 'veto_third_lepton_electrons_passed'
+)
+
+sequence_third_lepton_veto = cfg.Sequence([
+        sel_muons_third_lepton_veto,
+        sel_electrons_third_lepton_veto,
+        third_lepton_veto_muons,
+        third_lepton_veto_electrons
+])
+
+
+from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
+trigger_match = cfg.Analyzer(
+    TrigMatcher,
+    src='dileptons_sorted',
+    require_all_matched = False
+)
+
+
+# Jet sequence ===========================================================
+
+gt_mc = 'Fall17_17Nov2017_V6_MC'
+gt_data = 'Fall17_17Nov2017{}_V6_DATA'
+
+from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
+jets = cfg.Analyzer(
+    JetAnalyzer, 
+    output = 'jets',
+    jets = 'slimmedJets',
+    do_jec = True,
+    gt_mc = gt_mc,
+)
+
+jets_20_unclean = cfg.Analyzer(
+    Selector,
+    'jets_20_unclean',
+    output = 'jets_20_unclean',
+    src = 'jets',
+    filter_func = lambda x : x.pt()>20
+)
+
+
+from CMGTools.H2TauTau.heppy.analyzers.JetCleaner import JetCleaner
+jet_20 = cfg.Analyzer(
+    JetCleaner,
+    output = 'jets_20',
+    dileptons = 'dileptons_sorted',
+    jets = 'jets_20_unclean',
+    drmin = 0.5
+)
+
+jets_30 = cfg.Analyzer(
+    Selector,
+    'jets_30',
+    output = 'jets_30',
+    src = 'jets_20',
+    filter_func = lambda x : x.pt()>30
+)
+
+
+sequence_jets = cfg.Sequence([
+        jets,
+        jets_20_unclean,
+        jet_20,
+        jets_30
+])
+
+
+# Definition of the main sequences =======================================
 
 sequence_beforedil = cfg.Sequence([
         json,
@@ -154,6 +267,9 @@ sequence_beforedil.extend(sequence_third_lepton_veto)
 
 sequence_afterdil = cfg.Sequence([
         trigger, 
+        trigger_match,
         lheweight,
         pileup, 
 ]) 
+
+sequence_afterdil.extend(sequence_jets)

@@ -14,7 +14,8 @@ reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
 from PhysicsTools.HeppyCore.framework.event import Event
-Event.print_patterns = ['*taus*', '*muons*','*electrons*', 'veto_*']
+Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*', 
+                        '*dileptons_*', '*jets*']
 
 ###############
 # Options
@@ -37,8 +38,7 @@ add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 # global tags
 ###############
 
-gt_mc = 'Fall17_17Nov2017_V6_MC'
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'
+from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data
 
 ###############
 # Components
@@ -302,7 +302,7 @@ one_muon = cfg.Analyzer(
     filter_func = lambda x : len(x)>0
 )
 
-# dilepton veto ==================================================================
+# dilepton veto ==============================================================
 
 def select_muon_dilepton_veto(muon):
     return muon.pt() > 15             and \
@@ -327,46 +327,49 @@ dilepton_veto = cfg.Analyzer(
     drmin = 0.15
 )
 
-# mu tau pair =====================================================================
+# mu tau pair ================================================================
 
 from CMGTools.H2TauTau.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 
-mutau = cfg.Analyzer(
+dilepton = cfg.Analyzer(
     DiLeptonAnalyzer,
-    output = 'mutaus',
+    output = 'dileptons',
     l1 = 'sel_muons',
     l2 = 'sel_taus',
     dr_min = 0.5
 )
 
 from CMGTools.H2TauTau.heppy.analyzers.Sorter import Sorter
-mutau_sorted = cfg.Analyzer(
+dilepton_sorted = cfg.Analyzer(
     Sorter,
-    output = 'mutaus_sorted',
-    src = 'mutaus',
+    output = 'dileptons_sorted',
+    src = 'dileptons',
     # sort by mu iso, mu pT, tau iso, tau pT
-    metric = lambda dl: (dl.leg1().relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False), 
+    metric = lambda dl: (dl.leg1().relIso(0.4, 'dbeta', 
+                                          dbeta_factor=0.5, 
+                                          all_charged=False), 
                          -dl.leg1().pt(), 
                          -dl.leg2().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017'), 
                          -dl.leg2().pt()),
     reverse = False
     )
-    
 
-sequence_mutau = cfg.Sequence([
+
+
+sequence_dilepton = cfg.Sequence([
         sel_taus,
         one_tau,
         sel_muons,
         one_muon,
         sel_muons_dilepton_veto,
         dilepton_veto,
-        mutau,
-        mutau_sorted
+        dilepton,
+        dilepton_sorted,
         ])
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
-sequence.extend( sequence_mutau )
+sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
 
 # the following is declared in case this cfg is used in input to the

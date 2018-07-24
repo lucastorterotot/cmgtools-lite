@@ -65,7 +65,10 @@ class DiLeptonAnalyzer(Analyzer):
             dilepton = self.build_dilepton(l1,l2)
             if dilepton:
                 dileptons.append(DiLepton(l1,l2))
-        setattr(event, self.cfg_ana.output, dileptons)
+        if not len(dileptons):
+            return False
+        else: 
+            setattr(event, self.cfg_ana.output, dileptons)
 
     def build_dilepton(self, l1, l2):
         dr = deltaR(l1.eta(), l1.phi(), l2.eta(), l2.phi()) 
