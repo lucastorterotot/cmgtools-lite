@@ -139,7 +139,7 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
     def testLeg2Iso(self, tau, isocut):
         '''if isocut is None, returns true if three-hit iso cut is passed.
         Otherwise, returns true if iso MVA > isocut.'''
-        return tau.mva_passes('Eff95') 
+        return tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
 
     def testTauVertex(self, tau):
         '''Tests vertex constraints, for tau'''
