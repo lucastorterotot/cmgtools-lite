@@ -73,15 +73,22 @@ jets20 = Block(
 
 )
 
+bjets = Block(
+    'bjets', lambda x: x.bjets_20,
+    n_bjets = v(lambda x: len(x), int),
+)
+for vname, variable in jets20.iteritems():
+    if not vname.startswith('j'):
+        continue
+    newname = vname.replace('j1','b1',1)
+    newname = newname.replace('j2','b2',1)
+    bjets[newname] = variable
+
 jets30 = Block(
     'jets30', lambda x: x.jets_30,
     n_jets_pt30 = v(lambda x: len(x), int),
 )
 
-bjets = Block(
-    'bjets', lambda x: x.bjets,
-    n_bjets = v(lambda x: len(x), int),
-)
 
 weights = Block(
     'weights', lambda x: x, 
@@ -144,8 +151,7 @@ for tauid in tau_ids:
 
 common = EventContent(
     [event, generator, weights, event_flags,
-     trigger, jets20, jets30, 
-     # bjets, 
+     trigger, jets20, jets30, bjets, 
      to_leg('l1_generic', lepton_vars, 'l1', 
             lambda x: x.dileptons_sorted[0].leg1()), 
      to_leg('l2_generic', lepton_vars, 'l2', 

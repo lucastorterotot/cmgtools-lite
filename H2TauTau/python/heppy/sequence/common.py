@@ -245,17 +245,25 @@ jets_30 = cfg.Analyzer(
     filter_func = lambda x : x.pt()>30
 )
 
+# bjets ==================================================================
+
+# to be replaced with a bjet analyzer
+bjets_20 = cfg.Analyzer(
+    Selector, 
+    'bjets_20',
+    output = 'bjets_20', 
+    src = 'jets_20',
+    filter_func = lambda x: abs(x.eta())<2.4 and \
+        x.bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') > 0.8
+)
 
 sequence_jets = cfg.Sequence([
         jets,
         jets_20_unclean,
         jet_20,
-        jets_30
+        jets_30,
+        bjets_20
 ])
-
-# bjets ==================================================================
-
-
 
 # MET ====================================================================
 
