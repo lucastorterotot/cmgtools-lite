@@ -47,4 +47,3 @@ class JetAnalyzer(Analyzer):
                                            addCorr=True, addShifts=True, 
                                            metShift=event.metShift)
         setattr(event, self.cfg_ana.output, output_jets)
-        

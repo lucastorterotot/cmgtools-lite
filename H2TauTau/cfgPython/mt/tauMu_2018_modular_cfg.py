@@ -310,7 +310,7 @@ def select_muon_dilepton_veto(muon):
         muon.isLooseMuon()            and \
         abs(muon.dxy()) < 0.045       and \
         abs(muon.dz())  < 0.2         and \
-        muon.relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False) < 0.3
+        muon.iso_htt() < 0.3
 sel_muons_dilepton_veto = cfg.Analyzer(
     Selector,
     'dileptonveto_muons',
@@ -345,9 +345,7 @@ dilepton_sorted = cfg.Analyzer(
     output = 'dileptons_sorted',
     src = 'dileptons',
     # sort by mu iso, mu pT, tau iso, tau pT
-    metric = lambda dl: (dl.leg1().relIso(0.4, 'dbeta', 
-                                          dbeta_factor=0.5, 
-                                          all_charged=False), 
+    metric = lambda dl: (dl.leg1().iso_htt(), 
                          -dl.leg1().pt(), 
                          -dl.leg2().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017'), 
                          -dl.leg2().pt()),
@@ -367,10 +365,20 @@ sequence_dilepton = cfg.Sequence([
         dilepton_sorted,
         ])
 
+from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
+from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import mutau as event_content_mutau
+ntuple = cfg.Analyzer(
+    NtupleProducer,
+    outputfile = 'events.root',
+    treename = 'events',
+    event_content = event_content_mutau
+)
+
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
+sequence.append(ntuple)
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script

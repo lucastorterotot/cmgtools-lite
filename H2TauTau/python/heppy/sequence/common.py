@@ -20,10 +20,6 @@ from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
 puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_Jul9.root'
 puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
-lheweight = cfg.Analyzer(
-    LHEWeightAnalyzer, name="LHEWeightAnalyzer",
-    useLumiInfo=False
-)
 
 json = cfg.Analyzer(
     JSONAnalyzer,
@@ -52,14 +48,6 @@ vertex = cfg.Analyzer(
     verbose=False
 )
 
-pileup = cfg.Analyzer(
-    PileUpAnalyzer,
-    name='PileUpAnalyzer',
-    true=True,
-    autoPU=False
-)
-
-
 from CMGTools.H2TauTau.heppy.analyzers.TauAnalyzer import TauAnalyzer
 taus = cfg.Analyzer(
     TauAnalyzer,
@@ -75,6 +63,12 @@ muons = cfg.Analyzer(
     muons = 'slimmedMuons',
 )
 
+# setting up an alias for our isolation, now use iso_htt everywhere
+from PhysicsTools.Heppy.physicsobjects.Muon import Muon
+Muon.iso_htt = lambda x: x.relIso(0.4, 'dbeta', dbeta_factor=0.5, 
+                                  all_charged=False)
+
+
 from CMGTools.H2TauTau.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
 electrons = cfg.Analyzer(
     ElectronAnalyzer,
@@ -82,14 +76,19 @@ electrons = cfg.Analyzer(
     electrons = 'slimmedElectrons',
 )
 
-# third lepton veto ==============================================================                                
+# setting up an alias for our isolation, now use iso_htt everywhere
+from PhysicsTools.Heppy.physicsobjects.Electron import Electron
+Electron.iso_htt = lambda x: x.relIso(0.3, "EA", area='03', 
+                                      all_charged=False)
+
+# third lepton veto =========================================================                  
 def select_muon_third_lepton_veto(muon):
     return muon.pt() > 10             and \
         abs(muon.eta()) < 2.4         and \
         muon.muonID('POG_ID_Medium')  and \
         abs(muon.dxy()) < 0.045       and \
         abs(muon.dz())  < 0.2         and \
-        muon.relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False) < 0.3
+        muon.iso_htt() < 0.3
 sel_muons_third_lepton_veto = cfg.Analyzer(
     Selector,
     '3lepv_muons',
@@ -106,7 +105,7 @@ def select_electron_third_lepton_veto(electron):
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.relIso(0.3, "EA", area='03', all_charged=False) < 0.3
+        electron.iso_htt() < 0.3
 sel_electrons_third_lepton_veto = cfg.Analyzer(
     Selector,
     '3lepv_electrons',
@@ -149,6 +148,9 @@ trigger_match = cfg.Analyzer(
 
 
 # Jet sequence ===========================================================
+
+from PhysicsTools.Heppy.physicsobjects.Jet import Jet
+Jet.pileUpJetId_htt = lambda x: x.puJetId() + x.puJetId(wp='medium') + x.puJetId(wp='tight')
 
 gt_mc = 'Fall17_17Nov2017_V6_MC'
 gt_data = 'Fall17_17Nov2017{}_V6_DATA'
@@ -222,7 +224,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20
+    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7
 )
 
 
@@ -243,13 +245,68 @@ jets_30 = cfg.Analyzer(
     filter_func = lambda x : x.pt()>30
 )
 
+# bjets ==================================================================
+
+# to be replaced with a bjet analyzer
+bjets_20 = cfg.Analyzer(
+    Selector, 
+    'bjets_20',
+    output = 'bjets_20', 
+    src = 'jets_20',
+    filter_func = lambda x: abs(x.eta())<2.4 and \
+        x.bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') > 0.8
+)
 
 sequence_jets = cfg.Sequence([
         jets,
         jets_20_unclean,
         jet_20,
-        jets_30
+        jets_30,
+        bjets_20
 ])
+
+# MET ====================================================================
+
+from CMGTools.H2TauTau.proto.analyzers.METFilter import METFilter
+met_filters = cfg.Analyzer(
+    METFilter,
+    name='METFilter',
+    processName='PAT',
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Moriond_2018
+    triggers=[
+        'Flag_goodVertices',
+        'Flag_globalTightHalo2016Filter',
+        'Flag_HBHENoiseFilter', 
+        'Flag_HBHENoiseIsoFilter', 
+        'Flag_EcalDeadCellTriggerPrimitiveFilter',
+        'Flag_BadPFMuonFilter',
+        'Flag_BadChargedCandidateFilter',
+        'Flag_eeBadScFilter',
+        'Flag_ecalBadCalibFilter',
+    ]
+)
+
+# Generator stuff ========================================================
+
+lheweight = cfg.Analyzer(
+    LHEWeightAnalyzer, name="LHEWeightAnalyzer",
+    useLumiInfo=False
+)
+
+pileup = cfg.Analyzer(
+    PileUpAnalyzer,
+    name='PileUpAnalyzer',
+    true=True,
+    autoPU=False
+)
+
+from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
+njets_ana = cfg.Analyzer(
+    NJetsAnalyzer,
+    name='NJetsAnalyzer',
+    fillTree=True,
+    verbose=False
+)
 
 
 # Definition of the main sequences =======================================
@@ -268,8 +325,10 @@ sequence_beforedil.extend(sequence_third_lepton_veto)
 sequence_afterdil = cfg.Sequence([
         trigger, 
         trigger_match,
+        met_filters,
         lheweight,
         pileup, 
+        njets_ana,
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
