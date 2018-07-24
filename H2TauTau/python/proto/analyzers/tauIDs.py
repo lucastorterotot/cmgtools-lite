@@ -2,6 +2,8 @@ tauIDs = [
     ('againstElectron{wp}MVA6', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight']),
     ('againstMuon{wp}3', ['Loose', 'Tight']),
     ('by{wp}IsolationMVArun2v1DBoldDMwLT', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']),
+    'byIsolationMVArun2017v2DBoldDMwLTraw2017',
+    ('by{wp}IsolationMVArun2017v2DBoldDMwLT2017', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']),
     'chargedIsoPtSum',
     'decayModeFinding',
     'neutralIsoPtSum',

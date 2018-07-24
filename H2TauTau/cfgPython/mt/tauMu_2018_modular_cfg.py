@@ -347,7 +347,7 @@ dilepton_sorted = cfg.Analyzer(
     # sort by mu iso, mu pT, tau iso, tau pT
     metric = lambda dl: (dl.leg1().iso_htt(), 
                          -dl.leg1().pt(), 
-                         -dl.leg2().mva_score(), 
+                         -dl.leg2().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017'), 
                          -dl.leg2().pt()),
     reverse = False
     )
