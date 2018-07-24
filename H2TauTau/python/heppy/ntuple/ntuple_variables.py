@@ -77,13 +77,13 @@ weights = Block(
 lepton_vars = dict(
     pt = v(lambda x: x.pt()),
     eta = v(lambda x: x.eta()),
-    m = v(lambda x: x.eta()),
-    q = v(lambda x: x.eta()),
+    m = v(lambda x: x.mass()),
+    q = v(lambda x: x.charge()),
     weight_idso = v(lambda x: getattr(x, 'weight_idiso', 1.)),
     weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
     d0 = v(lambda x: x.dxy()),
     dz = v(lambda x: x.dz()),
-    gen_match = v(lambda x: x.gen_match, int),
+    # todo : gen_match = v(lambda x: x.gen_match, int),
 )
 
 electron_vars = dict(
@@ -94,18 +94,21 @@ electron_vars = dict(
 
 muon_vars = dict(
     weight_tracking = v(lambda x: getattr(x, 'weight_tracking', 1. )),
-    iso = v(lambda x: lep.iso_htt()),   
+    iso = v(lambda x: x.iso_htt()),   
 )
 
 tau_ids = [
-    'decayModeFindingOldDMs',
-    'againstElectronMVA6',
-    'againstMuon3',
-    'byIsolationMVArun2v1DBoldDMwLT',
-    'byIsolationMVArun2v1DBoldDMwLTraw',
+    'decayModeFinding',
+    # todo : put in Gael's wp system
+    'againstElectronVLooseMVA6',
+    'againstElectronTightMVA6',
+    'againstMuonTight3',
+    'againstMuonLoose3',
     'chargedIsoPtSum',
     'neutralIsoPtSum',
-    'puCorrPtSum'
+    'puCorrPtSum',
+    'footprintCorrection',
+    'photonPtSumOutsideSignalCone'
 ]
 
 tau_vars = dict(
@@ -113,21 +116,27 @@ tau_vars = dict(
     decay_mode = v(lambda x: x.decayMode(), int),
 )
 
+# necessary, or all lambdas will be the same! 
+def make_func(tauid):
+    return lambda x : x.tauID(tauid)
 for tauid in tau_ids: 
-    tau_vars[tauid] = v(lambda x: x.tauID(tauid))
+    tau_vars[tauid] = v(make_func(tauid))
 
 
 common = EventContent(
     [event, generator, weights, event_flags,
-     trigger, jets, jets20, bjets, 
-     to_leg('l1_generic', lepton_vars, 'l1', lambda x: x.dilepton.leg1()), 
-     to_leg('l2_generic', lepton_vars, 'l2', lambda x: x.dilepton.leg2()), 
+     trigger, jets, jets20, 
+     # bjets, 
+     to_leg('l1_generic', lepton_vars, 'l1', 
+            lambda x: x.dileptons_sorted[0].leg1()), 
+     to_leg('l2_generic', lepton_vars, 'l2', 
+            lambda x: x.dileptons_sorted[0].leg2()), 
      ]
 )
 
 mutau = copy.copy(common)
 mutau.append(to_leg('l1_specific', muon_vars, 'l1', 
-                    lambda x: x.dilepton.leg1()))
+                    lambda x: x.dileptons_sorted[0].leg1()))
 mutau.append(to_leg('l2_specific', tau_vars, 'l2', 
-                    lambda x: x.dilepton.leg2()))
+                    lambda x: x.dileptons_sorted[0].leg2()))
 

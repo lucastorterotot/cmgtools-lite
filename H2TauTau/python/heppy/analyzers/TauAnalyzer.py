@@ -15,13 +15,13 @@ class TauAnalyzer(Analyzer):
     def process(self, event):
         self.readCollections(event.input)
         taus = self.handles['taus'].product()
-        taus = map(Tau, taus)
-        self.evaluate_tauid(taus)
+        htaus = []
+        for tau in taus:
+            htau = Tau(tau)
+            htau.associatedVertex = event.goodVertices[0]
+            htaus.append(htau)
         # self.correct_energy(taus)
-        setattr(event, self.cfg_ana.output, taus)
-        
-    def evaluate_tauid(self, taus):
-        pass
-    
+        setattr(event, self.cfg_ana.output, htaus)
+ 
     def correct_energy(self, taus):
         pass

@@ -20,10 +20,6 @@ from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
 puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_Jul9.root'
 puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
-lheweight = cfg.Analyzer(
-    LHEWeightAnalyzer, name="LHEWeightAnalyzer",
-    useLumiInfo=False
-)
 
 json = cfg.Analyzer(
     JSONAnalyzer,
@@ -51,14 +47,6 @@ vertex = cfg.Analyzer(
     keepFailingEvents=True,
     verbose=False
 )
-
-pileup = cfg.Analyzer(
-    PileUpAnalyzer,
-    name='PileUpAnalyzer',
-    true=True,
-    autoPU=False
-)
-
 
 from CMGTools.H2TauTau.heppy.analyzers.TauAnalyzer import TauAnalyzer
 taus = cfg.Analyzer(
@@ -262,6 +250,10 @@ sequence_jets = cfg.Sequence([
         jets_30
 ])
 
+# bjets ==================================================================
+
+
+
 # MET ====================================================================
 
 from CMGTools.H2TauTau.proto.analyzers.METFilter import METFilter
@@ -283,6 +275,29 @@ met_filters = cfg.Analyzer(
     ]
 )
 
+# Generator stuff ========================================================
+
+lheweight = cfg.Analyzer(
+    LHEWeightAnalyzer, name="LHEWeightAnalyzer",
+    useLumiInfo=False
+)
+
+pileup = cfg.Analyzer(
+    PileUpAnalyzer,
+    name='PileUpAnalyzer',
+    true=True,
+    autoPU=False
+)
+
+from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
+njets_ana = cfg.Analyzer(
+    NJetsAnalyzer,
+    name='NJetsAnalyzer',
+    fillTree=True,
+    verbose=False
+)
+
+
 # Definition of the main sequences =======================================
 
 sequence_beforedil = cfg.Sequence([
@@ -299,9 +314,10 @@ sequence_beforedil.extend(sequence_third_lepton_veto)
 sequence_afterdil = cfg.Sequence([
         trigger, 
         trigger_match,
+        met_filters,
         lheweight,
         pileup, 
-        met_filters
+        njets_ana,
 ]) 
 
 sequence_afterdil.extend(sequence_jets)

@@ -366,13 +366,12 @@ sequence_dilepton = cfg.Sequence([
         ])
 
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
-from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import *
+from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import mutau as event_content_mutau
 ntuple = cfg.Analyzer(
     NtupleProducer,
     outputfile = 'events.root',
     treename = 'events',
-    event_content = EventContent([event, generator, 
-                                  event_flags, vetoes])
+    event_content = event_content_mutau
 )
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
