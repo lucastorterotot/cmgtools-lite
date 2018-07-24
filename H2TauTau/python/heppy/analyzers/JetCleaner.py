@@ -7,6 +7,6 @@ class JetCleaner(Analyzer):
         dileptons = getattr(event, self.cfg_ana.dileptons)
         leptons = [dileptons[0].leg1(), dileptons[0].leg2()]
         jets = getattr(event, self.cfg_ana.jets)
-        clean_jets = cleanObjectCollection(jets, masks=leptons, 
-                                           deltaRMin=self.cfg_ana.drmin) 
+        clean_jets, dirty_jets = cleanObjectCollection(jets, masks=leptons, 
+                                                       deltaRMin=self.cfg_ana.drmin) 
         setattr(event, self.cfg_ana.output, clean_jets)

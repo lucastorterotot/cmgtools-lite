@@ -75,6 +75,12 @@ muons = cfg.Analyzer(
     muons = 'slimmedMuons',
 )
 
+# setting up an alias for our isolation, now use iso_htt everywhere
+from PhysicsTools.Heppy.physicsobjects.Muon import Muon
+Muon.iso_htt = lambda x: x.relIso(0.4, 'dbeta', dbeta_factor=0.5, 
+                                  all_charged=False)
+
+
 from CMGTools.H2TauTau.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
 electrons = cfg.Analyzer(
     ElectronAnalyzer,
@@ -82,14 +88,19 @@ electrons = cfg.Analyzer(
     electrons = 'slimmedElectrons',
 )
 
-# third lepton veto ==============================================================                                
+# setting up an alias for our isolation, now use iso_htt everywhere
+from PhysicsTools.Heppy.physicsobjects.Electron import Electron
+Electron.iso_htt = lambda x: x.relIso(0.3, "EA", area='03', 
+                                      all_charged=False)
+
+# third lepton veto =========================================================                  
 def select_muon_third_lepton_veto(muon):
     return muon.pt() > 10             and \
         abs(muon.eta()) < 2.4         and \
         muon.muonID('POG_ID_Medium')  and \
         abs(muon.dxy()) < 0.045       and \
         abs(muon.dz())  < 0.2         and \
-        muon.relIso(0.4, 'dbeta', dbeta_factor=0.5, all_charged=False) < 0.3
+        muon.iso_htt() < 0.3
 sel_muons_third_lepton_veto = cfg.Analyzer(
     Selector,
     '3lepv_muons',
@@ -106,7 +117,7 @@ def select_electron_third_lepton_veto(electron):
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.relIso(0.3, "EA", area='03', all_charged=False) < 0.3
+        electron.iso_htt() < 0.3
 sel_electrons_third_lepton_veto = cfg.Analyzer(
     Selector,
     '3lepv_electrons',
