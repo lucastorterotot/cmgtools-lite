@@ -221,7 +221,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20
+    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7
 )
 
 

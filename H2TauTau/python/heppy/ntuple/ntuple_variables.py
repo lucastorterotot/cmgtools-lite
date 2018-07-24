@@ -49,14 +49,27 @@ trigger = Block(
     'trigger', lambda x: x,
 )
 
-jets = Block(
-    'jets', lambda x: x.jets_30,
-    n_jets = v(lambda x: len(x), int),
-)
-
 jets20 = Block(
     'jets20', lambda x: x.jets_20,
     n_jets_pt20 = v(lambda x: len(x), int),
+    j1_pt = v(lambda x: x[0].pt() if len(x)>0 else default),
+    j1_eta = v(lambda x: x[0].eta() if len(x)>0 else default),
+    j1_phi = v(lambda x: x[0].phi() if len(x)>0 else default),
+    # j1_bcsv = v(lambda x: x.bcsv()),
+    # j1_mva_pu
+    # j1_puid
+    # j1_flavour_parton
+    # j1_flavour_hadron
+    # j1_rawf
+    j2_pt = v(lambda x: x[1].pt() if len(x)>1 else default),
+    j2_eta = v(lambda x: x[1].eta() if len(x)>1 else default),
+    j2_phi = v(lambda x: x[1].phi() if len(x)>1 else default),
+
+)
+
+jets30 = Block(
+    'jets30', lambda x: x.jets_30,
+    n_jets_pt30 = v(lambda x: len(x), int),
 )
 
 bjets = Block(
@@ -125,7 +138,7 @@ for tauid in tau_ids:
 
 common = EventContent(
     [event, generator, weights, event_flags,
-     trigger, jets, jets20, 
+     trigger, jets20, jets30, 
      # bjets, 
      to_leg('l1_generic', lepton_vars, 'l1', 
             lambda x: x.dileptons_sorted[0].leg1()), 
