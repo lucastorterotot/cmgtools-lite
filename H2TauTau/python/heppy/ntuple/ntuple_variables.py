@@ -56,17 +56,18 @@ jets20 = Block(
     j1_eta = v(lambda x: x[0].eta() if len(x)>0 else default),
     j1_phi = v(lambda x: x[0].phi() if len(x)>0 else default),
     # j1_bcsv = v(lambda x: x.bcsv()),
-    # j1_mva_pu
     j1_pumva = v(lambda x: x[0].puMva('pileupJetId:fullDiscriminant') if len(x)>0 else default),
     j1_puid = v(lambda x: x[0].pileUpJetId_htt() if len(x)>0 else default),
-    # j1_flavour_parton
-    # j1_flavour_hadron
+    j1_flavour_parton = v(lambda x: x[0].partonFlavour() if len(x)>0 else default),
+    j1_flavour_hadron = v(lambda x: x[0].hadronFlavour() if len(x)>0 else default),
     # j1_rawf
     j2_pt = v(lambda x: x[1].pt() if len(x)>1 else default),
     j2_eta = v(lambda x: x[1].eta() if len(x)>1 else default),
     j2_phi = v(lambda x: x[1].phi() if len(x)>1 else default),
     j2_pumva = v(lambda x: x[1].puMva('pileupJetId:fullDiscriminant') if len(x)>1 else default ),
     j2_puid = v(lambda x: x[1].pileUpJetId_htt() if len(x)>1 else default ),
+    j2_flavour_parton = v(lambda x: x[1].partonFlavour() if len(x)>1 else default),
+    j2_flavour_hadron = v(lambda x: x[1].hadronFlavour() if len(x)>1 else default),
 
 )
 
