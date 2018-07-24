@@ -149,6 +149,9 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
+from PhysicsTools.Heppy.physicsobjects.Jet import Jet
+Jet.pileUpJetId_htt = lambda x: x.puJetId() + x.puJetId(wp='medium') + x.puJetId(wp='tight')
+
 gt_mc = 'Fall17_17Nov2017_V6_MC'
 gt_data = 'Fall17_17Nov2017{}_V6_DATA'
 
