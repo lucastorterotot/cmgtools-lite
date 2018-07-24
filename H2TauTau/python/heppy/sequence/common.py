@@ -262,6 +262,26 @@ sequence_jets = cfg.Sequence([
         jets_30
 ])
 
+# MET ====================================================================
+
+from CMGTools.H2TauTau.proto.analyzers.METFilter import METFilter
+met_filters = cfg.Analyzer(
+    METFilter,
+    name='METFilter',
+    processName='PAT',
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Moriond_2018
+    triggers=[
+        'Flag_goodVertices',
+        'Flag_globalTightHalo2016Filter',
+        'Flag_HBHENoiseFilter', 
+        'Flag_HBHENoiseIsoFilter', 
+        'Flag_EcalDeadCellTriggerPrimitiveFilter',
+        'Flag_BadPFMuonFilter',
+        'Flag_BadChargedCandidateFilter',
+        'Flag_eeBadScFilter',
+        'Flag_ecalBadCalibFilter',
+    ]
+)
 
 # Definition of the main sequences =======================================
 
@@ -281,6 +301,7 @@ sequence_afterdil = cfg.Sequence([
         trigger_match,
         lheweight,
         pileup, 
+        met_filters
 ]) 
 
 sequence_afterdil.extend(sequence_jets)

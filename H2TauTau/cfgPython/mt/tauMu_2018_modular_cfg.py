@@ -365,10 +365,21 @@ sequence_dilepton = cfg.Sequence([
         dilepton_sorted,
         ])
 
+from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
+from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import *
+ntuple = cfg.Analyzer(
+    NtupleProducer,
+    outputfile = 'events.root',
+    treename = 'events',
+    event_content = EventContent([event, generator, 
+                                  event_flags, vetoes])
+)
+
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
+sequence.append(ntuple)
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
