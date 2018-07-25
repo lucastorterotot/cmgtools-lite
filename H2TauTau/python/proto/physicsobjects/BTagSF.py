@@ -22,7 +22,7 @@ class BTagSF(object):
 
         # b-tag SFs from POG
         # Todo : COLIN 3jul18: new recommendation is DeepCSV V2. what about CSV v2? 
-        calib = ROOT.BTagCalibration("DeepCSV", os.path.expandvars("$CMSSW_BASE/src/CMGTools/H2TauTau/data/DeepCSV_94XSF_V2_B_F.csv"))
+        calib = ROOT.BTagCalibration("DeepCSV", os.path.expandvars("$CMSSW_BASE/src/CMGTools/H2TauTau/data/DeepCSV_94XSF_V3_B_F.csv"))
         
         op_dict = {
             'loose':0,

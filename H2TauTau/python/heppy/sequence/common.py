@@ -147,23 +147,6 @@ trigger_match = cfg.Analyzer(
 )
 
 
-# Jet sequence ===========================================================
-
-from PhysicsTools.Heppy.physicsobjects.Jet import Jet
-Jet.pileUpJetId_htt = lambda x: x.puJetId() + x.puJetId(wp='medium') + x.puJetId(wp='tight')
-
-gt_mc = 'Fall17_17Nov2017_V6_MC'
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'
-
-from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
-jets = cfg.Analyzer(
-    JetAnalyzer, 
-    output = 'jets',
-    jets = 'slimmedJets',
-    do_jec = True,
-    gt_mc = gt_mc,
-)
-
 sel_electrons_third_lepton_veto = cfg.Analyzer(
     Selector,
     '3lepv_electrons',
@@ -247,14 +230,21 @@ jets_30 = cfg.Analyzer(
 
 # bjets ==================================================================
 
-# to be replaced with a bjet analyzer
+from CMGTools.H2TauTau.heppy.analyzers.BJetAnalyzer import BJetAnalyzer
+btagger = cfg.Analyzer(
+    BJetAnalyzer, 
+    'btagger', 
+    jets = 'jets_20'
+)
+
+#always put after btagger
 bjets_20 = cfg.Analyzer(
     Selector, 
     'bjets_20',
     output = 'bjets_20', 
     src = 'jets_20',
-    filter_func = lambda x: abs(x.eta())<2.4 and \
-        x.bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') > 0.8
+    filter_func = lambda x: abs(x.eta())<2.5 and \
+        x.is_btagged
 )
 
 sequence_jets = cfg.Sequence([
@@ -262,6 +252,7 @@ sequence_jets = cfg.Sequence([
         jets_20_unclean,
         jet_20,
         jets_30,
+        btagger,
         bjets_20
 ])
 
