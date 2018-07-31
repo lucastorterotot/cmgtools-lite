@@ -18,7 +18,7 @@ class TauAnalyzer(Analyzer):
         htaus = []
         for tau in taus:
             htau = Tau(tau)
-            htau.associatedVertex = event.goodVertices[0]
+            htau.associatedVertex = event.vertices[0]
             htaus.append(htau)
         # self.correct_energy(taus)
         setattr(event, self.cfg_ana.output, htaus)

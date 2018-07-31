@@ -18,7 +18,7 @@ class MuonAnalyzer(Analyzer):
         output_muons = []
         for muon in muons:
             hmu = Muon(muon)
-            hmu.associatedVertex = event.goodVertices[0]
+            hmu.associatedVertex = event.vertices[0]
             output_muons.append(hmu)
         setattr(event, self.cfg_ana.output, output_muons)
         

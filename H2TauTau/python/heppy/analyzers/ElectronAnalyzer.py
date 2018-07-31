@@ -18,7 +18,7 @@ class ElectronAnalyzer(Analyzer):
         output_electrons = []
         for electron in electrons:
             helectron = Electron(electron)
-            helectron.associatedVertex = event.goodVertices[0]
+            helectron.associatedVertex = event.vertices[0]
             helectron.event = event.input.object()
             helectron.rho = event.rho
             output_electrons.append(helectron)
