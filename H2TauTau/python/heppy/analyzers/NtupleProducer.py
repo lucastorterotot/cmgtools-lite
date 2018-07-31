@@ -12,5 +12,9 @@ class NtupleProducer(TreeAnalyzerNumpy):
         for block in self.cfg_ana.event_content: 
             data = block.data_source(event)
             for varname, var in block.iteritems():
-                self.tree.fill(varname, var.function(data))
+                try:
+                    self.tree.fill(varname, var.function(data))
+                except OverflowError:
+                    print 'value', var.function(data), "didn't fit in var", varname
+                    continue
         self.tree.tree.Fill()
