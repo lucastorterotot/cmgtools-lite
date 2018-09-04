@@ -12,6 +12,7 @@ from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer import PileUpAnalyzer
 from PhysicsTools.Heppy.analyzers.gen.LHEWeightAnalyzer import LHEWeightAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer import TriggerAnalyzer
 
+from CMGTools.H2TauTau.heppy.analyzers.Cleaner import Cleaner
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
 
@@ -36,7 +37,7 @@ trigger = cfg.Analyzer(
     TriggerAnalyzer,
     name='TriggerAnalyzer',
     addTriggerObjects=True,
-    requireTrigger=True,
+    requireTrigger=False,
     usePrescaled=False
 )
 
@@ -51,6 +52,7 @@ vertex = cfg.Analyzer(
 from CMGTools.H2TauTau.heppy.analyzers.TauAnalyzer import TauAnalyzer
 taus = cfg.Analyzer(
     TauAnalyzer,
+    name = 'TauAnalyzer',
     output = 'taus',
     taus = 'slimmedTaus'
 )
@@ -59,6 +61,7 @@ taus = cfg.Analyzer(
 from CMGTools.H2TauTau.heppy.analyzers.MuonAnalyzer import MuonAnalyzer
 muons = cfg.Analyzer(
     MuonAnalyzer,
+    name = 'MuonAnalyzer',
     output = 'muons',
     muons = 'slimmedMuons',
 )
@@ -97,10 +100,19 @@ sel_muons_third_lepton_veto = cfg.Analyzer(
     filter_func = select_muon_third_lepton_veto
 )
 
+sel_muons_third_lepton_veto_cleaned = cfg.Analyzer(
+    Cleaner,
+    '3lepv_muons_cleaner',
+    output = 'sel_muons_third_lepton_veto_cleaned',
+    src = 'sel_muons_third_lepton_veto',
+    mask = lambda x : [getattr(x,'dileptons_sorted')[0].leg1(),
+                       getattr(x,'dileptons_sorted')[0].leg2()]
+)
+
 def select_electron_third_lepton_veto(electron):
     return electron.pt() > 10             and \
         abs(electron.eta()) < 2.5         and \
-        electron.mvaIDRun2("Fall17noIso","wp90")  and \
+        electron.mvaIDRun2("Fall17Iso","wp90")  and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
@@ -114,19 +126,27 @@ sel_electrons_third_lepton_veto = cfg.Analyzer(
     filter_func = select_electron_third_lepton_veto
 )
 
-# TODO this is for mu tau, change filter func in cfg for other channels
+sel_electrons_third_lepton_veto_cleaned = cfg.Analyzer(
+    Cleaner,
+    '3lepv_electrons_cleaner',
+    output = 'sel_electrons_third_lepton_veto_cleaned',
+    src = 'sel_electrons_third_lepton_veto',
+    mask = lambda x : [getattr(x,'dileptons_sorted')[0].leg1(),
+                       getattr(x,'dileptons_sorted')[0].leg2()]
+)
+
 third_lepton_veto_muons = cfg.Analyzer(
     EventFilter,
     '3lepv_muons',
-    src = 'sel_muons_third_lepton_veto',
-    filter_func = lambda x : len(x) <= 1,
+    src = 'sel_muons_third_lepton_veto_cleaned',
+    filter_func = lambda x : len(x) == 0,
     output = 'veto_third_lepton_muons_passed'
 )
 
 third_lepton_veto_electrons = cfg.Analyzer(
     EventFilter,
     '3lepv_electrons',
-    src = 'sel_electrons_third_lepton_veto',
+    src = 'sel_electrons_third_lepton_veto_cleaned',
     filter_func = lambda x : len(x) == 0,
     output = 'veto_third_lepton_electrons_passed'
 )
@@ -134,47 +154,8 @@ third_lepton_veto_electrons = cfg.Analyzer(
 sequence_third_lepton_veto = cfg.Sequence([
         sel_muons_third_lepton_veto,
         sel_electrons_third_lepton_veto,
-        third_lepton_veto_muons,
-        third_lepton_veto_electrons
-])
-
-
-from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
-trigger_match = cfg.Analyzer(
-    TrigMatcher,
-    src='mutaus_sorted',
-    require_all_matched = False
-)
-
-
-sel_electrons_third_lepton_veto = cfg.Analyzer(
-    Selector,
-    '3lepv_electrons',
-    output = 'sel_electrons_third_lepton_veto',
-    src = 'electrons',
-    filter_func = select_electron_third_lepton_veto
-)
-
-# TODO this is for mu tau, change filter func in cfg for other channels
-third_lepton_veto_muons = cfg.Analyzer(
-    EventFilter,
-    '3lepv_muons',
-    src = 'sel_muons_third_lepton_veto',
-    filter_func = lambda x : len(x) <= 1,
-    output = 'veto_third_lepton_muons_passed'
-)
-
-third_lepton_veto_electrons = cfg.Analyzer(
-    EventFilter,
-    '3lepv_electrons',
-    src = 'sel_electrons_third_lepton_veto',
-    filter_func = lambda x : len(x) == 0,
-    output = 'veto_third_lepton_electrons_passed'
-)
-
-sequence_third_lepton_veto = cfg.Sequence([
-        sel_muons_third_lepton_veto,
-        sel_electrons_third_lepton_veto,
+        sel_muons_third_lepton_veto_cleaned,
+        sel_electrons_third_lepton_veto_cleaned,
         third_lepton_veto_muons,
         third_lepton_veto_electrons
 ])
@@ -190,8 +171,8 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
-gt_mc = 'Fall17_17Nov2017_V6_MC'
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'
+gt_mc = 'Fall17_17Nov2017_V8_MC'
+gt_data = 'Fall17_17Nov2017{}_V8_DATA'
 
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
@@ -207,7 +188,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7
+    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
 )
 
 
@@ -277,6 +258,13 @@ met_filters = cfg.Analyzer(
     ]
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.METAnalyzer import METAnalyzer
+metana = cfg.Analyzer(
+    METAnalyzer,
+    name='metana'
+)
+    
+
 # Generator stuff ========================================================
 
 lheweight = cfg.Analyzer(
@@ -299,6 +287,14 @@ njets_ana = cfg.Analyzer(
     verbose=False
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.HTTGenAnalyzer import HTTGenAnalyzer
+httgenana = cfg.Analyzer(
+    HTTGenAnalyzer, 
+    'httgenana',
+    jetCol='slimmedJets',
+    genmatching=True,
+    genPtCut=8.
+)
 
 # Definition of the main sequences =======================================
 
@@ -311,15 +307,17 @@ sequence_beforedil = cfg.Sequence([
         electrons,
 ])
 
-sequence_beforedil.extend(sequence_third_lepton_veto)
 
 sequence_afterdil = cfg.Sequence([
         trigger, 
         trigger_match,
         met_filters,
         lheweight,
+        httgenana,
+        metana,
         pileup, 
         njets_ana,
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
+sequence_afterdil.extend(sequence_third_lepton_veto)

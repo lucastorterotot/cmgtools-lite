@@ -44,11 +44,6 @@ vetoes = Block(
     veto_extra_muon = v(lambda x: not x.veto_third_lepton_muons_passed, int),
 )
 
-# TODO add trigger flags
-trigger = Block(
-    'trigger', lambda x: x,
-)
-
 jets20 = Block(
     'jets20', lambda x: x.jets_20,
     n_jets_pt20 = v(lambda x: len(x), int),
@@ -99,6 +94,24 @@ weights = Block(
     weight_njet = v(lambda x : x.NJetWeight),
 ) 
 
+triggers = Block(
+    'triggers', lambda x: getattr(x.dileptons_sorted[0], 'matchedPaths', []),
+    trg_doubletau = v(lambda x : any('DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v' in name for name in x)),
+    trg_doubletau_lowpt = v(lambda x : any('DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v' in name for name in x)),
+    trg_doubletau_lowpt_mediso = v(lambda x : any('DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v' in name for name in x)),
+    trg_doubletau_mediso = v(lambda x : any('DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v' in name for name in x)),
+    trg_electrontau = v(lambda x : any('Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v' in name for name in x)),
+    trg_muonelectron_lowpte = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x)),
+    trg_muonelectron_lowptmu = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x)),
+    trg_muontau_lowptmu = v(lambda x : any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in name for name in x)),
+    trg_muontau_lowpttau = v(lambda x : any('IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v' in name for name in x)),
+    trg_singleelectron = v(lambda x : any('Ele35_WPTight_Gsf_v' in name for name in x)),
+    trg_singleelectron_lowpt = v(lambda x : any('Ele32_WPTight_Gsf_v' in name for name in x)),
+    trg_singlemuon = v(lambda x : any('IsoMu27_v' in name for name in x)),
+    trg_singlemuon_lowpt = v(lambda x : any('IsoMu24_v' in name for name in x)),
+    trg_singletau_leading = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x)),
+    trg_singletau_trailing = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x))
+)
 
 lepton_vars = dict(
     pt = v(lambda x: x.pt()),
@@ -110,13 +123,19 @@ lepton_vars = dict(
     weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
     d0 = v(lambda x: x.dxy()),
     dz = v(lambda x: x.dz()),
-    # todo : gen_match = v(lambda x: x.gen_match, int),
+    gen_match = v(lambda x: x.gen_match, int),
+)
+
+dilepton_vars = Block(
+    'dileptons', lambda x: x.pfmet,
+    met = v(lambda x: x.pt()),
+    metphi = v(lambda x: x.phi()),
 )
 
 electron_vars = dict(
     id_e_mva_nt_loose = v(lambda x: x.mvaRun2('NonTrigSpring15MiniAOD')), 
     weight_tracking = v(lambda x: getattr(x, 'weight_tracking', 1. )),
-    iso = v(lambda x: lep.iso_htt()),
+    iso = v(lambda x: x.iso_htt()),
 )
 
 muon_vars = dict(
@@ -159,7 +178,8 @@ for tauid in tau_ids:
 
 common = EventContent(
     [event, generator, weights, event_flags,
-     trigger, jets20, jets30, bjets, 
+     triggers, jets20, jets30, bjets, vetoes,
+     dilepton_vars,
      to_leg('l1_generic', lepton_vars, 'l1', 
             lambda x: x.dileptons_sorted[0].leg1()), 
      to_leg('l2_generic', lepton_vars, 'l2', 
@@ -173,3 +193,9 @@ mutau.append(to_leg('l1_specific', muon_vars, 'l1',
 mutau.append(to_leg('l2_specific', tau_vars, 'l2', 
                     lambda x: x.dileptons_sorted[0].leg2()))
 
+
+eletau = copy.copy(common)
+eletau.append(to_leg('l1_specific', electron_vars, 'l1', 
+                    lambda x: x.dileptons_sorted[0].leg1()))
+eletau.append(to_leg('l2_specific', tau_vars, 'l2', 
+                    lambda x: x.dileptons_sorted[0].leg2()))

@@ -25,7 +25,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 
 # production = True run on batch, production = False run locally
 test = getHeppyOption('test', True)
-syncntuple = getHeppyOption('syncntuple', False)
+syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
@@ -81,11 +81,11 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    comp.files = comp.files[:1]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    #comp.files = comp.files[:1]
+    #comp.splitFactor = 1
+    #comp.fineSplitFactor = 1
     selectedComponents = [comp]
-    comp.files = ['test.root']
+    #comp.files = ['file1.root']
 
 events_to_pick = []
 
@@ -265,7 +265,10 @@ from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
     return tau.pt()    > 20  and \
         abs(tau.eta()) < 2.3 and \
-        abs(tau.leadChargedHadrCand().dz()) < 0.2
+        abs(tau.dz()) < 0.2 and \
+        tau.tauID('decayModeFinding') > 0.5 and \
+        abs(tau.charge()) == 1. and \
+        tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
 sel_taus = cfg.Analyzer(
     Selector,
     'sel_taus',
@@ -286,7 +289,8 @@ def select_muon(muon):
     return muon.pt()    > 21  and \
         abs(muon.eta()) < 2.1 and \
         abs(muon.dxy()) < 0.045 and \
-        abs(muon.dz())  < 0.2
+        abs(muon.dz())  < 0.2 and \
+        muon.muonID("POG_ID_Medium")
 sel_muons = cfg.Analyzer(
     Selector, 
     'sel_muons',
@@ -369,6 +373,7 @@ from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
 from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import mutau as event_content_mutau
 ntuple = cfg.Analyzer(
     NtupleProducer,
+    name = 'NtupleProducer',
     outputfile = 'events.root',
     treename = 'events',
     event_content = event_content_mutau
@@ -379,6 +384,11 @@ sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
 sequence.append(ntuple)
+
+if events_to_pick:
+    from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
+    eventSelector.toSelect = events_to_pick
+    sequence.insert(0, eventSelector)
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
