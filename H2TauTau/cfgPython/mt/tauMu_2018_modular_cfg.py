@@ -81,9 +81,9 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    #comp.files = comp.files[:1]
-    #comp.splitFactor = 1
-    #comp.fineSplitFactor = 1
+    comp.files = comp.files[:1]
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
     selectedComponents = [comp]
     #comp.files = ['file1.root']
 
