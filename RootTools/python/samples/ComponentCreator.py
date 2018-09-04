@@ -7,7 +7,7 @@ class ComponentCreator(object):
 
     useAAA = None
 
-    def makeMCComponent(self,name,dataset,user,pattern,xSec=1,useAAA=True,unsafe=False,fracNegWeights=None,dbsInstance=None):
+    def makeMCComponent(self,name,dataset,user,pattern,xSec=1,useAAA=False,unsafe=False,fracNegWeights=None,dbsInstance=None):
         if self.__class__.useAAA is not None:
             useAAA = self.__class__.useAAA
         component = cfg.MCComponent(
