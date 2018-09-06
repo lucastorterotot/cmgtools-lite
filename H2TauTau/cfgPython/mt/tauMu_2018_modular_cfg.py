@@ -81,11 +81,11 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    comp.files = comp.files[:1]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
     selectedComponents = [comp]
-    #comp.files = ['file1.root']
+    # comp.files = comp.files[:1]
+    # comp.splitFactor = 1
+    # comp.fineSplitFactor = 1
+    # comp.files = ['test.root']
 
 events_to_pick = []
 
@@ -379,11 +379,20 @@ ntuple = cfg.Analyzer(
     event_content = event_content_mutau
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.colin.InteractiveDebug import InteractiveDebug 
+debug = cfg.Analyzer(
+    InteractiveDebug, 
+    verbose=False
+)
+
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
+# sequence.append(debug)
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
 sequence.append(ntuple)
+
+
 
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector

@@ -93,7 +93,6 @@ Electron.EffectiveArea03 = {
     'eta' : lambda x: x.superCluster().eta()
     }
 Electron.iso_htt = lambda x: x.relIso(0.3, "EA", 
-                                      area_cone_size='03', 
                                       all_charged=False)
 
 # third lepton veto =========================================================                  

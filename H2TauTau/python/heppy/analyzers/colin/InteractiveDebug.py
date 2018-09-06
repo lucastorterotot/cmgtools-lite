@@ -29,43 +29,36 @@ class InteractiveDebug(Analyzer):
         del ele.EffectiveArea03
         # provide table to method
         assert(ele.relIso(0.3, "EA", 
-                          area_cone_size='03', 
                           area_table = table,
                           all_charged=False) == httiso)
         ele.__class__.EffectiveArea03 = table
 
         ## check that relIso is compatible with absIso
         reliso = ele.relIso(0.3, "EA", 
-                            area_cone_size='03', 
                             area_table = table,
                             all_charged=False)
         absiso = ele.absIso(0.3, "EA", 
-                            area_cone_size='03', 
                             area_table = table,
                             all_charged=False)
         assert(absiso/ele.pt() == reliso)
 
         ## check abs iso arguments: 
         
-        area_cone_size = '03'
         area_table = table
         dbeta_factor = 0.5
         all_charged = False 
 
         args = [0.3]
-        all_kwargs = dict( area_cone_size='03', 
-                           area_table = table,
+        all_kwargs = dict( area_table = table,
                            dbeta_factor = 0.5,
                            all_charged = False) 
 
         succeeds = [
-            ['area_cone_size', 'area_table'],
+            ['area_table'],
             ['dbeta_factor'],
             ]
         fails = [
-            ['area_table'],
-            ['area_cone_size', 'area_table', 'dbeta_factor'],
-            ['dbeta_factor', 'area_cone_size'],
+            ['area_table', 'dbeta_factor'],
             ['dbeta_factor', 'area_table'],
             ]
         
@@ -92,9 +85,10 @@ class InteractiveDebug(Analyzer):
                     except:
                         pass
                     else:
-                        msg.append(pprint.pformat(the_args))
-                        msg.append(pprint.pformat(kwargs))
-                        raise ValueError('no exception caught\n' + msg)
+                        msg = 'no exception caught\n'
+                        msg += pprint.pformat(the_args)
+                        msg += pprint.pformat(kwargs)
+                        raise ValueError(msg)
 
         test_arglist(args, succeeds, success=True)
         test_arglist(args, fails, success=False)
