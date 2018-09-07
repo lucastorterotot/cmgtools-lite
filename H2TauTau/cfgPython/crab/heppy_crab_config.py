@@ -18,7 +18,10 @@ config.JobType.outputFiles = []
 config.section_("Data")
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventBased'
-config.Data.outLFNDirBase = '/store/user/' + os.environ["USER"]
+username = os.environ["USER"]
+if username == 'torterotot':
+    username = 'ltortero'
+config.Data.outLFNDirBase = '/store/user/' + username
 config.Data.publication = False
 
 config.section_("Site")

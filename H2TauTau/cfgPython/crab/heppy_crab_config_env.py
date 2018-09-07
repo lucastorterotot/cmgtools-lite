@@ -2,14 +2,14 @@
 # values we'll be taken from environment variables set in launchall.py
 # fixed options will be taken from heppy_crab_config.py
 
-import imp, os
+import imp, os, datetime
 file = open( "heppy_crab_config.py", 'r' )
 cfg = imp.load_source( 'cfg', "heppy_crab_config.py", file)
 config = cfg.config
 
 print "Will send dataset", os.environ["DATASET"], "with", os.environ["NJOBS"], "jobs"
 
-config.General.requestName = os.environ["DATASET"] + "_" + os.environ["CMG_VERSION"] # task name
+config.General.requestName = os.environ["DATASET"] + "_" + os.environ["CMG_VERSION"] + "_" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') # task name
 config.General.workArea = 'crab_' + os.environ["DATASET"] + "_" + os.environ["PROD_LABEL"] # crab dir name
 
 # this will divide task in *exactly* NJOBS jobs (for this we need JobType.pluginName = 'PrivateMC' and Data.splitting = 'EventBased')
