@@ -3,11 +3,23 @@
 # fixed options will be taken from heppy_crab_config.py
 
 import imp, os, datetime
-file = open( "heppy_crab_config.py", 'r' )
-cfg = imp.load_source( 'cfg', "heppy_crab_config.py", file)
+file = open( os.environ["CMSSW_BASE"]+"/src/CMGTools/H2TauTau/cfgPython/crab/heppy_crab_config.py", 'r' )
+cfg = imp.load_source( 'cfg', os.environ["CMSSW_BASE"]+"/src/CMGTools/H2TauTau/cfgPython/crab/heppy_crab_config.py", file)
 config = cfg.config
 
+print "Do not take into account previous number of jobs!"
 print "Will send dataset", os.environ["DATASET"], "with", os.environ["NJOBS"], "jobs"
+
+def ask_confirmation():
+    '''ask user confirmation for submission and exit if no'''
+    answer = None
+    while answer not in ['y','n']:
+        answer=raw_input('Confirm submission? [y/n]')
+    if answer == 'n':
+        print 'submission cancelled.'
+        sys.exit(3)
+ask_confirmation()
+
 
 config.General.requestName = os.environ["DATASET"] + "_" + os.environ["CMG_VERSION"] + "_" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') # task name
 config.General.workArea = 'crab_' + os.environ["DATASET"] + "_" + os.environ["PROD_LABEL"] # crab dir name
