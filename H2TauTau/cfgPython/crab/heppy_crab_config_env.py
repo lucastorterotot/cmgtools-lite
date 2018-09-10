@@ -7,7 +7,6 @@ file = open( os.environ["CMSSW_BASE"]+"/src/CMGTools/H2TauTau/cfgPython/crab/hep
 cfg = imp.load_source( 'cfg', os.environ["CMSSW_BASE"]+"/src/CMGTools/H2TauTau/cfgPython/crab/heppy_crab_config.py", file)
 config = cfg.config
 
-print "Do not take into account previous number of jobs!"
 print "Will send dataset", os.environ["DATASET"], "with", os.environ["NJOBS"], "jobs"
 
 def ask_confirmation():
