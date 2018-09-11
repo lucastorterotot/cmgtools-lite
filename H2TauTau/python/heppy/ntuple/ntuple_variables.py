@@ -39,7 +39,7 @@ for flag in flags:
 
 vetoes = Block(
     'vetoes', lambda x: x,
-    veto_dilepton = v(lambda x: not x.veto_dilepton_passed, int),
+    veto_dilepton = v(lambda x: not getattr(x,'veto_dilepton_passed',True), int),
     veto_extra_elec = v(lambda x: not x.veto_third_lepton_electrons_passed, int),
     veto_extra_muon = v(lambda x: not x.veto_third_lepton_muons_passed, int),
 )
@@ -198,4 +198,11 @@ eletau = copy.copy(common)
 eletau.append(to_leg('l1_specific', electron_vars, 'l1', 
                     lambda x: x.dileptons_sorted[0].leg1()))
 eletau.append(to_leg('l2_specific', tau_vars, 'l2', 
+                    lambda x: x.dileptons_sorted[0].leg2()))
+
+
+tautau = copy.copy(common)
+tautau.append(to_leg('l1_specific', tau_vars, 'l1', 
+                    lambda x: x.dileptons_sorted[0].leg1()))
+tautau.append(to_leg('l2_specific', tau_vars, 'l2', 
                     lambda x: x.dileptons_sorted[0].leg2()))

@@ -9,7 +9,7 @@ class NtupleProducer(TreeAnalyzerNumpy):
                 self.tree.var(varname, var.vtype, var.default, varname, var.storageType)
 
     def process(self, event):
-        for block in self.cfg_ana.event_content: 
+	for block in self.cfg_ana.event_content: 
             data = block.data_source(event)
             for varname, var in block.iteritems():
                 try:

@@ -54,7 +54,7 @@ class DiLeptonAnalyzer(Analyzer):
         pairs = []
         if l1s == l2s: 
             # same collection 
-            for l1, l2 in itertools.combination(l1s,2):
+            for l1, l2 in itertools.combinations(l1s,2):
                 pairs.append((l1,l2))
         else: 
             for l1 in l1s: 
