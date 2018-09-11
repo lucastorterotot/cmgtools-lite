@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-from CMGTools.H2TauTau.tools.crab_utilities import load_base_config, ask_confirmation
+from CRABAPI.RawCommand import crabCommand
+from CRABClient.ClientExceptions import ClientException
+from httplib import HTTPException
+
+from CMGTools.H2TauTau.tools.crab_utilities import load_base_config, ask_confirmation, create_config
 
 if __name__ == '__main__':
     import os
@@ -29,6 +33,10 @@ heppy_crabSubmit.py tauMu_2018_modular_cfg.py
                       action='store_true',
                       default=False,
                       help='verbose mode')
+    parser.add_option("-e", "--nevents_per_job", dest="nevents_per_job",
+                      default=int(5e4),
+                      type='int',
+                      help='desired approximate number of events per job. Defaults to 20k. Be aware that the larger the number of jobs, the more probable it is that your job is killed on the GRID because it is using too much memory. We do not advise values larger than 500k events.')
     parser.add_option("-r", "--request_name", dest="request_name",
                       default=None,
                       help='base name for this request. default: <date_time>. The task name is built as <component_name>_<basename>.')
@@ -59,31 +67,28 @@ heppy_crabSubmit.py tauMu_2018_modular_cfg.py
     conf = cfo.config
     handle.close()
     print '----------------------------------------------------------------------'
-    #print 'Ignore this number of jobs: not relevant for crab.'
 
     os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
     os.system("tar czf cmgdataset.tar.gz --directory $HOME .cmgdataset")
     os.system("tar czf cafpython.tar.gz --directory /afs/cern.ch/cms/caf/ python")
 
-    print "Will send datasets:"
-    for comp in conf.components:
-        print "-", str(comp.name), "with", str(len(split([comp]))), "jobs"
-        
-    if options.dryrun:
-        print 'Dry run, nothing happened.'
+    selected_components = conf.components
+
+    base_config = load_base_config(options.config)
+    for component in selected_components:
+        create_config(component, options, base_config, heppy_cfg=heppy_config)
         
     if not options.dryrun:
         print 
         ask_confirmation()
-        print 
-        print 'Submitting heppy jobs based on', os.path.basename(heppy_config)
-        for comp in conf.components:
-            print "-", str(comp.name), "dataset with", str(len(split([comp]))), "jobs"
-            os.environ["DATASET"] = str(comp.name)
-            os.environ["NJOBS"] = str(len(split([comp])))
-            os.environ["CFG_FILE"] = heppy_config
-            os.system("crab submit %s -c {}".format(options.config)%("--dryrun" if options.dryrun else ""))
-            #crabCommand('submit', config=options.config)
+
+    if not options.dryrun:
+        for component in selected_components:
+            print 'submitting:'
+            print component.dataset
+            print component.config
+            import pdb; pdb.set_trace()
+            crabCommand('submit', config=component.config)
         
     os.system("rm options.json")
     os.system("rm python.tar.gz")

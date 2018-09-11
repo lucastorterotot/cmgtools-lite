@@ -1,6 +1,27 @@
 #!/usr/bin/env python
 
-from CMGTools.H2TauTau.tools.crab_utilities import load_base_config, ask_confirmation, get_selected_components, nfiles_per_job
+from CMGTools.H2TauTau.proto.samples.component_index import ComponentIndex
+
+from CRABAPI.RawCommand import crabCommand
+from CRABClient.ClientExceptions import ClientException
+from httplib import HTTPException
+
+from CMGTools.H2TauTau.tools.crab_utilities import load_base_config, ask_confirmation, nfiles_per_job, create_config
+    
+def get_selected_components(pattern_or_fname):
+    '''Returns the list of components matching pattern_or_fname.
+    pattern_or_fname can be: 
+    - a wildcard pattern
+    - a comma-separated list of patterns
+    - the path to a file containing on each line a pattern
+    '''
+    if os.path.isfile(pattern_or_fname):
+        sys.exit(4)
+    patterns = pattern_or_fname.split(',')
+    selected=[]
+    for pattern in patterns:
+        selected.extend(index.glob(pattern))
+    return selected
 
 if __name__ == '__main__':
     import os
@@ -88,6 +109,7 @@ Example of use:
             print 'submitting:'
             print component.dataset
             print component.config
+            import pdb; pdb.set_trace()
             crabCommand('submit', config=component.config)
         
     

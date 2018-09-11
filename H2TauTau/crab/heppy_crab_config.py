@@ -2,18 +2,14 @@ import os, imp, datetime
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
-config.General.requestName = 'heppy_' + os.environ["DATASET"] + "_" + os.environ["CMSSW_VERSION"] +  "_" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') # task name
+config.General.requestName = 'heppy_crab' +  "_" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 config.General.workArea = 'heppy_crab_projects'
-
-config.section_("General")
+config.General.transferOutputs = True
 config.General.transferLogs = True
 
-config.section_("JobType")
 config.JobType.pluginName = 'PrivateMC'
 config.JobType.psetName = os.environ["CMSSW_BASE"]+'/src/CMGTools/H2TauTau/crab/heppy_crab_fake_pset.py'
 config.JobType.scriptExe = os.environ["CMSSW_BASE"]+'/src/CMGTools/H2TauTau/crab/heppy_crab_script.sh'
-#config.JobType.disableAutomaticOutputCollection = True
-# config.JobType.sendPythonFolder = True  #doesn't work, not supported yet? do it by hand
 
 config.JobType.inputFiles = [
     os.environ["CMSSW_BASE"]+'/src/CMGTools/H2TauTau/crab/FrameworkJobReport.xml',
@@ -23,22 +19,18 @@ config.JobType.inputFiles = [
     'cafpython.tar.gz',
     'options.json'
 ]
-config.JobType.inputFiles.append(os.environ["CFG_FILE"])
-
 config.JobType.outputFiles = []
 
-config.section_("Data")
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventBased'
 config.Data.unitsPerJob = 10
-config.Data.totalUnits = config.Data.unitsPerJob * int(os.environ["NJOBS"])
+#config.Data.totalUnits = config.Data.unitsPerJob * int(os.environ["NJOBS"])
 
-config.Data.outLFNDirBase  = '/store/user/%s/' % (getUsernameFromSiteDB())
-config.Data.outLFNDirBase += '/heppy_crab/' + os.environ["CMSSW_VERSION"]
+config.Data.outLFNDirBase  = '/store/user/{username}/heppy_crab/{CMSSW_VERSION}/'.format(username=getUsernameFromSiteDB(), CMSSW_VERSION=os.environ["CMSSW_VERSION"])
 
 config.Data.publication = False
 
-config.section_("Site")
+config.Site.storageSite = 'T3_FR_IPNL'
 config.Site.whitelist = [
     'T3_FR_IPNL',
     # "T2_CH_CSCS", 
@@ -66,4 +58,3 @@ config.Site.whitelist = [
     # "T2_US_Caltech",
 ]
 
-config.Site.storageSite = 'T3_FR_IPNL'
