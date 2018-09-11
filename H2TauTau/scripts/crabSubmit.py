@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from CMGTools.H2TauTau.tools.crab_utilities import load_base_config, ask_confirmation
+from CMGTools.H2TauTau.tools.crab_utilities import load_base_config, ask_confirmation, get_selected_components, nfiles_per_job
 
 if __name__ == '__main__':
     import os
