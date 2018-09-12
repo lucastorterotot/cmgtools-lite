@@ -81,17 +81,21 @@ electrons = cfg.Analyzer(
 
 # setting up an alias for our isolation, now use iso_htt everywhere
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
-Electron.EffectiveArea03 = { 
-    '03' : 
-    [ (1.000, 0.1440),
-      (1.479, 0.1562),
-      (2.000, 0.1032),
-      (2.200, 0.0859),
-      (2.300, 0.1116),
-      (2.400, 0.1321),
-      (2.500, 0.1654) ],
-    'eta' : lambda x: x.superCluster().eta()
-    }
+from PhysicsTools.Heppy.physicsutils.EffectiveAreas import areas
+
+Electron.EffectiveArea03 = areas['Fall17']['electron']
+
+# Electron.EffectiveArea03 = { 
+#     '03' : 
+#     [ (1.000, 0.1440),
+#       (1.479, 0.1562),
+#       (2.000, 0.1032),
+#       (2.200, 0.0859),
+#       (2.300, 0.1116),
+#       (2.400, 0.1321),
+#       (2.500, 0.1654) ],
+#     'eta' : lambda x: x.superCluster().eta()
+#     }
 Electron.iso_htt = lambda x: x.relIso(0.3, "EA", 
                                       all_charged=False)
 
