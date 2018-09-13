@@ -59,18 +59,26 @@ heppy_crabSubmit.py tauMu_2018_modular_cfg.py
     optjsonfile.write(json.dumps(_heppyGlobalOptions))
     optjsonfile.close()
 
-    print '----------------------------------------------------------------------'
+    print '______________________________________________________________________'
+    print 
     print 'Heppy outputs:'
-    print ' '
+    print 
     handle = open(heppy_config, 'r')
     cfo = imp.load_source(heppy_config.split('/')[-1].rstrip(".py"), heppy_config, handle)
     conf = cfo.config
     handle.close()
-    print '----------------------------------------------------------------------'
+    print '______________________________________________________________________'
+    print 
 
+    print 'Preparing python files...'
     os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
+    print 'Preparing cmgdataset files...'
     os.system("tar czf cmgdataset.tar.gz --directory $HOME .cmgdataset")
+    print 'Preparing cafpython files...'
     os.system("tar czf cafpython.tar.gz --directory /afs/cern.ch/cms/caf/ python")
+
+    print 'Preparing configurations for components...'
+    print
 
     selected_components = conf.components
 
@@ -87,10 +95,27 @@ heppy_crabSubmit.py tauMu_2018_modular_cfg.py
             print 'submitting:'
             print component.dataset
             print component.config
-            import pdb; pdb.set_trace()
-            crabCommand('submit', config=component.config)
-        
+            component_heppy_crab_submit_cfg_file_name = '_'.join([
+                    'crab_submit_cfg', 
+                    component.config.General.requestName
+                    ])
+            component_heppy_crab_submit_cfg_file_name += '.py'
+            component_heppy_crab_submit_cfg_file = open(
+                component_heppy_crab_submit_cfg_file_name,
+                'w'
+                )
+            component_heppy_crab_submit_cfg_file.write(str(component.config))
+            component_heppy_crab_submit_cfg_file.close()
+            os.system("crab submit -c {}".format(component_heppy_crab_submit_cfg_file_name))
+            #crabCommand('submit', config=component.config) # seems to be not able to submit heppy jobs
+            os.system('rm ' + component_heppy_crab_submit_cfg_file_name.rstrip(".py") + '*')
+    
+    print 
+    print 'All components submitted.'
+    print 'Removing secondary submission files...'
     os.system("rm options.json")
     os.system("rm python.tar.gz")
     os.system("rm cmgdataset.tar.gz")
     os.system("rm cafpython.tar.gz")
+    print 
+    print 'Done.'

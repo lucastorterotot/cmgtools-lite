@@ -43,7 +43,7 @@ def create_config(component, options, base_config, heppy_cfg=None):
     request_name = '_'.join([component.name,request_name])
     if heppy_cfg:
         config.JobType.inputFiles.append(heppy_cfg)
-        request_name = '_'.join(['heppy',request_name])
+        request_name = '_'.join(['heppy',os.environ['CMSSW_VERSION'],request_name])
     else:
         config.Data.inputDataset = component.dataset
     config.General.requestName = request_name
