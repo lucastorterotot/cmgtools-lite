@@ -54,7 +54,7 @@ def create_config(component, options, base_config, heppy_cfg=None):
     if heppy_cfg:
         config.Data.totalUnits =  nfiles
         config.Data.outputDatasetTag = str(component.name)
-        config.JobType.scriptArgs = ["dataset="+config.Data.outputDatasetTag, "total={}".format(nfiles), "useAAA=True", "cfgfile="+heppy_cfg.split('/')[-1]]
+        config.JobType.scriptArgs = ["dataset="+config.Data.outputDatasetTag, "total={}".format(nfiles), "useAAA=full", "cfgfile="+heppy_cfg.split('/')[-1]]
         config.Data.outputPrimaryDataset = os.path.basename(heppy_cfg).rstrip('.py')
 
     print 'Task:', 
