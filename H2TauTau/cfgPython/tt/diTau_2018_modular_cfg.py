@@ -299,16 +299,31 @@ dilepton = cfg.Analyzer(
     dr_min = 0.5
 )
 
+def sorting_metric(dilepton):
+    leg1_iso = dilepton.leg1().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')
+    leg2_iso = dilepton.leg2().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')
+    if leg1_iso > leg2_iso:
+        most_isolated_tau_isolation = leg1_iso
+        most_isolated_tau_pt = dilepton.leg1().pt()
+        least_isolated_tau_isolation = leg2_iso
+        least_isolated_tau_pt = dilepton.leg2().pt()
+    else:
+        most_isolated_tau_isolation = leg2_iso
+        most_isolated_tau_pt = dilepton.leg2().pt()
+        least_isolated_tau_isolation = leg1_iso
+        least_isolated_tau_pt = dilepton.leg1().pt()
+    return (-most_isolated_tau_isolation,
+             -most_isolated_tau_pt,
+             -least_isolated_tau_isolation,
+             -least_isolated_tau_pt)
+
 from CMGTools.H2TauTau.heppy.analyzers.Sorter import Sorter
 dilepton_sorted = cfg.Analyzer(
     Sorter,
     output = 'dileptons_sorted',
     src = 'dileptons',
     # sort by ele iso, ele pT, tau iso, tau pT
-    metric = lambda dl: (dl.leg1().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017'), 
-                         -dl.leg1().pt(), 
-                         -dl.leg2().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017'), 
-                         -dl.leg2().pt()),
+    metric = sorting_metric,
     reverse = False
     )
 
