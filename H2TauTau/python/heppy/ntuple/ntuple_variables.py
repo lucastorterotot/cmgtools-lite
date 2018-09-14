@@ -122,7 +122,7 @@ lepton_vars = dict(
     weight_idso = v(lambda x: getattr(x, 'weight_idiso', 1.)),
     weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
     d0 = v(lambda x: x.dxy()),
-    dz = v(lambda x: x.dz()),
+    dz = v(lambda x: x.leadChargedHadrCand().dz()),
     gen_match = v(lambda x: x.gen_match, int),
 )
 
