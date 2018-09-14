@@ -26,13 +26,13 @@ config.JobType.outputFiles.append("heppyOutput.tgz")
 
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventBased'#'FileBased'#
-config.Data.unitsPerJob = 1
+config.Data.unitsPerJob = 1#0
 #config.Data.totalUnits = config.Data.unitsPerJob * int(os.environ["NJOBS"])
 
 config.Data.outLFNDirBase  = '/store/user/{username}/heppy_crab/{CMSSW_VERSION}/'.format(username=getUsernameFromSiteDB(), CMSSW_VERSION=os.environ["CMSSW_VERSION"])
 
 config.Data.publication = False
-config.Data.ignoreLocality = True # AAA parameter needed
+config.Data.ignoreLocality = True
 
 config.Site.storageSite = 'T3_FR_IPNL'
 config.Site.whitelist = [

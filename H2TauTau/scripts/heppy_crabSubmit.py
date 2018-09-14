@@ -106,7 +106,12 @@ heppy_crabSubmit.py tauMu_2018_modular_cfg.py
                 )
             component_heppy_crab_submit_cfg_file.write(str(component.config))
             component_heppy_crab_submit_cfg_file.close()
-            os.system("crab submit -c {}".format(component_heppy_crab_submit_cfg_file_name))
+            import pdb; pdb.set_trace()
+            os.system("crab submit -c {}".format(
+                    '/'.join([
+                            os.getcwd(),
+                            component_heppy_crab_submit_cfg_file_name
+                            ])))
             #crabCommand('submit', config=component.config) # seems to be not able to submit heppy jobs
             os.system('rm ' + component_heppy_crab_submit_cfg_file_name.rstrip(".py") + '*')
     
