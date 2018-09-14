@@ -55,8 +55,8 @@ from CMGTools.H2TauTau.proto.samples.fall17.data import data_tau
 from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
 from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
 from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import backgrounds
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_diTau import mc_triggers, mc_triggerfilters
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_diTau import data_triggers, data_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import mc_triggers, mc_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers, data_triggerfilters
 from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC
 
 mc_list = backgrounds + sync_list + mssm_signals
@@ -316,23 +316,19 @@ dilepton_sorted = cfg.Analyzer(
 
 sequence_dilepton = cfg.Sequence([
         sel_taus,
-        one_tau,
-        sel_electrons,
-        one_electron,
-        sel_electrons_dilepton_veto,
-        dilepton_veto,
+        two_tau,
         dilepton,
         dilepton_sorted,
         ])
 
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
-from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import eletau as event_content_eletau
+from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import tautau as event_content_eletau
 ntuple = cfg.Analyzer(
     NtupleProducer,
     name = 'NtupleProducer',
     outputfile = 'events.root',
     treename = 'events',
-    event_content = event_content_eletau
+    event_content = event_content_tautau
 )
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
