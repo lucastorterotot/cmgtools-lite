@@ -267,9 +267,9 @@ from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
     return tau.pt()    > 40  and \
         abs(tau.eta()) < 2.1 and \
-        abs(tau.dz()) < 0.2 and \
+        abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
-        # abs(tau.charge()) == 1. and \
+        abs(tau.charge()) == 1. and \
         tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
 sel_taus = cfg.Analyzer(
     Selector,
