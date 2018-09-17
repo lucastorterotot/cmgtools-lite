@@ -91,6 +91,9 @@ if test:
 
 events_to_pick = []
 
+from CMGTools.H2TauTau.heppy.sequence.common import debugger
+condition = None # lambda event : len(event.sel_taus)>2
+
 ###############
 # Analyzers 
 ###############

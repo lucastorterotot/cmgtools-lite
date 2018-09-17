@@ -89,6 +89,9 @@ if test:
 
 events_to_pick = []
 
+from CMGTools.H2TauTau.heppy.sequence.common import debugger
+debugger.condition = None # lambda event : len(event.sel_taus)>2
+
 ###############
 # Analyzers 
 ###############
@@ -379,15 +382,8 @@ ntuple = cfg.Analyzer(
     event_content = event_content_mutau
 )
 
-from CMGTools.H2TauTau.heppy.analyzers.colin.InteractiveDebug import InteractiveDebug 
-debug = cfg.Analyzer(
-    InteractiveDebug, 
-    verbose=False
-)
-
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
-# sequence.append(debug)
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
 sequence.append(ntuple)
