@@ -1,14 +1,14 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 
-class Debogger(Analyzer):
-    '''Uses pdb debogger to stop at the end of an event.
+class Debugger(Analyzer):
+    '''Uses pdb debugger to stop at the end of an event.
     It is possible to make a conditionnal stop using the
     [condition] argument.
 
     Example::
-         has_3_cleaned_muons_debogger = cfg.Analyzer(
-           Debogger,
-           'has_3_cleaned_muons_debogger',
+         has_3_cleaned_muons_debugger = cfg.Analyzer(
+           Debugger,
+           'has_3_cleaned_muons_debugger',
            condition = lambda x : [getattr(x,'dileptons_sorted')[0].leg1(),
            getattr(x,'dileptons_sorted')[0].leg2()]
          )
