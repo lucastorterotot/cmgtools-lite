@@ -100,11 +100,11 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
     else:
         samples_essential += [
             SampleCfg(name='ZTT', dir_name=DYJetsToLL_M50_LO_ext2.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name,
-                      xsec=dy_xsec*3.370/100, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=ztt_cut),
+                      xsec=dy_xsec*3.370/100, sumweights=108708*0.9389, weight_expr=ztt_cut),
             SampleCfg(name='ZL', dir_name=DYJetsToLL_M50_LO_ext2.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name,
-                      xsec=dy_xsec*(3.366+3.370)/100, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=zl_cut),
+                      xsec=dy_xsec*(3.366+3.370)/100, sumweights=1.022897e+07*1.684, weight_expr=zl_cut),
             SampleCfg(name='ZJ', dir_name=DYJetsToLL_M50_LO_ext2.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name,
-                      xsec=dy_xsec*0.6991, sumweights=DYJetsToLL_M50_LO_ext2.nGenEvents, weight_expr=zj_cut),
+                      xsec=dy_xsec*(11.6+15.6+12.03+15.12)/100, sumweights=327335*0.9882, weight_expr=zj_cut),
             ]
 
     if channel == 'tt':
@@ -115,7 +115,7 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
         ]
     else:
         samples_essential += [
-            SampleCfg(name='TT', dir_name='TT_pow', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=TT_pow.xSection, sumweights=TT_pow.nGenEvents),
+            SampleCfg(name='TT', dir_name='TT_pow', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=TT_pow.xSection, sumweights=1.063*7713803),
         ]
 
     samples_essential += [
@@ -154,8 +154,9 @@ def createSampleLists(analysis_dir='/afs/cern.ch/user/s/steggema/work/public/mt/
             samples_essential += [
                 SampleCfg(name='ZLL'+n_jet_name, dir_name=sample.name, ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=1., sumweights=1., weight_expr='('+zl_cut+' || '+zj_cut+')'+dy_exp)]
     samples_essential += [
-        SampleCfg(name='WJets', dir_name='WJetsToLNu_LO', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=w_xsec, sumweights=1., weight_expr=w_exp), #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
-        SampleCfg(name='WJets_ext', dir_name='WJetsToLNu_LO_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=w_xsec, sumweights=1., weight_expr=w_exp)] #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
+        SampleCfg(name='WJets', dir_name='WJetsToLNu_LO', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=w_xsec*(10.71+10.63+11.38)/100, sumweights=1., weight_expr=w_exp), #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
+        SampleCfg(name='WJets_ext', dir_name='WJetsToLNu_LO_ext', ana_dir=analysis_dir, tree_prod_name=tree_prod_name, xsec=w_xsec*(10.71+10.63+11.38)/100, sumweights=1., weight_expr=w_exp)] #, sumweights=WJetsToLNu_LO.nevents[0]) #, weight_expr=w_exp)
+
             ###GAEL
     for sample in WNJets:
         n_jet_name = str(sample.name[sample.name.find('Jets')-1])+'Jets'
@@ -388,6 +389,8 @@ def setSumWeights(sample, weight_dir='MCWeighter'):
         counters = dict(pckobj)
         if 'Sum Unity Weights' in counters:
             sample.sumweights = counters['Sum Unity Weights']
+        if 'Sum Weights' in counters and 'Sum Unity Weights' not in counters:
+            sample.sumweights = counters['Sum Weights']
         if sample.name in ['VVTo2L2Nu', 'VVTo2L2Nu_ext', 'VVTo2L2Nu_ext_T', 'VVTo2L2Nu_ext_J', 'VVTo2L2Nu_T', 'VVTo2L2Nu_J']:
             pckobj2 = pickle.load(open(pckfile2, 'r'))
             counters2 = dict(pckobj2)

@@ -128,6 +128,7 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
             # Do another multidraw here, if needed, and reset the scales in a separate loop
             if shape_cut != norm_cut:
                 scale = hist.Integral()
+                import pdb; pdb.set_trace()
                 ttree.Project(hname, vcfg.drawname, shape_cut)
                 hist.Scale(scale/hist.Integral())
 
@@ -150,10 +151,16 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                         #     import pdb;pdb.set_trace()
                         ### Renormalisation debug Lucas
                         lumi_fb = hist_cfg.lumi * 1.e-3
-                        Nevts = lumi_fb*cfg.xsec
+                        Nevts = hist_cfg.lumi*cfg.xsec
+                        tree_file =  TFile.Open('/'.join([cfg.ana_dir,cfg.dir_name,cfg.tree_prod_name,cfg.tree_name])+'.root',"read")
+                        Entries_in_tree = tree_file.tree.GetEntries()
+                        Entries_in_plot = hists[vcfg.name].GetEntries()
+                        #import pdb; pdb.set_trace()
+                        if cfg.sumweights == 1:
+                            #import pdb; pdb.set_trace()
+                            cfg.sumweights = Entries_in_tree
                         plot_hist.SetWeight(1)
                         ref_scale = plot_hist.Integral()*cfg.sumweights
-                        #import pdb; pdb.set_trace()
                         if ref_scale == 0:
                             hist_to_add.SetWeight(0)
                         else:
@@ -169,10 +176,15 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                         #     import pdb;pdb.set_trace()
                         ### Renormalisation debug Lucas
                         lumi_fb = hist_cfg.lumi * 1.e-3
-                        Nevts = lumi_fb*cfg.xsec
+                        Nevts = hist_cfg.lumi*cfg.xsec
+                        tree_file =  TFile.Open('/'.join([cfg.ana_dir,cfg.dir_name,cfg.tree_prod_name,cfg.tree_name])+'.root',"read")
+                        Entries_in_tree = tree_file.tree.GetEntries()
+                        Entries_in_plot = hists[vcfg.name].GetEntries()
+                        if cfg.sumweights ==1:
+                            #import pdb; pdb.set_trace()
+                            cfg.sumweights = Entries_in_tree
                         plot_hist.SetWeight(1)
                         ref_scale = plot_hist.Integral()*cfg.sumweights
-                        #import pdb; pdb.set_trace()
                         if ref_scale == 0:
                             plot_hist.SetWeight(0)
                         else:
@@ -180,6 +192,7 @@ def createHistograms(hist_cfg, all_stack=False, verbose=False, friend_func=None,
                         # plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
     for plot in plots.itervalues():
         plot._ApplyPrefs()
+    import pdb; pdb.set_trace()
     return plots
 
 
@@ -241,6 +254,7 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False, friend_func=None):
                 norm_cut = '({c}) * {we}'.format(c=norm_cut, we=weight)
                 shape_cut = '({c}) * {we}'.format(c=shape_cut, we=weight)
             
+            import pdb; pdb.set_trace()
             ttree.Project(hname, vcfg.drawname, norm_cut)
 
             if shape_cut != norm_cut:
@@ -257,13 +271,33 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False, friend_func=None):
                 print 'Histogram', cfg.name, 'already exists; adding...', cfg.dir_name
                 hist_to_add = Histogram(cfg.name, hist)
                 if (not cfg.is_data) and not cfg.name=='jetFakes':
-                    hist_to_add.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
+                    ### Renormalisation debug Lucas
+                    lumi_fb = hist_cfg.lumi * 1.e-3
+                    Nevts = hist_cfg.lumi*cfg.xsec
+                    plot_hist.SetWeight(1)
+                    ref_scale = plot_hist.Integral()*cfg.sumweights
+                    #import pdb; pdb.set_trace()
+                    if ref_scale == 0:
+                        hist_to_add.SetWeight(0)
+                    else:
+                        hist_to_add.SetWeight(Nevts/ref_scale)
+                    #hist_to_add.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
                 plot[cfg.name].Add(hist_to_add)
             else:
                 plot_hist = plot.AddHistogram(cfg.name, hist, stack=stack)
 
                 if (not cfg.is_data) and not cfg.name=='jetFakes':
-                    plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
+                    ### Renormalisation debug Lucas
+                    lumi_fb = hist_cfg.lumi * 1.e-3
+                    Nevts = hist_cfg.lumi*cfg.xsec
+                    plot_hist.SetWeight(1)
+                    ref_scale = plot_hist.Integral()*cfg.sumweights
+                    #import pdb; pdb.set_trace()
+                    if ref_scale == 0:
+                        plot_hist.SetWeight(0)
+                    else:
+                        plot_hist.SetWeight(Nevts/ref_scale)
+                    #plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)
 
     plot._ApplyPrefs()
     return plot

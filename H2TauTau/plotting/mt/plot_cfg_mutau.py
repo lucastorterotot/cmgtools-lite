@@ -257,17 +257,17 @@ def makePlots(variables, cuts, total_weight, all_samples, samples, friend_func, 
             iso_sideband_cut = (~iso_cut) & max_iso_cut
             OS_cut = Cut('l1_charge != l2_charge')
             SS_cut = ~OS_cut
-            # all_samples_qcd = qcd_estimation(
-            #     cut.cut & iso_cut          & SS_cut,  # shape sideband
-            #     cut.cut & iso_sideband_cut & OS_cut,  # norm sideband 1
-            #     cut.cut & iso_sideband_cut & SS_cut,  # norm sideband 2
-            #     all_samples if mode in ['mssm'] else samples,
-            #     int_lumi,
-            #     total_weight,
-            #     verbose=verbose,
-            #     friend_func=friend_func
-            # )
-            all_samples_qcd = all_samples
+            all_samples_qcd = qcd_estimation(
+                cut.cut & iso_cut          & SS_cut,  # shape sideband
+                cut.cut & iso_sideband_cut & OS_cut,  # norm sideband 1
+                cut.cut & iso_sideband_cut & SS_cut,  # norm sideband 2
+                all_samples if mode in ['mssm'] else samples,
+                int_lumi,
+                total_weight,
+                verbose=verbose,
+                friend_func=friend_func
+            )
+            #all_samples_qcd = all_samples
 
             # now include charge and isolation too
             isSS = 'SS' in cut.name
@@ -400,7 +400,7 @@ if __name__ == '__main__':
     all_samples, samples = createSamples(mode, analysis_dir, optimisation)
     ########### Lucas debug internship
     selected_all_samples_to_plot = []
-    samples_to_ignore = ['WJetsToLNu_LO', 'WJetsToLNu_LO_ext'] # ['DYJetsToLL_M10to50_LO', 'TT_pow', 'DYJetsToLL_M50_LO_ext','DYJetsToLL_M50_LO_ext2']#, 'WJetsToLNu_LO', 'WJetsToLNu_LO_ext']
+    samples_to_ignore = []# ['DYJetsToLL_M10to50_LO', 'DYJetsToLL_M50_LO_ext','DYJetsToLL_M50_LO_ext2','TT_pow']# 'WJetsToLNu_LO', 'WJetsToLNu_LO_ext']
     for sample in all_samples:
         if sample.dir_name in os.listdir(analysis_dir) and sample.dir_name not in samples_to_ignore:
             selected_all_samples_to_plot.append(sample)

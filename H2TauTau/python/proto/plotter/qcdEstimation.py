@@ -17,15 +17,15 @@ def qcd_estimation(B_cut, C_cut, D_cut, all_samples, int_lumi, total_weight, sca
     
     Returns an updated list of samples that includes the QCD HistgramCfg.
     '''
-    
+ 
     norm_var = dict_all_vars['_norm_']
-
+    import pdb; pdb.set_trace()
     QCD_C_region_cut = C_cut
     QCD_D_region_cut = D_cut
     QCD_B_region_cut = B_cut
         
     samples_qcd_copy = copy.deepcopy( [s for s in all_samples if s.name != 'QCD' and not s.is_signal] )
-    samples_qcd_copy = [s for s in samples_qcd_copy if not s.is_signal]
+    #samples_qcd_copy = [s for s in samples_qcd_copy if not s.is_signal]
     
     for sample in samples_qcd_copy:
         sample.scale = scale if sample.name == 'data_obs' else -scale
@@ -64,7 +64,10 @@ def qcd_estimation(B_cut, C_cut, D_cut, all_samples, int_lumi, total_weight, sca
         print 'QCD estimation: '
         print '  Yield C:', yield_c, ' yield D:', yield_d
         print '  Ratio C/D', qcd_scale
-
+    
+    qcd_scale = 1.06
+    print '/!\ qcd scale set to 1.06 according to twiki'
+    
     qcd_b_region_hist = HistogramCfg(name='QCD', var=None, cfgs=samples_qcd_copy, cut=str(QCD_B_region_cut), lumi=int_lumi, weight=total_weight, total_scale=qcd_scale)
     
     all_samples_qcd = copy.deepcopy(all_samples)

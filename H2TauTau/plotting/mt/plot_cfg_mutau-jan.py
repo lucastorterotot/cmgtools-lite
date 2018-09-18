@@ -347,12 +347,14 @@ if __name__ == '__main__':
             if sample.dir_name in os.listdir(analysis_dir) and sample.dir_name not in samples_to_ignore:
                 selected_all_samples_to_plot.append(sample)
         sample_dict['all_samples'] = selected_all_samples_to_plot
-        import pdb; pdb.set_trace()
-        for key in hist_dict :
+        #import pdb; pdb.set_trace()
+        for key in hist_dict.keys() :
             cfgs_to_keep = []
             for cfg in hist_dict[key].cfgs:
-                if cfg.dir_name in os.listdir(analysis_dir) and cfg.dir_name not in samples_to_ignore :
-                    cfgs_to_keep.append(cfg)
+                if hasattr(cfg, 'dir_name'):
+                    if cfg.dir_name in os.listdir(analysis_dir) and cfg.dir_name not in samples_to_ignore :
+                        cfgs_to_keep.append(cfg)
+            cfgs_to_keep.append(hist_dict[key].cfgs[-1])
             hist_dict[key].cfgs = cfgs_to_keep
         ###########
         makePlots(variables, cuts, total_weight, sample_dict, hist_dict, qcd_from_same_sign, w_qcd_mssm_method, mt_cut, friend_func, dc_postfix='', create_trees=False)

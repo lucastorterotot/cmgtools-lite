@@ -78,7 +78,7 @@ class H2TauTauMC( AnalysisDataMC ):
                     var = varName + '* sqrt(0.97)'
             else:
                 raise ValueError( self.shift + ' is not recognized. Use None, "Up" or "Down".')
-            
+        import pdb, pdb.set_trace()    
         tree.Project( histName, var, '{weight}*({cut})'.format(cut=cut,
                                                                weight=weight) )
         hist.SetStats(0)
