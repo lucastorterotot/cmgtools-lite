@@ -26,4 +26,5 @@ class Debugger(Analyzer):
             else:
                 return True
         else:
-            import pdb;pdb.set_trace()
+            # if condition is not set, or is None, do nothing
+            return True
