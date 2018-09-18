@@ -122,7 +122,6 @@ lepton_vars = dict(
     weight_idso = v(lambda x: getattr(x, 'weight_idiso', 1.)),
     weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
     d0 = v(lambda x: x.dxy()),
-    dz = v(lambda x: x.leadChargedHadrCand().dz()),
     gen_match = v(lambda x: x.gen_match, int),
 )
 
@@ -136,11 +135,13 @@ electron_vars = dict(
     id_e_mva_nt_loose = v(lambda x: x.mvaRun2('NonTrigSpring15MiniAOD')), 
     weight_tracking = v(lambda x: getattr(x, 'weight_tracking', 1. )),
     iso = v(lambda x: x.iso_htt()),
+    dz = v(lambda x: x.dz()),
 )
 
 muon_vars = dict(
     weight_tracking = v(lambda x: getattr(x, 'weight_tracking', 1. )),
-    iso = v(lambda x: x.iso_htt()),   
+    iso = v(lambda x: x.iso_htt()), 
+    dz = v(lambda x: x.dz()),  
 )
 
 tau_ids = [
@@ -167,6 +168,7 @@ tau_ids = [
 tau_vars = dict(
     # weight_fakerate = v(lambda x: x),
     decay_mode = v(lambda x: x.decayMode(), int),
+    dz = v(lambda x: x.leadChargedHadrCand().dz()),
 )
 
 # necessary, or all lambdas will be the same! 
