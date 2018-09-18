@@ -339,7 +339,7 @@ sequence_afterdil = cfg.Sequence([
         metana,
         pileup, 
         njets_ana,
-        #debugger
+        debugger
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
