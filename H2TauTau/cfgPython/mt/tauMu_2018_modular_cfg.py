@@ -266,7 +266,7 @@ debugger.condition = None # lambda event : len(event.sel_taus)>2
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
-    return tau.pt()    > 20  and \
+    return tau.pt()    >= 20  and \
         abs(tau.eta()) < 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
@@ -289,11 +289,11 @@ one_tau = cfg.Analyzer(
 )
 
 def select_muon(muon):
-    return muon.pt()    > 21  and \
+    return muon.pt()    >= 21  and \
         abs(muon.eta()) < 2.1 and \
         abs(muon.dxy()) < 0.045 and \
         abs(muon.dz())  < 0.2 and \
-        muon.muonID("POG_ID_Medium")
+        muon.isMediumMuon()  # muon.muonID("POG_ID_Medium")
 sel_muons = cfg.Analyzer(
     Selector, 
     'sel_muons',
