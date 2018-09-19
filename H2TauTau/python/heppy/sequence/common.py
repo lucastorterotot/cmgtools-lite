@@ -110,7 +110,7 @@ Electron.iso_htt = lambda x: x.relIso(0.3, "EA",
 def select_muon_third_lepton_veto(muon):
     return muon.pt() > 10             and \
         abs(muon.eta()) < 2.4         and \
-        muon.muonID('POG_ID_Medium')  and \
+        muon.isMediumMuon()  and \
         abs(muon.dxy()) < 0.045       and \
         abs(muon.dz())  < 0.2         and \
         muon.iso_htt() < 0.3
