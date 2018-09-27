@@ -347,16 +347,6 @@ ntuple = cfg.Analyzer(
     event_content = event_content_tautau
 )
 
-from CMGTools.H2TauTau.heppy.analyzers.Debogger import Debogger
-debogger = cfg.Analyzer(
-    Debogger,
-    name = 'Debogger',
-    condition = condition
-)
-
-if condition:
-    sequence.insert(-1, debogger)
-
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
@@ -367,10 +357,6 @@ if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
     eventSelector.toSelect = events_to_pick
     sequence.insert(0, eventSelector)
-    if sequence[-1] != debogger:
-        sequence.insert(-1, debogger)
-    if condition :
-        debogger.condition = condition
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
