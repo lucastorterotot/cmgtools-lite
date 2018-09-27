@@ -91,6 +91,9 @@ if test:
 
 events_to_pick = []
 
+from CMGTools.H2TauTau.heppy.sequence.common import debugger
+condition = None # lambda event : len(event.sel_taus)>2
+
 ###############
 # Analyzers 
 ###############
@@ -267,7 +270,7 @@ from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
     return tau.pt()    > 20  and \
         abs(tau.eta()) < 2.3 and \
-        abs(tau.dz()) < 0.2 and \
+        abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
         abs(tau.charge()) == 1. and \
         tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')

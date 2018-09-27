@@ -91,8 +91,8 @@ if test:
 
 events_to_pick = []
 
-condition = None # lambda event : len(event.sel_taus)>2
-
+from CMGTools.H2TauTau.heppy.sequence.common import debugger
+debugger.condition = None # lambda event : len(event.sel_taus)>2
 ###############
 # Analyzers 
 ###############
@@ -318,7 +318,6 @@ def sorting_metric(dilepton):
              -most_isolated_tau_pt,
              -least_isolated_tau_isolation,
              -least_isolated_tau_pt)
-    
 
 from CMGTools.H2TauTau.heppy.analyzers.Sorter import Sorter
 dilepton_sorted = cfg.Analyzer(

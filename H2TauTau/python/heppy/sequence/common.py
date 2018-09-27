@@ -33,6 +33,13 @@ skim = cfg.Analyzer(
 )
 
 
+from CMGTools.H2TauTau.heppy.analyzers.Debugger import Debugger
+debugger = cfg.Analyzer(
+    Debugger,
+    name = 'Debugger',
+    condition = None
+)
+
 trigger = cfg.Analyzer(
     TriggerAnalyzer,
     name='TriggerAnalyzer',
@@ -332,6 +339,7 @@ sequence_afterdil = cfg.Sequence([
         metana,
         pileup, 
         njets_ana,
+        debugger
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
