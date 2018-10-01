@@ -187,7 +187,7 @@ from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher
 trigger_match = cfg.Analyzer(
     TrigMatcher,
     src='dileptons_sorted',
-    require_all_matched = False
+    require_all_matched = True
 )
 
 

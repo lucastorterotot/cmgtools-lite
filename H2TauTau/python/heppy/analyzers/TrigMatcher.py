@@ -80,7 +80,7 @@ class TrigMatcher(Analyzer):
                     continue
                 if self.trigObjMatched(to, diL.leg1(), to_names):
                     l1_matched = True
-            if require_all_matched and \
+            if require_all_matched and l1_matched and \
                     len(info.leg1_names) > diL.leg1().triggernames:
                 l1_matched = False
 
@@ -92,7 +92,7 @@ class TrigMatcher(Analyzer):
                 if self.trigObjMatched(to, diL.leg2(), to_names):
                     l2_matched = True
 
-            if require_all_matched and \
+            if require_all_matched and l2_matched and \
                     len(info.leg2_names) > diL.leg2().triggernames:
                 l1_matched = False
             if len(info.leg1_objs) == 0:
