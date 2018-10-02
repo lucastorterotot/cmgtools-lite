@@ -16,7 +16,7 @@ class BJetAnalyzer(Analyzer):
             jet.is_btagged = self.btagSF.isBTagged(pt=jet.pt(),
                                                    eta=jet.eta(),
                                                    csv=jet.btag(
-                    "pfDeepCSVJetTagsprobbb+pfDeepCSVJetTagsprobb"),
+                    "pfDeepCSVDiscriminatorsJetTags:BvsAll"),
                                                    jetflavor=abs(jet.hadronFlavour()),
                                                    is_data=not self.cfg_comp.isMC,
                                                    csv_cut=0.4941)

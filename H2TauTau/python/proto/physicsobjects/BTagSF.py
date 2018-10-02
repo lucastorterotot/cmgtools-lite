@@ -1,5 +1,6 @@
 import os
 import ROOT
+import numpy as np
 
 from ROOT import TRandom3, TFile
 ROOT.gSystem.Load('libCondToolsBTau')
@@ -89,7 +90,7 @@ class BTagSF(object):
         promoteProb_btag = 0. # probability to promote to tagged
         demoteProb_btag = 0. #probability to demote from tagged
 
-        self.randm.SetSeed((int)((eta+5)*100000))
+        self.randm.SetSeed((int)((np.float32(eta)+5)*100000))
         btagged = False
 
         if SFb < 1.:
