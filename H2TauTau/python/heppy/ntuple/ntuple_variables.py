@@ -188,6 +188,21 @@ tau_vars = dict(
     # weight_fakerate = v(lambda x: x),
     decay_mode = v(lambda x: x.decayMode(), int),
     dz = v(lambda x: x.leadChargedHadrCand().dz()),
+    weight_etotaufake_vloose = v(lambda x : getattr(x, 'EToTauVLooseWeight', 1.)),
+    weight_etotaufake_loose = v(lambda x : getattr(x, 'EToTauLooseWeight', 1.)),
+    weight_etotaufake_medium = v(lambda x : getattr(x, 'EToTauMediumWeight', 1.)),
+    weight_etotaufake_tight = v(lambda x : getattr(x, 'EToTauTightWeight', 1.)),
+    weight_etotaufake_vtight = v(lambda x : getattr(x, 'EToTauVTightWeight', 1.)),
+    weight_mutotaufake_vloose = v(lambda x : getattr(x, 'MuToTauVLooseWeight', 1.)),
+    weight_mutotaufake_loose = v(lambda x : getattr(x, 'MuToTauLooseWeight', 1.)),
+    weight_mutotaufake_medium = v(lambda x : getattr(x, 'MuToTauMediumWeight', 1.)),
+    weight_mutotaufake_tight = v(lambda x : getattr(x, 'MuToTauTightWeight', 1.)),
+    weight_mutotaufake_vtight = v(lambda x : getattr(x, 'MuToTauVTightWeight', 1.)),
+    weight_tauid_vloose = v(lambda x : getattr(x, 'TauIDVLooseWeight', 1.)),
+    weight_tauid_loose = v(lambda x : getattr(x, 'TauIDLooseWeight', 1.)),
+    weight_tauid_medium = v(lambda x : getattr(x, 'TauIDMediumWeight', 1.)),
+    weight_tauid_tight = v(lambda x : getattr(x, 'TauIDTightWeight', 1.)),
+    weight_tauid_vtight = v(lambda x : getattr(x, 'TauIDVTightWeight', 1.)),
 )
 
 # necessary, or all lambdas will be the same! 

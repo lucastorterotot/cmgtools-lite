@@ -337,6 +337,17 @@ sequence_dilepton = cfg.Sequence([
         dilepton_sorted,
         ])
 
+# weights ================================================================
+
+from CMGTools.H2TauTau.heppy.analyzers.TauIDWeighter import TauIDWeighter
+tauidweighter = cfg.Analyzer(
+    TauIDWeighter,
+    'TauIDWeighter',
+    taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()]
+)
+
+# ntuple ================================================================
+
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
 from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import tautau as event_content_tautau
 ntuple = cfg.Analyzer(
@@ -351,6 +362,7 @@ from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
+sequence.append(tauidweighter)
 sequence.append(ntuple)
 
 if events_to_pick:
