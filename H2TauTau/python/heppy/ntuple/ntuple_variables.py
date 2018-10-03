@@ -14,12 +14,12 @@ event = Block(
     is_data = v(lambda x: x.input.eventAuxiliary().isRealData(), int),
     )
 
-#todo add top1_gen_pt and top2_gen_pt
-
 generator = Block(
     'generator', lambda x: x,
     gen_boson_pt = v(lambda x: getattr(x, 'genPartonHT', default)),
     gen_boson_mass = v(lambda x : getattr(x, 'geninvmass', default)),
+    gen_top1_pt = v(lambda x : getattr(x, 'top1_pt', default)),
+    gen_top2_pt = v(lambda x : getattr(x, 'top2_pt', default)),
     )
 
 flags = [
@@ -90,7 +90,8 @@ weights = Block(
     weight = v(lambda x : x.eventWeight),
     weight_pu = v(lambda x : x.puWeight),
     weight_dy = v(lambda x : getattr(x, 'dy_weight', 1.)),
-    #todo weight_top
+    weight_top = v(lambda x : getattr(x, 'topweight', 1.))
+    weight_generator = v(lambda x : x.generatorWeight)
     weight_njet = v(lambda x : x.NJetWeight),
 ) 
 
