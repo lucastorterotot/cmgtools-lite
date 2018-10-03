@@ -6,7 +6,7 @@ from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-ComponentCreator.useAAA = True
+ComponentCreator.useLyonAAA = True
 
 import logging
 logging.shutdown()

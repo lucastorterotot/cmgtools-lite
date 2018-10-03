@@ -113,6 +113,25 @@ triggers = Block(
     trg_singletau_trailing = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x))
 )
 
+triggers_fired = Block(
+    'triggers_fired', lambda x: getattr(x, 'trigger_infos', []),
+    trg_doubletau_fired = v(lambda x : any('DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_doubletau_lowpt_fired = v(lambda x : any('DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_doubletau_lowpt_mediso_fired = v(lambda x : any('DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_doubletau_mediso_fired = v(lambda x : any('DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_electrontau_fired = v(lambda x : any('Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v' in trg.name for trg in x if trg.fired)),
+    trg_muonelectron_lowpte_fired = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
+    trg_muonelectron_lowptmu_fired = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
+    trg_muontau_lowptmu_fired = v(lambda x : any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg.name for trg in x if trg.fired)),
+    trg_muontau_lowpttau_fired = v(lambda x : any('IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v' in trg.name for trg in x if trg.fired)),
+    trg_singleelectron_fired = v(lambda x : any('Ele35_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
+    trg_singleelectron_lowpt_fired = v(lambda x : any('Ele32_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
+    trg_singlemuon_fired = v(lambda x : any('IsoMu27_v' in trg.name for trg in x if trg.fired)),
+    trg_singlemuon_lowpt_fired = v(lambda x : any('IsoMu24_v' in trg.name for trg in x if trg.fired)),
+    trg_singletau_leading_fired = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in trg.name for trg in x if trg.fired)),
+    trg_singletau_trailing_fired = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in trg.name for trg in x if trg.fired))
+)
+
 lepton_vars = dict(
     pt = v(lambda x: x.pt()),
     eta = v(lambda x: x.eta()),
@@ -180,7 +199,7 @@ for tauid in tau_ids:
 
 common = EventContent(
     [event, generator, weights, event_flags,
-     triggers, jets20, jets30, bjets, vetoes,
+     triggers, triggers_fired, jets20, jets30, bjets, vetoes,
      dilepton_vars,
      to_leg('l1_generic', lepton_vars, 'l1', 
             lambda x: x.dileptons_sorted[0].leg1()), 
