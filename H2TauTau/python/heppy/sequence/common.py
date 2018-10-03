@@ -301,6 +301,12 @@ pileup = cfg.Analyzer(
     autoPU=False
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.MCWeighter import MCWeighter
+mcweighter = cfg.Analyzer(
+    MCWeighter,
+    'MCWeighter'
+)
+
 from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
 njets_ana = cfg.Analyzer(
     NJetsAnalyzer,
@@ -321,6 +327,7 @@ httgenana = cfg.Analyzer(
 # Definition of the main sequences =======================================
 
 sequence_beforedil = cfg.Sequence([
+        mcweighter,
         json,
         skim,
         vertex,
