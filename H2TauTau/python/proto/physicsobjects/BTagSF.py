@@ -1,5 +1,6 @@
 import os
 import ROOT
+import numpy as np
 
 from ROOT import TRandom3, TFile
 ROOT.gSystem.Load('libCondToolsBTau')
@@ -22,7 +23,7 @@ class BTagSF(object):
 
         # b-tag SFs from POG
         # Todo : COLIN 3jul18: new recommendation is DeepCSV V2. what about CSV v2? 
-        calib = ROOT.BTagCalibration("DeepCSV", os.path.expandvars("$CMSSW_BASE/src/CMGTools/H2TauTau/data/DeepCSV_94XSF_V2_B_F.csv"))
+        calib = ROOT.BTagCalibration("DeepCSV", os.path.expandvars("$CMSSW_BASE/src/CMGTools/H2TauTau/data/DeepCSV_94XSF_V3_B_F.csv"))
         
         op_dict = {
             'loose':0,
@@ -89,7 +90,7 @@ class BTagSF(object):
         promoteProb_btag = 0. # probability to promote to tagged
         demoteProb_btag = 0. #probability to demote from tagged
 
-        self.randm.SetSeed((int)((eta+5)*100000))
+        self.randm.SetSeed((int)((np.float32(eta)+5)*100000))
         btagged = False
 
         if SFb < 1.:
