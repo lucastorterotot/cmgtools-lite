@@ -17,14 +17,14 @@ cmsenv
 git init 
 
 # add custom CMSSW repo
-git remote add gael git@github.com:GaelTouquet/cmg-cmssw.git  -f  -t 94X_HTT
+git remote add colin git@github.com:cbernet/cmg-cmssw.git  -f  -t 94X_HTT
 
 # configure the sparse checkout, and get the base heppy packages
 cp /afs/cern.ch/user/c/cmgtools/public/sparse-checkout_94X_heppy .git/info/sparse-checkout
-git checkout -t gael/94X_HTT
+git checkout -t colin/94X_HTT
 
 # get the CMGTools subsystem from the cmgtools-lite repository
-git clone -o gael git@github.com:GaelTouquet/cmgtools-lite.git -b modular CMGTools
+git clone -o colin git@github.com:cbernet/cmgtools-lite.git -b modular CMGTools
 
 #compile
 scram b -j 20
