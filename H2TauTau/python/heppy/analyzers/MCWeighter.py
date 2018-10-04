@@ -8,7 +8,7 @@ class MCWeighter(Analyzer):
         self.mchandles['GenInfo'] = AutoHandle( ('generator','',''), 'GenEventInfoProduct' )
 
     def beginLoop(self, setup):
-        super(SkimAnalyzerCount,self).beginLoop(setup)
+        super(MCWeighter,self).beginLoop(setup)
         self.counters.addCounter('SkimReport')
         self.count = self.counters.counter('SkimReport')
         self.count.register('All Events')

@@ -36,6 +36,10 @@ class TauIDWeighter(Analyzer):
         weight = 1.
 
         wp_dict = IDWeights[self.gen_match_dict[gen_match]]
+
+        if working_point not in wp_dict:
+            return 1.
+
         for etamax, value in wp_dict[working_point]:
             if aeta < etamax:
                 weight = value
