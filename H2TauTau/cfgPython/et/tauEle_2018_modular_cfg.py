@@ -319,7 +319,7 @@ one_electron = cfg.Analyzer(
 def select_electron_dilepton_veto(electron):
     return electron.pt() > 15             and \
         abs(electron.eta()) < 2.5         and \
-        electron.cutBasedId('POG_SPRING16_25ns_v1_Veto') and \
+        electron.cutBasedId('POG_SPRING15_25ns_v1_Veto') and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.iso_htt() < 0.3
