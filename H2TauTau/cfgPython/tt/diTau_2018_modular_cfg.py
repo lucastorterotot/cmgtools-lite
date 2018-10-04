@@ -346,6 +346,14 @@ tauidweighter = cfg.Analyzer(
     taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()]
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
+fakefactor = cfg.Analyzer(
+    FakeFactorAnalyzer,
+    'FakeFactorAnalyzer',
+    channel = 'tt',
+    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root'
+)
+
 # ntuple ================================================================
 
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
@@ -362,6 +370,8 @@ from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
+if data:
+    sequence.append(fakefactor)
 sequence.append(tauidweighter)
 sequence.append(ntuple)
 

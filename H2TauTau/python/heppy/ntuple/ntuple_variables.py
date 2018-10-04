@@ -90,8 +90,8 @@ weights = Block(
     weight = v(lambda x : x.eventWeight),
     weight_pu = v(lambda x : x.puWeight),
     weight_dy = v(lambda x : getattr(x, 'dy_weight', 1.)),
-    weight_top = v(lambda x : getattr(x, 'topweight', 1.))
-    weight_generator = v(lambda x : x.generatorWeight)
+    weight_top = v(lambda x : getattr(x, 'topweight', 1.)),
+    weight_generator = v(lambda x : x.generatorWeight),
     weight_njet = v(lambda x : x.NJetWeight),
 ) 
 
@@ -210,6 +210,15 @@ tau_vars = dict(
     weight_tauid_medium = v(lambda x : getattr(x, 'weight_TauID_Medium', 1.)),
     weight_tauid_tight = v(lambda x : getattr(x, 'weight_TauID_Tight', 1.)),
     weight_tauid_vtight = v(lambda x : getattr(x, 'weight_TauID_VTight', 1.)),
+    weight_fakefactor_inclusive = v(lambda x : getattr(x, 'weight_fakefactor_inclusive', 1.)),
+    weight_fakefactor_inclusive_up = v(lambda x : getattr(x, 'weight_fakefactor_inclusive_up', 1.)),
+    weight_fakefactor_inclusive_down = v(lambda x : getattr(x, 'weight_fakefactor_inclusive_down', 1.)),
+    weight_fakefactor_btag = v(lambda x : getattr(x, 'weight_fakefactor_btag', 1.)),
+    weight_fakefactor_btag_up = v(lambda x : getattr(x, 'weight_fakefactor_btag_up', 1.)),
+    weight_fakefactor_btag_down = v(lambda x : getattr(x, 'weight_fakefactor_btag_down', 1.)),
+    weight_fakefactor_nobtag = v(lambda x : getattr(x, 'weight_fakefactor_nobtag', 1.)),
+    weight_fakefactor_nobtag_up = v(lambda x : getattr(x, 'weight_fakefactor_nobtag_up', 1.)),
+    weight_fakefactor_nobtag_down = v(lambda x : getattr(x, 'weight_fakefactor_nobtag_down', 1.)),
 )
 
 # necessary, or all lambdas will be the same! 
