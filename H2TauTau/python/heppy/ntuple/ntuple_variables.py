@@ -146,7 +146,13 @@ lepton_vars = dict(
 )
 
 dilepton_vars = Block(
-    'dileptons', lambda x: x.pfmet,
+    'dilepton', lambda x: x.dileptons_sorted[0],
+    m_vis = v(lambda x: x.mass()),
+    mt_tot = v(lambda x: x.mtTotal())
+)
+
+metvars = Block(
+    'metvars', lambda x: x.pfmet,
     met = v(lambda x: x.pt()),
     metphi = v(lambda x: x.phi()),
 )
