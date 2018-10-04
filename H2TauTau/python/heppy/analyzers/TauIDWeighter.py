@@ -45,6 +45,8 @@ class TauIDWeighter(Analyzer):
         return weight
 
     def process(self, event):
+        if self.cfg_comp.isData:
+            return True
 
         if not hasattr(self.cfg_ana,'taus') or not self.cfg_ana.taus(event):
             return True
