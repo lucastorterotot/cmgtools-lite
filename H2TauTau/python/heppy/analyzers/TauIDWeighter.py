@@ -29,13 +29,13 @@ class TauIDWeighter(Analyzer):
 
     def getTauWeight(self, gen_match, pt, eta, decaymode, working_point):
 
-        if gen_match not in IDWeights:
+        if self.gen_match_dict[gen_match] not in IDWeights:
             return 1.
 
         aeta = abs(eta)
         weight = 1.
 
-        wp_dict = IDWeights[gen_match]
+        wp_dict = IDWeights[self.gen_match_dict[gen_match]]
         for etamax, value in wp_dict[working_point]:
             if aeta < etamax:
                 weight = value
