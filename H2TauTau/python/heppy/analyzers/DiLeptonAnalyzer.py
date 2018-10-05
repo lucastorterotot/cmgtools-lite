@@ -55,14 +55,14 @@ class DiLepton(object):
         return self.leg1().pt() + self.leg2().pt()
 
     @staticmethod
-    def calcMT(cand1, cand2):
+    def mT(cand1, cand2):
         pt = cand1.pt() + cand2.pt()
         px = cand1.px() + cand2.px()
         py = cand1.py() + cand2.py()
         try:
             return math.sqrt(pt*pt - px*px - py*py)
         except ValueError:
-            print 'Funny rounding issue', pt, px, py
+            print 'mT2 very close to 0 and negative due to rounding', pt, px, py
             print cand1.px(), cand1.py(), cand1.pt()
             print cand2.px(), cand2.py(), cand2.pt()
             return 0.

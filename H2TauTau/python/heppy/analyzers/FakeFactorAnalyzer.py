@@ -13,12 +13,9 @@ class FakeFactorAnalyzer(Analyzer):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(FakeFactorAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
-        self.btagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,
-                                                                'btag'))
-        self.nobtagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,
-                                                                  'nobtag'))
-        self.inclfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,
-                                                                'inclusive'))
+        self.btagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'btag'))
+        self.nobtagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'nobtag'))
+        self.inclfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'inclusive'))
         self.btagff = self.btagfile.Get('ff_comb')
         self.nobtagff = self.nobtagfile.Get('ff_comb')
         self.inclff = self.inclfile.Get('ff_comb')
@@ -82,50 +79,25 @@ class FakeFactorAnalyzer(Analyzer):
         for cat in ["btag","nobtag","inclusive"]:
             setattr(tau, 
                     'weight_fakefactor_{}',
-                    self.fake_factor_fullyhadronic(tau,
-                                                   tau2,
-                                                   njets,
-                                                   mvis))
+                    self.fake_factor_fullyhadronic(tau,tau2,njets,mvis))
             setattr(tau, 
                     'weight_fakefactor_{}_up',
-                    self.fake_factor_fullyhadronic(tau,
-                                                   tau2,
-                                                   njets,
-                                                   mvis,
-                                                   'up'))
+                    self.fake_factor_fullyhadronic(tau,tau2,njets,mvis,'up'))
             setattr(tau, 
                     'weight_fakefactor_{}_down',
-                    self.fake_factor_fullyhadronic(tau,
-                                                   tau2,
-                                                   njets,
-                                                   mvis,
-                                                   'down'))
+                    self.fake_factor_fullyhadronic(tau,tau2,njets,mvis,'down'))
 
     def set_ff_semileptonic(self, tau,  njets, mvis, mt, iso):
         for cat in ["btag","nobtag","inclusive"]:
             setattr(tau, 
                     'weight_fakefactor_{}',
-                    self.fake_factor_semileptonic(tau,
-                                                  njets,
-                                                  mvis,
-                                                  mt,
-                                                  iso))
+                    self.fake_factor_semileptonic(tau,njets,mvis,mt,iso))
             setattr(tau, 
                     'weight_fakefactor_{}_up',
-                    self.fake_factor_semileptonic(tau,
-                                                  njets,
-                                                  mvis,
-                                                  mt,
-                                                  iso,
-                                                  'up'))
+                    self.fake_factor_semileptonic(tau,njets,mvis,mt,iso,'up'))
             setattr(tau, 
                     'weight_fakefactor_{}_down',
-                    self.fake_factor_semileptonic(tau,
-                                                  njets,
-                                                  mvis,
-                                                  mt,
-                                                  iso,
-                                                  'down'))
+                    self.fake_factor_semileptonic(tau,njets,mvis,mt,iso,'down'))
 
     def process(self, event):
         if not self.cfg_comp.isData:
@@ -137,7 +109,6 @@ class FakeFactorAnalyzer(Analyzer):
         if self.cfg_ana.channel == 'tt':
             tau1 = event.dileptons_sorted[0].leg1()
             tau2 = event.dileptons_sorted[0].leg2()
-
             self.set_ff_fullyhadronic(tau1, tau2, njets, mvis)
             self.set_ff_fullyhadronic(tau2, tau1, njets, mvis)
 
@@ -145,7 +116,6 @@ class FakeFactorAnalyzer(Analyzer):
             mt = event.dileptons_sorted[0].mTLeg1()
             tau = event.dileptons_sorted[0].leg2()
             lep = event.dileptons_sorted[0].leg1()
-
             self.set_ff_semileptonic(tau, njets, mvis, mt, lep.iso_htt())
 
         else:
