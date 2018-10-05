@@ -19,21 +19,21 @@ class DiLepton(object):
 
     def mTLeg1(self, met=None):
         if met:
-            return self.calcMT(self.leg1(), met)
+            return self.mT(self.leg1(), met)
         else:
-            return self.calcMT(self.leg1(), self.met)
+            return self.mT(self.leg1(), self.met)
 
     def mTLeg2(self, met=None):
         if met:
-            return self.calcMT(self.leg1(), met)
+            return self.mT(self.leg1(), met)
         else:
-            return self.calcMT(self.leg1(), self.met)
+            return self.mT(self.leg1(), self.met)
 
     def mtTotal(self, met=None):
         if met:
-            mt2 = self.mTLeg1(met)**2 + self.mTLeg2(met)**2 + self.calcMT(self.leg1(), self.leg2())**2
+            mt2 = self.mTLeg1(met)**2 + self.mTLeg2(met)**2 + self.mT(self.leg1(), self.leg2())**2
         else:
-            mt2 = self.mTLeg1()**2 + self.mTLeg2()**2 + self.calcMT(self.leg1(), self.leg2())**2
+            mt2 = self.mTLeg1()**2 + self.mTLeg2()**2 + self.mT(self.leg1(), self.leg2())**2
         return math.sqrt(mt2)
 
     def p4(self):
