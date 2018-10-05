@@ -2,6 +2,7 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaR2
 
 import itertools
+import math
 
 class DiLepton(object):
 
@@ -15,6 +16,25 @@ class DiLepton(object):
         self._l2 = l2
         self._p4 = l1.p4()
         self._p4 += l2.p4() 
+
+    def mTLeg1(self, met=None):
+        if met:
+            return self.calcMT(self.leg1(), met)
+        else:
+            return self.calcMT(self.leg1(), self.met)
+
+    def mTLeg2(self, met=None):
+        if met:
+            return self.calcMT(self.leg1(), met)
+        else:
+            return self.calcMT(self.leg1(), self.met)
+
+    def mtTotal(self, met=None):
+        if met:
+            mt2 = self.mTLeg1(met)**2 + self.mTLeg2(met)**2 + self.calcMT(self.leg1(), self.leg2())**2
+        else:
+            mt2 = self.mTLeg1()**2 + self.mTLeg2()**2 + self.calcMT(self.leg1(), self.leg2())**2
+        return math.sqrt(mt2)
 
     def p4(self):
         return self._p4
@@ -33,6 +53,19 @@ class DiLepton(object):
 
     def sumPt(self):
         return self.leg1().pt() + self.leg2().pt()
+
+    @staticmethod
+    def mT(cand1, cand2):
+        pt = cand1.pt() + cand2.pt()
+        px = cand1.px() + cand2.px()
+        py = cand1.py() + cand2.py()
+        try:
+            return math.sqrt(pt*pt - px*px - py*py)
+        except ValueError:
+            print 'mT2 very close to 0 and negative due to rounding', pt, px, py
+            print cand1.px(), cand1.py(), cand1.pt()
+            print cand2.px(), cand2.py(), cand2.pt()
+            return 0.
 
     def __repr__(self):
         header = '{cls}: mvis={mvis}, sumpT={sumpt}'.format(
