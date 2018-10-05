@@ -83,9 +83,9 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    comp.files = comp.files[:1]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    #comp.files = comp.files[:1]
+    #comp.splitFactor = 1
+    #comp.fineSplitFactor = 1
     selectedComponents = [comp]
     #comp.files = ['file1.root']
 
@@ -93,7 +93,6 @@ events_to_pick = []
 
 from CMGTools.H2TauTau.heppy.sequence.common import debugger
 debugger.condition = None # lambda event : len(event.sel_taus)>2
-
 ###############
 # Analyzers 
 ###############
@@ -325,7 +324,6 @@ dilepton_sorted = cfg.Analyzer(
     Sorter,
     output = 'dileptons_sorted',
     src = 'dileptons',
-    # sort by ele iso, ele pT, tau iso, tau pT
     metric = sorting_metric,
     reverse = False
     )
@@ -339,8 +337,27 @@ sequence_dilepton = cfg.Sequence([
         dilepton_sorted,
         ])
 
+# weights ================================================================
+
+from CMGTools.H2TauTau.heppy.analyzers.TauIDWeighter import TauIDWeighter
+tauidweighter = cfg.Analyzer(
+    TauIDWeighter,
+    'TauIDWeighter',
+    taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()]
+)
+
+from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
+fakefactor = cfg.Analyzer(
+    FakeFactorAnalyzer,
+    'FakeFactorAnalyzer',
+    channel = 'tt',
+    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root'
+)
+
+# ntuple ================================================================
+
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
-from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import tautau as event_content_eletau
+from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import tautau as event_content_tautau
 ntuple = cfg.Analyzer(
     NtupleProducer,
     name = 'NtupleProducer',
@@ -353,6 +370,9 @@ from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
+if data:
+    sequence.append(fakefactor)
+sequence.append(tauidweighter)
 sequence.append(ntuple)
 
 if events_to_pick:

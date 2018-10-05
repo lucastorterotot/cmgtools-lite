@@ -16,6 +16,8 @@ class METAnalyzer(Analyzer):
         self.readCollections(event.input)
 
         event.pfmet = self.handles['pfMET'].product()[0]
+        if hasattr(event, 'dileptons_sorted') and event.dileptons_sorted:
+            event.dileptons_sorted[0].met = event.pfmet
 
 	# TODO recoilcorrections
         return True

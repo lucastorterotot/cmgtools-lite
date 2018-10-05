@@ -14,17 +14,18 @@ event = Block(
     is_data = v(lambda x: x.input.eventAuxiliary().isRealData(), int),
     )
 
-#todo add top1_gen_pt and top2_gen_pt
-
 generator = Block(
     'generator', lambda x: x,
     gen_boson_pt = v(lambda x: getattr(x, 'genPartonHT', default)),
     gen_boson_mass = v(lambda x : getattr(x, 'geninvmass', default)),
+    gen_top1_pt = v(lambda x : getattr(x, 'top1_pt', default)),
+    gen_top2_pt = v(lambda x : getattr(x, 'top2_pt', default)),
     )
 
 flags = [
     'Flag_goodVertices',
     'Flag_globalTightHalo2016Filter',
+    'Flag_globalSuperTightHalo2016Filter',
     'Flag_HBHENoiseFilter',
     'Flag_HBHENoiseIsoFilter',
     'Flag_EcalDeadCellTriggerPrimitiveFilter',
@@ -90,7 +91,8 @@ weights = Block(
     weight = v(lambda x : x.eventWeight),
     weight_pu = v(lambda x : x.puWeight),
     weight_dy = v(lambda x : getattr(x, 'dy_weight', 1.)),
-    #todo weight_top
+    weight_top = v(lambda x : getattr(x, 'topweight', 1.)),
+    weight_generator = v(lambda x : x.generatorWeight),
     weight_njet = v(lambda x : x.NJetWeight),
 ) 
 
@@ -145,7 +147,13 @@ lepton_vars = dict(
 )
 
 dilepton_vars = Block(
-    'dileptons', lambda x: x.pfmet,
+    'dilepton', lambda x: x.dileptons_sorted[0],
+    m_vis = v(lambda x: x.mass()),
+    mt_tot = v(lambda x: x.mtTotal())
+)
+
+metvars = Block(
+    'metvars', lambda x: x.pfmet,
     met = v(lambda x: x.pt()),
     metphi = v(lambda x: x.phi()),
 )
@@ -188,6 +196,30 @@ tau_vars = dict(
     # weight_fakerate = v(lambda x: x),
     decay_mode = v(lambda x: x.decayMode(), int),
     dz = v(lambda x: x.leadChargedHadrCand().dz()),
+    weight_etotaufake_vloose = v(lambda x : getattr(x, 'weight_EToTaufake_VLoose', 1.)),
+    weight_etotaufake_loose = v(lambda x : getattr(x, 'weight_EToTaufake_Loose', 1.)),
+    weight_etotaufake_medium = v(lambda x : getattr(x, 'weight_EToTaufake_Medium', 1.)),
+    weight_etotaufake_tight = v(lambda x : getattr(x, 'weight_EToTaufake_Tight', 1.)),
+    weight_etotaufake_vtight = v(lambda x : getattr(x, 'weight_EToTaufake_VTight', 1.)),
+    weight_mutotaufake_vloose = v(lambda x : getattr(x, 'weight_MuToTaufake_VLoose', 1.)),
+    weight_mutotaufake_loose = v(lambda x : getattr(x, 'weight_MuToTaufake_Loose', 1.)),
+    weight_mutotaufake_medium = v(lambda x : getattr(x, 'weight_MuToTaufake_Medium', 1.)),
+    weight_mutotaufake_tight = v(lambda x : getattr(x, 'weight_MuToTaufake_Tight', 1.)),
+    weight_mutotaufake_vtight = v(lambda x : getattr(x, 'weight_MuToTaufake_VTight', 1.)),
+    weight_tauid_vloose = v(lambda x : getattr(x, 'weight_TauID_VLoose', 1.)),
+    weight_tauid_loose = v(lambda x : getattr(x, 'weight_TauID_Loose', 1.)),
+    weight_tauid_medium = v(lambda x : getattr(x, 'weight_TauID_Medium', 1.)),
+    weight_tauid_tight = v(lambda x : getattr(x, 'weight_TauID_Tight', 1.)),
+    weight_tauid_vtight = v(lambda x : getattr(x, 'weight_TauID_VTight', 1.)),
+    weight_fakefactor_inclusive = v(lambda x : getattr(x, 'weight_fakefactor_inclusive', 1.)),
+    weight_fakefactor_inclusive_up = v(lambda x : getattr(x, 'weight_fakefactor_inclusive_up', 1.)),
+    weight_fakefactor_inclusive_down = v(lambda x : getattr(x, 'weight_fakefactor_inclusive_down', 1.)),
+    weight_fakefactor_btag = v(lambda x : getattr(x, 'weight_fakefactor_btag', 1.)),
+    weight_fakefactor_btag_up = v(lambda x : getattr(x, 'weight_fakefactor_btag_up', 1.)),
+    weight_fakefactor_btag_down = v(lambda x : getattr(x, 'weight_fakefactor_btag_down', 1.)),
+    weight_fakefactor_nobtag = v(lambda x : getattr(x, 'weight_fakefactor_nobtag', 1.)),
+    weight_fakefactor_nobtag_up = v(lambda x : getattr(x, 'weight_fakefactor_nobtag_up', 1.)),
+    weight_fakefactor_nobtag_down = v(lambda x : getattr(x, 'weight_fakefactor_nobtag_down', 1.)),
 )
 
 # necessary, or all lambdas will be the same! 
