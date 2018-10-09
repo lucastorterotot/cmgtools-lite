@@ -268,8 +268,8 @@ condition = None # lambda event : len(event.sel_taus)>2
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
-    return tau.pt()    > 20  and \
-        abs(tau.eta()) < 2.3 and \
+    return tau.pt()    >= 20  and \
+        abs(tau.eta()) <= 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
         abs(tau.charge()) == 1. and \
@@ -291,13 +291,13 @@ one_tau = cfg.Analyzer(
 )
 
 def select_electron(electron):
-    return electron.pt()    > 25  and \
-        abs(electron.eta()) < 2.1 and \
+    return electron.pt()    >= 25  and \
+        abs(electron.eta()) <= 2.1 and \
         abs(electron.dxy()) < 0.045 and \
         abs(electron.dz())  < 0.2 and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.mvaIDRun2("Fall17Iso","wp90") 
+        electron.electronID("mvaEleID-Fall17-iso-V1-wp80") # electron.mvaIDRun2("Fall17Iso","wp90") 
 
 sel_electrons = cfg.Analyzer(
     Selector, 
@@ -319,7 +319,7 @@ one_electron = cfg.Analyzer(
 def select_electron_dilepton_veto(electron):
     return electron.pt() > 15             and \
         abs(electron.eta()) < 2.5         and \
-        electron.cutBasedId('POG_SPRING16_25ns_v1_Veto') and \
+        electron.cutBasedId('POG_SPRING15_25ns_v1_Veto') and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.iso_htt() < 0.3
