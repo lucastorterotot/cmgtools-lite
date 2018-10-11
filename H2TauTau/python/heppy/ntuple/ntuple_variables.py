@@ -66,7 +66,7 @@ jets20 = Block(
     j2_flavour_parton = v(lambda x: x[1].partonFlavour() if len(x)>1 else default),
     j2_flavour_hadron = v(lambda x: x[1].hadronFlavour() if len(x)>1 else default),
     j2_rawf = v(lambda x: x[1].rawFactor() if len(x)>1 else default),
-    dijet_m = v(lambda x: (x[0].p4()+x[1].p4()).m()),
+    dijet_m = v(lambda x: (x[0].p4()+x[1].p4()).M() if len(x)>1 else default),
 )
 
 bjets = Block(
