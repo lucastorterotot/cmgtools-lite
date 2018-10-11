@@ -25,9 +25,9 @@ class DiLepton(object):
 
     def mTLeg2(self, met=None):
         if met:
-            return self.mT(self.leg1(), met)
+            return self.mT(self.leg2(), met)
         else:
-            return self.mT(self.leg1(), self.met)
+            return self.mT(self.leg2(), self.met)
 
     def mtTotal(self, met=None):
         if met:
