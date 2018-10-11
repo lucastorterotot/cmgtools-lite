@@ -291,8 +291,8 @@ class HTTGenAnalyzer(Analyzer):
 
             topweight = math.sqrt(math.exp(0.156-0.00137*top_1_pt)*math.exp(0.156-0.00137*top_2_pt))
 
-            event.top_1_pt = top_1_pt
-            event.top_2_pt = top_2_pt
+            event.top1_pt = top_1_pt
+            event.top2_pt = top_2_pt
             event.topweight = topweight
             event.eventWeight *= topweight
 

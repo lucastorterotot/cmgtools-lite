@@ -8,7 +8,7 @@ from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-ComponentCreator.useAAA = True
+ComponentCreator.useLyonAAA = True
 
 import logging
 logging.shutdown()
@@ -55,8 +55,8 @@ from CMGTools.H2TauTau.proto.samples.fall17.data import data_tau
 from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
 from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
 from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import backgrounds
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_diTau import mc_triggers, mc_triggerfilters
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_diTau import data_triggers, data_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import mc_triggers, mc_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers, data_triggerfilters
 from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC
 
 mc_list = backgrounds + sync_list + mssm_signals
@@ -83,14 +83,16 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    comp.files = comp.files[:1]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    #comp.files = comp.files[:1]
+    #comp.splitFactor = 1
+    #comp.fineSplitFactor = 1
     selectedComponents = [comp]
     #comp.files = ['file1.root']
 
 events_to_pick = []
 
+from CMGTools.H2TauTau.heppy.sequence.common import debugger
+debugger.condition = None # lambda event : len(event.sel_taus)>2
 ###############
 # Analyzers 
 ###############
@@ -267,9 +269,9 @@ from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
     return tau.pt()    > 40  and \
         abs(tau.eta()) < 2.1 and \
-        abs(tau.dz()) < 0.2 and \
+        abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
-        # abs(tau.charge()) == 1. and \
+        abs(tau.charge()) == 1. and \
         tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
 sel_taus = cfg.Analyzer(
     Selector,
@@ -299,16 +301,30 @@ dilepton = cfg.Analyzer(
     dr_min = 0.5
 )
 
+def sorting_metric(dilepton):
+    leg1_iso = dilepton.leg1().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')
+    leg2_iso = dilepton.leg2().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')
+    if leg1_iso > leg2_iso:
+        most_isolated_tau_isolation = leg1_iso
+        most_isolated_tau_pt = dilepton.leg1().pt()
+        least_isolated_tau_isolation = leg2_iso
+        least_isolated_tau_pt = dilepton.leg2().pt()
+    else:
+        most_isolated_tau_isolation = leg2_iso
+        most_isolated_tau_pt = dilepton.leg2().pt()
+        least_isolated_tau_isolation = leg1_iso
+        least_isolated_tau_pt = dilepton.leg1().pt()
+    return (-most_isolated_tau_isolation,
+             -most_isolated_tau_pt,
+             -least_isolated_tau_isolation,
+             -least_isolated_tau_pt)
+
 from CMGTools.H2TauTau.heppy.analyzers.Sorter import Sorter
 dilepton_sorted = cfg.Analyzer(
     Sorter,
     output = 'dileptons_sorted',
     src = 'dileptons',
-    # sort by ele iso, ele pT, tau iso, tau pT
-    metric = lambda dl: (dl.leg1().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017'), 
-                         -dl.leg1().pt(), 
-                         -dl.leg2().tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017'), 
-                         -dl.leg2().pt()),
+    metric = sorting_metric,
     reverse = False
     )
 
@@ -316,29 +332,47 @@ dilepton_sorted = cfg.Analyzer(
 
 sequence_dilepton = cfg.Sequence([
         sel_taus,
-        one_tau,
-        sel_electrons,
-        one_electron,
-        sel_electrons_dilepton_veto,
-        dilepton_veto,
+        two_tau,
         dilepton,
         dilepton_sorted,
         ])
 
+# weights ================================================================
+
+from CMGTools.H2TauTau.heppy.analyzers.TauIDWeighter import TauIDWeighter
+tauidweighter = cfg.Analyzer(
+    TauIDWeighter,
+    'TauIDWeighter',
+    taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()]
+)
+
+from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
+fakefactor = cfg.Analyzer(
+    FakeFactorAnalyzer,
+    'FakeFactorAnalyzer',
+    channel = 'tt',
+    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root'
+)
+
+# ntuple ================================================================
+
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
-from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import eletau as event_content_eletau
+from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import tautau as event_content_tautau
 ntuple = cfg.Analyzer(
     NtupleProducer,
     name = 'NtupleProducer',
     outputfile = 'events.root',
     treename = 'events',
-    event_content = event_content_eletau
+    event_content = event_content_tautau
 )
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
+if data:
+    sequence.append(fakefactor)
+sequence.append(tauidweighter)
 sequence.append(ntuple)
 
 if events_to_pick:

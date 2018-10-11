@@ -7,7 +7,7 @@ class DiLeptonVeto(Analyzer):
         leptons = getattr(event, self.cfg_ana.src)
         drmin = self.cfg_ana.drmin 
         veto_passed = True
-        if len(leptons)>2:
+        if len(leptons) >= 2:
             positives = []
             negatives = []
             for lep in leptons:

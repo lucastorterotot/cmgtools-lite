@@ -33,6 +33,13 @@ skim = cfg.Analyzer(
 )
 
 
+from CMGTools.H2TauTau.heppy.analyzers.Debugger import Debugger
+debugger = cfg.Analyzer(
+    Debugger,
+    name = 'Debugger',
+    condition = None
+)
+
 trigger = cfg.Analyzer(
     TriggerAnalyzer,
     name='TriggerAnalyzer',
@@ -81,14 +88,29 @@ electrons = cfg.Analyzer(
 
 # setting up an alias for our isolation, now use iso_htt everywhere
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
-Electron.iso_htt = lambda x: x.relIso(0.3, "EA", area='03', 
+from PhysicsTools.Heppy.physicsutils.EffectiveAreas import areas
+
+Electron.EffectiveArea03 = areas['Fall17']['electron']
+
+# Electron.EffectiveArea03 = { 
+#     '03' : 
+#     [ (1.000, 0.1440),
+#       (1.479, 0.1562),
+#       (2.000, 0.1032),
+#       (2.200, 0.0859),
+#       (2.300, 0.1116),
+#       (2.400, 0.1321),
+#       (2.500, 0.1654) ],
+#     'eta' : lambda x: x.superCluster().eta()
+#     }
+Electron.iso_htt = lambda x: x.relIso(0.3, "EA", 
                                       all_charged=False)
 
 # third lepton veto =========================================================                  
 def select_muon_third_lepton_veto(muon):
     return muon.pt() > 10             and \
         abs(muon.eta()) < 2.4         and \
-        muon.muonID('POG_ID_Medium')  and \
+        muon.isMediumMuon()  and \
         abs(muon.dxy()) < 0.045       and \
         abs(muon.dz())  < 0.2         and \
         muon.iso_htt() < 0.3
@@ -112,7 +134,7 @@ sel_muons_third_lepton_veto_cleaned = cfg.Analyzer(
 def select_electron_third_lepton_veto(electron):
     return electron.pt() > 10             and \
         abs(electron.eta()) < 2.5         and \
-        electron.mvaIDRun2("Fall17Iso","wp90")  and \
+        electron.electronID("mvaEleID-Fall17-iso-V1-wp90") and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
@@ -165,7 +187,7 @@ from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher
 trigger_match = cfg.Analyzer(
     TrigMatcher,
     src='dileptons_sorted',
-    require_all_matched = False
+    require_all_matched = True
 )
 
 
@@ -248,6 +270,7 @@ met_filters = cfg.Analyzer(
     triggers=[
         'Flag_goodVertices',
         'Flag_globalTightHalo2016Filter',
+        'Flag_globalSuperTightHalo2016Filter',
         'Flag_HBHENoiseFilter', 
         'Flag_HBHENoiseIsoFilter', 
         'Flag_EcalDeadCellTriggerPrimitiveFilter',
@@ -279,6 +302,12 @@ pileup = cfg.Analyzer(
     autoPU=False
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.MCWeighter import MCWeighter
+mcweighter = cfg.Analyzer(
+    MCWeighter,
+    'MCWeighter'
+)
+
 from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
 njets_ana = cfg.Analyzer(
     NJetsAnalyzer,
@@ -299,6 +328,7 @@ httgenana = cfg.Analyzer(
 # Definition of the main sequences =======================================
 
 sequence_beforedil = cfg.Sequence([
+        mcweighter,
         json,
         skim,
         vertex,
@@ -317,6 +347,7 @@ sequence_afterdil = cfg.Sequence([
         metana,
         pileup, 
         njets_ana,
+        debugger
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
