@@ -36,4 +36,27 @@ class TauAnalyzer(Analyzer):
                 # elif tau.decayMode == 11 ? : # hhh p0
         else:
             print 'No gen match for tau lepton!'
+
+    def attach_tau_gen_match(self, tau):
+        flag = 6
+
+        gen_p = tau.genLepton() if hasattr(tau, 'genLepton') else None
+        if gen_p:
+            pdg_id = abs(gen_p.pdgId())
+            if pdg_id == 15:
+                if gen_p.pt() > 15.:
+                    flag = 5
+            elif gen_p.pt() > 8.:
+                if pdg_id == 11:
+                    flag = 1
+                elif pdg_id == 13:
+                    flag = 2
+                if flag in [1, 2]:
+                    if gen_p.statusFlags().isDirectPromptTauDecayProduct():
+                        flag += 2
+                    elif not gen_p.statusFlags().isPrompt():
+                        flag = 6
+
+        tau.gen_match = flag
+
             

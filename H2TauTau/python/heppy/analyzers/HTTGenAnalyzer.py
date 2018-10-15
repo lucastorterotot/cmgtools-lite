@@ -140,7 +140,8 @@ class HTTGenAnalyzer(Analyzer):
                     elif not gen_p.statusFlags().isPrompt():
                         flag = 6
 
-        lepton.gen_match = flag
+        if not hasattr(lepton, 'gen_match'):
+            lepton.gen_match = flag # now done in TauAnalyzer for tau energy scale purpose, only for taus
 
 
     @staticmethod
