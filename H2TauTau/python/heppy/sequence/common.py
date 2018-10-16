@@ -228,7 +228,7 @@ jets_30 = cfg.Analyzer(
     'jets_30',
     output = 'jets_30',
     src = 'jets_20',
-    filter_func = lambda x : x.pt()>30
+    filter_func = lambda x : x.pt()>30 and not (x.pt()<50 and abs(x.eta())>2.65 and abs(x.eta())<3.139) # second requirement to mitigate EE noise effect in recoil correction see : https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Computation_of_hadronic_jet_mult
 )
 
 # bjets ==================================================================
@@ -285,6 +285,15 @@ from CMGTools.H2TauTau.heppy.analyzers.METAnalyzer import METAnalyzer
 metana = cfg.Analyzer(
     METAnalyzer,
     name='metana'
+)
+
+#should we put recoil correction in METanalyzer?
+#Also recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+from CMGTools.H2TauTau.heppy.analyzers.RecoilCorrector import RecoilCorrector
+recoilCorr = cfg.Analyzer(
+    RecoilCorrector,
+    name='RecoilCorrector',
+    apply=False
 )
     
 
@@ -351,4 +360,5 @@ sequence_afterdil = cfg.Sequence([
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
+sequence_afterdil.append(recoilCorr)
 sequence_afterdil.extend(sequence_third_lepton_veto)
