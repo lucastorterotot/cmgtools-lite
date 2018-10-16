@@ -1,23 +1,40 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from CMGTools.H2TauTau.heppy.utils.TauEnergyScales import TauEnergyScales
 
 class TauP4Scaler(Analyzer):
+
+    gen_match_dict = {6:'JetToTau',
+                      5:'HadronicTau',
+                      4:'TauDecayedToMuon',
+                      3:'TauDecayedToEle',
+                      2:'promptMuon',
+                      1:'promptEle'}
+
+    decay_modes_dict = {0: '1prong0pi0',
+                        1: '1prong1pi0',
+                        10:'3prong0pi0',
+                        11:'3prong1pi0'}
+
 
     def process(self, event):
         taus = getattr(event, self.cfg_ana.src)
         for tau in taus:
             self.correct_energy(tau)
+
  
     def correct_energy(self, tau):
         if hasattr(tau, 'gen_match') :
-            if tau.gen_match == 5 :
-                if tau.decayMode() == 0 : # h
-                    tau.scaleEnergy(0.97)
-                elif tau.decayMode() == 1 : # h p0
-                    tau.scaleEnergy(0.98)
-                elif tau.decayMode() == 10 : # hhh
-                    tau.scaleEnergy(0.99)
-                # elif tau.decayMode == 11 ? : # hhh p0
+            gen_match = tau.gen_match
+            decayMode = tau.decayMode()
+
+            energy_scale = 1.
+            
+            if gen_match in self.gen_match_dict.keys():
+                if decayMode in self.decay_modes_dict.keys():
+                    energy_scale = TauEnergyScales[ self.gen_match_dict[gen_match] ][ self.decay_modes_dict[decayMode] ]
+
+            tau.scaleEnergy(energy_scale)
         else:
             print 'No gen match for tau lepton!'
 
