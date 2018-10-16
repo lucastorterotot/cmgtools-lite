@@ -58,14 +58,14 @@ class HTTGenAnalyzer(Analyzer):
                 self.count.inc('Sum LHEWeight {}'.format(n_lhe), event.LHE_weights[n_lhe].wgt)
 
         self.readCollections(event.input)
-        event.genJets = self.mchandles['genJets'].product()
-        event.jets = self.handles['jets'].product()
-        event.genParticles = self.mchandles['genParticles'].product()
+        # event.genJets = self.mchandles['genJets'].product()
+        # event.jets = self.handles['jets'].product()
+        # event.genParticles = self.mchandles['genParticles'].product()
 
-        event.genleps = [p for p in event.genParticles if abs(p.pdgId()) in [11, 13] and p.statusFlags().isPrompt()]
-        event.gentauleps = [p for p in event.genParticles if abs(p.pdgId()) in [11, 13] and p.statusFlags().isDirectPromptTauDecayProduct()]
-        event.gentaus = [p for p in event.genParticles if abs(p.pdgId()) == 15 and p.statusFlags().isPrompt() and not any(abs(self.getFinalTau(p).daughter(i_d).pdgId()) in [11, 13] for i_d in xrange(self.getFinalTau(p).numberOfDaughters()))]
-        self.getGenTauJets(event)
+        # event.genleps = [p for p in event.genParticles if abs(p.pdgId()) in [11, 13] and p.statusFlags().isPrompt()]
+        # event.gentauleps = [p for p in event.genParticles if abs(p.pdgId()) in [11, 13] and p.statusFlags().isDirectPromptTauDecayProduct()]
+        # event.gentaus = [p for p in event.genParticles if abs(p.pdgId()) == 15 and p.statusFlags().isPrompt() and not any(abs(self.getFinalTau(p).daughter(i_d).pdgId()) in [11, 13] for i_d in xrange(self.getFinalTau(p).numberOfDaughters()))]
+        # self.getGenTauJets(event)
 
         event.weight_gen = self.mchandles['genInfo'].product().weight()
         event.eventWeight *= math.copysign(1., event.weight_gen)
@@ -92,64 +92,65 @@ class HTTGenAnalyzer(Analyzer):
             self.getDYMassPtWeight(event)
 
 
-        ptcut = 0.
-        # you can apply a pt cut on the gen leptons, electrons and muons
-        # in HIG-13-004 it was 8 GeV
-        if hasattr(self.cfg_ana, 'genPtCut'):
-            ptcut = self.cfg_ana.genPtCut
+        # ptcut = 0.
+        # # you can apply a pt cut on the gen leptons, electrons and muons
+        # # in HIG-13-004 it was 8 GeV
+        # if hasattr(self.cfg_ana, 'genPtCut'):
+        #     ptcut = self.cfg_ana.genPtCut
 
-        event.ptSelGentauleps = [lep for lep in event.gentauleps if lep.pt() > ptcut]
-        event.ptSelGenleps = [lep for lep in event.genleps if lep.pt() > ptcut]
-        event.ptSelGenSummary = []
+        # event.ptSelGentauleps = [lep for lep in event.gentauleps if lep.pt() > ptcut]
+        # event.ptSelGenleps = [lep for lep in event.genleps if lep.pt() > ptcut]
+        # event.ptSelGenSummary = []
 
-        if hasattr(self.cfg_ana, 'genmatching') and self.cfg_ana.genmatching:
-            self.genMatch(event, event.dileptons_sorted[0].leg1(), 
-                          event.ptSelGentauleps, 
-                          event.ptSelGenleps, 
-                          event.ptSelGenSummary)
-            self.genMatch(event, event.dileptons_sorted[0].leg2(), 
-                          event.ptSelGentauleps, 
-                          event.ptSelGenleps, 
-                          event.ptSelGenSummary)
-            self.attachGenStatusFlag(event.dileptons_sorted[0].leg1())
-            self.attachGenStatusFlag(event.dileptons_sorted[0].leg2())
+        # if hasattr(self.cfg_ana, 'genmatching') and self.cfg_ana.genmatching:
+        #     self.genMatch(event, event.dileptons_sorted[0].leg1(), 
+        #                   event.ptSelGentauleps, 
+        #                   event.ptSelGenleps, 
+        #                   event.ptSelGenSummary)
+        #     self.genMatch(event, event.dileptons_sorted[0].leg2(), 
+        #                   event.ptSelGentauleps, 
+        #                   event.ptSelGenleps, 
+        #                   event.ptSelGenSummary)
+        #     self.attachGenStatusFlag(event.dileptons_sorted[0].leg1())
+        #     self.attachGenStatusFlag(event.dileptons_sorted[0].leg2())
         return True
 
-    @staticmethod
-    def attachGenStatusFlag(lepton):        
-        flag = 6
+    # @staticmethod
+    # def attachGenStatusFlag(lepton):        
+    #     flag = 6
 
-        gen_p = lepton.genp if hasattr(lepton, 'genp') else None
-        # Check if we matched a generator particle and it's not a gen jet
-        if gen_p and not hasattr(gen_p, 'detFlavour'):
-            pdg_id = abs(gen_p.pdgId())
-            if pdg_id == 15:
-                if gen_p.pt() > 15.:
-                    flag = 5
-            elif gen_p.pt() > 8.:
-                if pdg_id == 11:
-                    flag = 1
-                elif pdg_id == 13:
-                    flag = 2
-                # else:
-                #     print 'Matched gen p with weird pdg ID', pdg_id
+    #     gen_p = lepton.genp if hasattr(lepton, 'genp') else None
+    #     # Check if we matched a generator particle and it's not a gen jet
+    #     if gen_p and not hasattr(gen_p, 'detFlavour'):
+    #         pdg_id = abs(gen_p.pdgId())
+    #         if pdg_id == 15:
+    #             if gen_p.pt() > 15.:
+    #                 flag = 5
+    #         elif gen_p.pt() > 8.:
+    #             if pdg_id == 11:
+    #                 flag = 1
+    #             elif pdg_id == 13:
+    #                 flag = 2
+    #             # else:
+    #             #     print 'Matched gen p with weird pdg ID', pdg_id
 
-                if flag in [1, 2]:
-                    if gen_p.statusFlags().isDirectPromptTauDecayProduct():
-                        flag += 2
-                    elif not gen_p.statusFlags().isPrompt():
-                        flag = 6
+    #             if flag in [1, 2]:
+    #                 if gen_p.statusFlags().isDirectPromptTauDecayProduct():
+    #                     flag += 2
+    #                 elif not gen_p.statusFlags().isPrompt():
+    #                     flag = 6
 
-        if not hasattr(lepton, 'gen_match'):
-            lepton.gen_match = flag # now done in TauAnalyzer for tau energy scale purpose, only for taus
+    #     if not hasattr(lepton, 'gen_match'):
+    #         lepton.gen_match = flag # now done in TauAnalyzer for tau energy scale purpose, only for taus
 
 
-    @staticmethod
-    def getFinalTau(tau):
-        for i_d in xrange(tau.numberOfDaughters()):
-            if tau.daughter(i_d).pdgId() == tau.pdgId():
-                return HTTGenAnalyzer.getFinalTau(tau.daughter(i_d))
-        return tau        
+    # @staticmethod
+    # def getFinalTau(tau):
+    #     for i_d in xrange(tau.numberOfDaughters()):
+    #         if tau.daughter(i_d).pdgId() == tau.pdgId():
+    #             return HTTGenAnalyzer.getFinalTau(tau.daughter(i_d))
+    #     return tau    
+    
 
     @staticmethod
     def getGenTauJets(event):
@@ -174,108 +175,108 @@ class HTTGenAnalyzer(Analyzer):
                 event.genTauJetConstituents.append(c_genjet)
 
 
-    @staticmethod
-    def genMatch(event, leg, ptSelGentauleps, ptSelGenleps, ptSelGenSummary, 
-                 dR=0.2, matchAll=True):
+    # @staticmethod
+    # def genMatch(event, leg, ptSelGentauleps, ptSelGenleps, ptSelGenSummary, 
+    #              dR=0.2, matchAll=True):
 
-        dR2 = dR * dR
+    #     dR2 = dR * dR
 
-        leg.isTauHad = False
-        leg.isTauLep = False
-        leg.isPromptLep = False
-        leg.genp = None
+    #     leg.isTauHad = False
+    #     leg.isTauLep = False
+    #     leg.isPromptLep = False
+    #     leg.genp = None
 
-        best_dr2 = dR2
+    #     best_dr2 = dR2
 
-        # The following would work for pat::Taus, but we also want to flag a 
-        # muon/electron as coming from a hadronic tau with the usual definition
-        # if this happens
+    #     # The following would work for pat::Taus, but we also want to flag a 
+    #     # muon/electron as coming from a hadronic tau with the usual definition
+    #     # if this happens
 
-        # if hasattr(leg, 'genJet') and leg.genJet():
-        #     if leg.genJet().pt() > 15.:
-        #         dr2 = deltaR2(leg.eta(), leg.phi(), leg.genJet().eta(), leg.genJet().phi())
-        #         if dr2 < best_dr2:
-        #             best_dr2 = dr2
-        #             leg.genp = leg.genJet()
-        #             leg.genp.setPdgId(-15 * leg.genp.charge())
-        #             leg.isTauHad = True
+    #     # if hasattr(leg, 'genJet') and leg.genJet():
+    #     #     if leg.genJet().pt() > 15.:
+    #     #         dr2 = deltaR2(leg.eta(), leg.phi(), leg.genJet().eta(), leg.genJet().phi())
+    #     #         if dr2 < best_dr2:
+    #     #             best_dr2 = dr2
+    #     #             leg.genp = leg.genJet()
+    #     #             leg.genp.setPdgId(-15 * leg.genp.charge())
+    #     #             leg.isTauHad = True
         
-        # RM: needed to append genTauJets to the events,
-        #     when genMatch is used as a static method
-        if not hasattr(event, 'genTauJets'):
-            HTTGenAnalyzer.getGenTauJets(event)
+    #     # RM: needed to append genTauJets to the events,
+    #     #     when genMatch is used as a static method
+    #     if not hasattr(event, 'genTauJets'):
+    #         HTTGenAnalyzer.getGenTauJets(event)
 
-        l1match, dR2best = bestMatch(leg, event.genTauJets)
-        if dR2best < best_dr2:
-            best_dr2 = dR2best
-            # leg.genp = GenParticle(l1match)
-            leg.genp = l1match
-            leg.genp.setPdgId(-15 * leg.genp.charge())
-            leg.isTauHad = True
-            # if not leg.genJet():
-            #     print 'Warning, tau does not have matched gen tau'
-            # elif leg.genJet().pt() < 15.:
-            #     print 'Warning, tau has matched gen jet but with pt =', leg.genJet().pt()
+    #     l1match, dR2best = bestMatch(leg, event.genTauJets)
+    #     if dR2best < best_dr2:
+    #         best_dr2 = dR2best
+    #         # leg.genp = GenParticle(l1match)
+    #         leg.genp = l1match
+    #         leg.genp.setPdgId(-15 * leg.genp.charge())
+    #         leg.isTauHad = True
+    #         # if not leg.genJet():
+    #         #     print 'Warning, tau does not have matched gen tau'
+    #         # elif leg.genJet().pt() < 15.:
+    #         #     print 'Warning, tau has matched gen jet but with pt =', leg.genJet().pt()
 
-        # to generated leptons from taus
-        l1match, dR2best = bestMatch(leg, ptSelGentauleps)
-        if dR2best < best_dr2:
-            best_dr2 = dR2best
-            leg.genp = l1match
-            leg.isTauLep = True
-            leg.isTauHad = False
+    #     # to generated leptons from taus
+    #     l1match, dR2best = bestMatch(leg, ptSelGentauleps)
+    #     if dR2best < best_dr2:
+    #         best_dr2 = dR2best
+    #         leg.genp = l1match
+    #         leg.isTauLep = True
+    #         leg.isTauHad = False
 
-        # to generated prompt leptons
-        l1match, dR2best = bestMatch(leg, ptSelGenleps)
-        if dR2best < best_dr2:
-            best_dr2 = dR2best
-            leg.genp = l1match
-            leg.isPromptLep = True
-            leg.isTauLep = False
-            leg.isTauHad = False
+    #     # to generated prompt leptons
+    #     l1match, dR2best = bestMatch(leg, ptSelGenleps)
+    #     if dR2best < best_dr2:
+    #         best_dr2 = dR2best
+    #         leg.genp = l1match
+    #         leg.isPromptLep = True
+    #         leg.isTauLep = False
+    #         leg.isTauHad = False
 
-        if best_dr2 < dR2:
-            return
+    #     if best_dr2 < dR2:
+    #         return
 
-        # match with any other relevant gen particle
-        if matchAll:
-            l1match, dR2best = bestMatch(leg, ptSelGenSummary)
-            if dR2best < best_dr2:
-                leg.genp = l1match
-                return
+    #     # match with any other relevant gen particle
+    #     if matchAll:
+    #         l1match, dR2best = bestMatch(leg, ptSelGenSummary)
+    #         if dR2best < best_dr2:
+    #             leg.genp = l1match
+    #             return
 
-            # Ok do one more Pythia 8 trick...
-            # This is to overcome that the GenAnalyzer doesn't like particles
-            # that have daughters with same pdgId and status 71
-            if not hasattr(event, 'pythiaQuarksGluons'):
-                event.pythiaQuarksGluons = []
-                for gen in event.genParticles:
-                    pdg = abs(gen.pdgId())
-                    status = gen.status()
-                    if pdg in [1, 2, 3, 4, 5, 21] and status > 3:
-                        if gen.isMostlyLikePythia6Status3():
-                            event.pythiaQuarksGluons.append(gen)
+    #         # Ok do one more Pythia 8 trick...
+    #         # This is to overcome that the GenAnalyzer doesn't like particles
+    #         # that have daughters with same pdgId and status 71
+    #         if not hasattr(event, 'pythiaQuarksGluons'):
+    #             event.pythiaQuarksGluons = []
+    #             for gen in event.genParticles:
+    #                 pdg = abs(gen.pdgId())
+    #                 status = gen.status()
+    #                 if pdg in [1, 2, 3, 4, 5, 21] and status > 3:
+    #                     if gen.isMostlyLikePythia6Status3():
+    #                         event.pythiaQuarksGluons.append(gen)
 
             
-            l1match, dR2best = bestMatch(leg, event.pythiaQuarksGluons)
-            if dR2best < best_dr2:
-                leg.genp = l1match
-                return
+    #         l1match, dR2best = bestMatch(leg, event.pythiaQuarksGluons)
+    #         if dR2best < best_dr2:
+    #             leg.genp = l1match
+    #             return
 
-            # Now this may be a pileup lepton, or one whose ancestor doesn't
-            # appear in the gen summary because it's an unclear case in Pythia 8
-            # To check the latter, match against jets as well...
-            l1match, dR2best = bestMatch(leg, getattr(event, 'genJets', []))
-            # Check if there's a gen jet with pT > 10 GeV (otherwise it's PU)
-            if dR2best < dR2 and l1match.pt() > 10.:
-                leg.genp = PhysicsObject(l1match)
+    #         # Now this may be a pileup lepton, or one whose ancestor doesn't
+    #         # appear in the gen summary because it's an unclear case in Pythia 8
+    #         # To check the latter, match against jets as well...
+    #         l1match, dR2best = bestMatch(leg, getattr(event, 'genJets', []))
+    #         # Check if there's a gen jet with pT > 10 GeV (otherwise it's PU)
+    #         if dR2best < dR2 and l1match.pt() > 10.:
+    #             leg.genp = PhysicsObject(l1match)
 
-                jet, dR2best = bestMatch(l1match, getattr(event, 'jets', []))
+    #             jet, dR2best = bestMatch(l1match, getattr(event, 'jets', []))
 
-                if dR2best < dR2:
-                    leg.genp.detFlavour = jet.partonFlavour()
-                # else:
-                #     print 'no match found', leg.pt(), leg.eta()
+    #             if dR2best < dR2:
+    #                 leg.genp.detFlavour = jet.partonFlavour()
+    #             # else:
+    #             #     print 'no match found', leg.pt(), leg.eta()
 
     @staticmethod
     def getTopPtWeight(event):
