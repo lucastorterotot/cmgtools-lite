@@ -147,11 +147,11 @@ lepton_vars = dict(
 )
 
 dilepton_vars = Block(
-    'dilepton', lambda x: x.dileptons_sorted[0],
-    m_vis = v(lambda x: x.mass()),
-    mt_tot = v(lambda x: x.mtTotal()),
-    l1_mt = v(lambda x: x.mTLeg1()),
-    l2_mt = v(lambda x: x.mTLeg2()),
+    'dilepton', lambda x: [x.dileptons_sorted[0],x.pfmet],
+    m_vis = v(lambda x: x[0].mass()),
+    mt_tot = v(lambda x: x[0].mtTotal(x[1])),
+    l1_mt = v(lambda x: x[0].mTLeg1(x[1])),
+    l2_mt = v(lambda x: x[0].mTLeg2(x[1])),
 )
 
 metvars = Block(
