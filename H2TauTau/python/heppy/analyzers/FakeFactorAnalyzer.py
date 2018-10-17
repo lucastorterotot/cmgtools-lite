@@ -13,12 +13,13 @@ class FakeFactorAnalyzer(Analyzer):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(FakeFactorAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
-        self.btagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'btag'))
-        self.nobtagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'nobtag'))
-        self.inclfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'inclusive'))
-        self.btagff = self.btagfile.Get('ff_comb')
-        self.nobtagff = self.nobtagfile.Get('ff_comb')
-        self.inclff = self.inclfile.Get('ff_comb')
+        if self.cfg_comp.isData:
+            self.btagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'btag'))
+            self.nobtagfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'nobtag'))
+            self.inclfile = ROOT.TFile(self.cfg_ana.filepath.format(self.cfg_ana.channel,'inclusive'))
+            self.btagff = self.btagfile.Get('ff_comb')
+            self.nobtagff = self.nobtagfile.Get('ff_comb')
+            self.inclff = self.inclfile.Get('ff_comb')
         
 
     def fake_factor_semileptonic(self, tau, njets, mvis, mt, lepton_iso, sys='', category='inclusive'):

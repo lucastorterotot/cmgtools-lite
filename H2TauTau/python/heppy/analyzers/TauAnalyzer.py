@@ -20,8 +20,4 @@ class TauAnalyzer(Analyzer):
             htau = Tau(tau)
             htau.associatedVertex = event.vertices[0]
             htaus.append(htau)
-        # self.correct_energy(taus)
         setattr(event, self.cfg_ana.output, htaus)
- 
-    def correct_energy(self, taus):
-        pass

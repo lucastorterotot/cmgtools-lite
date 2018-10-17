@@ -106,6 +106,32 @@ Electron.EffectiveArea03 = areas['Fall17']['electron']
 Electron.iso_htt = lambda x: x.relIso(0.3, "EA", 
                                       all_charged=False)
 
+# Gen matcher and tau energy scale ==========================================
+
+def select_leptons(event):
+    leptons = []
+    leptons.extend(event.taus)
+    leptons.extend(event.muons)
+    leptons.extend(event.electrons)
+    return leptons
+
+from CMGTools.H2TauTau.heppy.analyzers.GenMatcherAnalyzer import GenMatcherAnalyzer
+genmatcher = cfg.Analyzer(
+    GenMatcherAnalyzer, 
+    'genmatcher',
+    jetCol='slimmedJets',
+    genPtCut=8.,
+    genmatching = True,
+    filter_func = select_leptons
+)
+
+from CMGTools.H2TauTau.heppy.analyzers.TauP4Scaler import TauP4Scaler
+tauenergyscale = cfg.Analyzer(
+    TauP4Scaler,
+    'tauenergyscale',
+    src = 'taus',
+)
+
 # third lepton veto =========================================================                  
 def select_muon_third_lepton_veto(muon):
     return muon.pt() > 10             and \
@@ -344,6 +370,8 @@ sequence_beforedil = cfg.Sequence([
         taus, 
         muons, 
         electrons,
+        genmatcher,
+        tauenergyscale,
 ])
 
 
