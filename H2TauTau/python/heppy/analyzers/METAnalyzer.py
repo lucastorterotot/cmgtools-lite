@@ -1,5 +1,18 @@
+import math
+import re
+
+import ROOT
+
+from ROOT import gSystem
+
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+
+gSystem.Load("libCMGToolsH2TauTau")
+
+from ROOT import HTTRecoilCorrector as RC
+
+LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
 
 
 class METAnalyzer(Analyzer):
@@ -56,8 +69,8 @@ class METAnalyzer(Analyzer):
                 taus.append(t.mother())
                 break
 
-        p4 = p4sum(all)
-        p4_vis = p4sum(vis)
+        p4 = self.p4sum(all)
+        p4_vis = self.p4sum(vis)
 
         event.parentBoson = p4
         event.parentBoson.detFlavour = 0
@@ -135,3 +148,14 @@ class METAnalyzer(Analyzer):
         event.pfmet.setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
 
+    @staticmethod
+    def p4sum(ps):
+        '''Returns four-vector sum of objects in passed list. Returns None
+        if empty. Note that python sum doesn't work since p4() + 0/None fails,
+        but will be possible in future python'''
+        if not ps:
+            return None
+        p4 = ps[0].p4()
+        for i in xrange(len(ps) - 1):
+            p4 += ps[i + 1].p4()
+        return p4

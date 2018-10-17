@@ -310,18 +310,9 @@ met_filters = cfg.Analyzer(
 from CMGTools.H2TauTau.heppy.analyzers.METAnalyzer import METAnalyzer
 metana = cfg.Analyzer(
     METAnalyzer,
-    name='metana'
+    name='metana',
+    apply_recoil_correction=False #Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
 )
-
-#should we put recoil correction in METanalyzer?
-#Also recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
-from CMGTools.H2TauTau.heppy.analyzers.RecoilCorrector import RecoilCorrector
-recoilCorr = cfg.Analyzer(
-    RecoilCorrector,
-    name='RecoilCorrector',
-    apply=False
-)
-    
 
 # Generator stuff ========================================================
 
@@ -388,5 +379,4 @@ sequence_afterdil = cfg.Sequence([
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
-sequence_afterdil.append(recoilCorr)
 sequence_afterdil.extend(sequence_third_lepton_veto)

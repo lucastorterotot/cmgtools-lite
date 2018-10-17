@@ -98,9 +98,9 @@ condition = None # lambda event : len(event.sel_taus)>2
 # Analyzers 
 ###############
 
-from CMGTools.H2TauTau.heppy.sequence.common import recoilCorr
+from CMGTools.H2TauTau.heppy.sequence.common import metana
 if correct_recoil:
-    recoilCorr.apply = True
+    metana.apply = True
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
