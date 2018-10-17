@@ -128,16 +128,35 @@ class GenMatcherAnalyzer(Analyzer):
 
         best_dr2 = dR2
 
+        # The following would work for pat::Taus, but we also want to flag a 
+        # muon/electron as coming from a hadronic tau with the usual definition
+        # if this happens
+
+        # if hasattr(leg, 'genJet') and leg.genJet():
+        #     if leg.genJet().pt() > 15.:
+        #         dr2 = deltaR2(leg.eta(), leg.phi(), leg.genJet().eta(), leg.genJet().phi())
+        #         if dr2 < best_dr2:
+        #             best_dr2 = dr2
+        #             leg.genp = leg.genJet()
+        #             leg.genp.setPdgId(-15 * leg.genp.charge())
+        #             leg.isTauHad = True
+        
+        # RM: needed to append genTauJets to the events,
+        #     when genMatch is used as a static method
         if not hasattr(event, 'genTauJets'):
             GenMatcherAnalyzer.getGenTauJets(event)
 
         l1match, dR2best = bestMatch(leg, event.genTauJets)
         if dR2best < best_dr2:
             best_dr2 = dR2best
-
+            # leg.genp = GenParticle(l1match)
             leg.genp = l1match
             leg.genp.setPdgId(-15 * leg.genp.charge())
             leg.isTauHad = True
+            # if not leg.genJet():
+            #     print 'Warning, tau does not have matched gen tau'
+            # elif leg.genJet().pt() < 15.:
+            #     print 'Warning, tau has matched gen jet but with pt =', leg.genJet().pt()
 
         # to generated leptons from taus
         l1match, dR2best = bestMatch(leg, ptSelGentauleps)
