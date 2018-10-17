@@ -187,7 +187,8 @@ fakefactor = cfg.Analyzer(
     FakeFactorAnalyzer,
     'FakeFactorAnalyzer',
     channel = 'tt',
-    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root'
+    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
+    met = 'pfmet'
 )
 
 # ntuple ================================================================
