@@ -113,7 +113,7 @@ class FakeFactorAnalyzer(Analyzer):
             self.set_ff_fullyhadronic(tau2, tau1, njets, mvis)
 
         elif self.cfg_ana.channel in ['mt','et']:
-            mt = event.dileptons_sorted[0].mTLeg1()
+            mt = event.dileptons_sorted[0].mTLeg1(getattr(event,self.cfg_ana.met))
             tau = event.dileptons_sorted[0].leg2()
             lep = event.dileptons_sorted[0].leg1()
             self.set_ff_semileptonic(tau, njets, mvis, mt, lep.iso_htt())
