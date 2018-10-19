@@ -1,11 +1,11 @@
 ### Hadronic taus IDs weight (including electron to tau fake weight and muon to tau fake weight)
 
 # Tables -----------------------------
-# in the form IDweights[gen_match] gives
+# in the form tauid_weights[gen_match] gives
 # a dict which keys are WP that gives then
 # the form (etamax, value)
 
-IDWeights = {
+tauid_weights = {
     'EToTau' : {
         'VLoose' : [ (99, 1.19),
                      (1.5, 1.09) ],
