@@ -31,7 +31,6 @@ syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-correct_recoil = getHeppyOption('correct_recoil', True)
 # For specific studies
 add_iso_info = getHeppyOption('add_iso_info', False)
 add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
@@ -97,10 +96,6 @@ condition = None # lambda event : len(event.sel_taus)>2
 ###############
 # Analyzers 
 ###############
-
-from CMGTools.H2TauTau.heppy.sequence.common import metana
-if correct_recoil:
-    metana.apply = True
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):

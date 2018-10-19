@@ -232,7 +232,7 @@ for tauid in tau_ids:
 
 
 common = EventContent(
-    [event, generator, weights, event_flags,
+    [event, generator, weights, event_flags, metvars,
      triggers, triggers_fired, jets20, jets30, bjets, vetoes,
      dilepton_vars,
      to_leg('l1_generic', lepton_vars, 'l1', 

@@ -28,11 +28,15 @@ class METAnalyzer(Analyzer):
         self.apply_recoil_correction = getattr(self.cfg_ana, 'apply_recoil_correction', False) and ('Higgs' in self.cfg_comp.name or 'DY' in self.cfg_comp.name or self.isWJets)
 
         if self.apply_recoil_correction:
-            self.rcMVAMET = RC('CMGTools/H2TauTau/data/Type1_PFMET_2017.root')
-            self.rcPFMET = RC('CMGTools/H2TauTau/data/Type1_PFMET_2017.root')
+            try:
+                self.rcMET = RC(self.cfg_ana.recoil_correction_file)
+            except AttributeError:
+                print 'No recoil correction file provided.'
 
     def declareHandles(self):
         super(METAnalyzer, self).declareHandles()
+
+        # add MVAMET handling if/when needed
 
         self.handles['pfMET'] = AutoHandle(
             'slimmedMETs',
@@ -80,19 +84,27 @@ class METAnalyzer(Analyzer):
     def process(self, event):
         self.readCollections(event.input)
 
-        event.pfmet = self.handles['pfMET'].product()[0]
+        met = None
+        if self.cfg_ana.met == 'pfmet':
+            met = self.handles['pfMET'].product()[0]
+            
+        # add MVAMET retrieval when needed
+        # if self.cfg_ana.met == 'mvamet':
+        #     met = self.handles[''].product()[0]
+
+        setattr(event,self.cfg_ana.met, met)
 
         # recoil corrections
         if not self.cfg_comp.isMC:
             return
-
+        
         # Calculate generator four-momenta even if not applying corrections
         # to save them in final trees
         gen_z_px, gen_z_py, gen_vis_z_px, gen_vis_z_py = self.getGenP4(event)
         
         if not self.apply_recoil_correction:
             return
-
+        
         dil = event.dileptons_sorted[0]
 
         n_jets_30 = len(event.jets_30)
@@ -100,40 +112,13 @@ class METAnalyzer(Analyzer):
         if self.isWJets:
             n_jets_30 += 1
 
-
-        # No MVAMET so far
-        # # Correct MVA MET
-        # px_old = dil.met.px()
-        # py_old = dil.met.py()
-
-        # # Correct by mean and resolution as default (otherwise use .Correct(..))
-        # new = self.rcMVAMET.CorrectByMeanResolution(
-        # # new = self.rcMVAMET.Correct(
-        #     px_old, 
-        #     py_old, 
-        #     gen_z_px,    
-        #     gen_z_py,    
-        #     gen_vis_z_px,    
-        #     gen_vis_z_py,    
-        #     n_jets_30,   
-        # )
-
-        # px_new, py_new = new.first, new.second
-
-        # newDiLmet = LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new))
-        # dil.met.setP4(newDiLmet)
-        
-        # # print '## Recoil corrector event #', event.eventId
-        # # print 'px old - new', px_old, dil.met.px()
-        # # print 'py old - new', py_old, dil.met.py()
-
         # Correct PF MET
         pfmet_px_old = event.pfmet.px()
         pfmet_py_old = event.pfmet.py()
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
-        new = self.rcPFMET.CorrectByMeanResolution(
-        # new = self.rcPFMET.Correct(    
+        new = self.rcMET.CorrectByMeanResolution(
+        # new = self.rcMET.Correct(    
             pfmet_px_old, 
             pfmet_py_old, 
             gen_z_px,    
@@ -145,7 +130,7 @@ class METAnalyzer(Analyzer):
 
         px_new, py_new = new.first, new.second
 
-        event.pfmet.setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
+        getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
 
     @staticmethod
