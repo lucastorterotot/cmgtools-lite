@@ -147,11 +147,11 @@ lepton_vars = dict(
 )
 
 dilepton_vars = Block(
-    'dilepton', lambda x: x.dileptons_sorted[0],
-    m_vis = v(lambda x: x.mass()),
-    mt_tot = v(lambda x: x.mtTotal()),
-    l1_mt = v(lambda x: x.mTLeg1()),
-    l2_mt = v(lambda x: x.mTLeg2()),
+    'dilepton', lambda x: [x.dileptons_sorted[0],x.pfmet],
+    m_vis = v(lambda x: x[0].mass()),
+    mt_tot = v(lambda x: x[0].mtTotal(x[1])),
+    l1_mt = v(lambda x: x[0].mTLeg1(x[1])),
+    l2_mt = v(lambda x: x[0].mTLeg2(x[1])),
 )
 
 metvars = Block(
@@ -232,7 +232,7 @@ for tauid in tau_ids:
 
 
 common = EventContent(
-    [event, generator, weights, event_flags,
+    [event, generator, weights, event_flags, metvars,
      triggers, triggers_fired, jets20, jets30, bjets, vetoes,
      dilepton_vars,
      to_leg('l1_generic', lepton_vars, 'l1', 

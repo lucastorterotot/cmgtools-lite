@@ -31,7 +31,6 @@ syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-correct_recoil = getHeppyOption('correct_recoil', False) # Not yet for 2017 analysis
 # For specific studies
 add_iso_info = getHeppyOption('add_iso_info', False)
 add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
@@ -96,174 +95,6 @@ debugger.condition = None # lambda event : len(event.sel_taus)>2
 ###############
 # Analyzers 
 ###############
-
-# # common configuration and sequence
-# from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, eventSelector, httGenAna, jetAna, triggerAna, recoilCorr
-
-# # Tau-tau analyzers
-# from CMGTools.H2TauTau.proto.analyzers.TauMuAnalyzer import TauMuAnalyzer
-# from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerTauMu import H2TauTauTreeProducerTauMu
-# from CMGTools.H2TauTau.proto.analyzers.TauDecayModeWeighter import TauDecayModeWeighter
-# from CMGTools.H2TauTau.proto.analyzers.TauFakeRateWeighter import TauFakeRateWeighter
-# from CMGTools.H2TauTau.proto.analyzers.MuTauFakeReweighter import MuTauFakeReweighter
-# from CMGTools.H2TauTau.proto.analyzers.LeptonWeighter import LeptonWeighter
-# from CMGTools.H2TauTau.proto.analyzers.SVfitProducer import SVfitProducer
-# from CMGTools.H2TauTau.proto.analyzers.FileCleaner import FileCleaner
-# from CMGTools.H2TauTau.proto.analyzers.TauIsolationCalculator import TauIsolationCalculator
-# from CMGTools.H2TauTau.proto.analyzers.MuonIsolationCalculator import MuonIsolationCalculator
-
-
-# # Just to be sure
-# if not test:
-#     syncntuple = False
-#     pick_events = False
-
-# if reapplyJEC:
-#     jetAna.recalibrateJets = True
-#     jetAna.mcGT = gt_mc
-#     jetAna.dataGT = gt_data
-
-# # todo : reuse the same name as in mini aod when doing this in cmssw
-# #    if cmssw:
-# #        jetAna.jetCol = 'patJetsReapplyJEC'
-# #        httGenAna.jetCol = 'patJetsReapplyJEC'
-
-# if correct_recoil:
-#     recoilCorr.apply = True
-
-# if not data:
-#     triggerAna.requireTrigger = False
-
-# # Define mu-tau specific modules
-
-# tauMuAna = cfg.Analyzer(
-#     TauMuAnalyzer,
-#     name='TauMuAnalyzer',
-#     pt1=21,
-#     eta1=2.1,
-#     iso1=None, # no iso cut for sync
-#     pt2=20,
-#     eta2=2.3,
-#     iso2=1.5,
-#     m_min=10,
-#     m_max=99999,
-#     dR_min=0.5,
-#     from_single_objects=True,
-#     ignoreTriggerMatch=True, # best dilepton doesn't need trigger match
-#     verbose=False
-# )
-
-# tauDecayModeWeighter = cfg.Analyzer(
-#     TauDecayModeWeighter,
-#     name='TauDecayModeWeighter',
-#     legs=['leg2']
-# )
-
-# muTauFakeWeighter = cfg.Analyzer(
-#     MuTauFakeReweighter,
-#     name='MuTauFakeReweighter',
-#     wp='tight'
-# )
-
-# tauFakeRateWeighter = cfg.Analyzer(
-#     TauFakeRateWeighter,
-#     name='TauFakeRateWeighter'
-# )
-
-# tauWeighter = cfg.Analyzer(
-#     LeptonWeighter,
-#     name='LeptonWeighter_tau',
-#     scaleFactorFiles={},
-#     lepton='leg2',
-#     disable=True,
-# )
-
-# muonWeighter = cfg.Analyzer(
-#     LeptonWeighter,
-#     name='LeptonWeighter_mu',
-#     scaleFactorFiles={
-#         'id':('$CMSSW_BASE/src/CMGTools/H2TauTau/data/RunBCDEF_SF_ID.json', 'NUM_MediumID_DEN_genTracks'),
-#         'iso':('$CMSSW_BASE/src/CMGTools/H2TauTau/data/RunBCDEF_SF_ISO.json', 'NUM_TightRelIso_DEN_MediumID'),
-#         'trigger':('$CMSSW_BASE/src/CMGTools/H2TauTau/data/theJSONfile_RunBtoF_Nov17Nov2017.json', 'IsoMu27_PtEtaBins')
-#     },
-#     dataEffFiles={
-#         # 'trigger':('$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_v16_2.root', 'm_trgIsoMu22orTkIsoMu22_desy'),
-#     },
-#     lepton='leg1',
-#     disable=False
-# )
-
-# treeProducer = cfg.Analyzer(
-#     H2TauTauTreeProducerTauMu,
-#     name='H2TauTauTreeProducerTauMu',
-#     addIsoInfo=add_iso_info,
-#     addTauTrackInfo=add_tau_fr_info,
-#     addMoreJetInfo=add_tau_fr_info,
-#     addTauMVAInputs=False,
-#     addVBF=True,
-#     skimFunction='event.leg1.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=False)<0.15 and event.leg2.tauID("againstMuonLoose3")>0.5 and (event.leg2.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 or event.leg2.tauID("byVLooseIsolationMVArun2v1DBoldDMwLT") > 0.5)'
-# )
-
-# syncTreeProducer = cfg.Analyzer(
-#     H2TauTauTreeProducerTauMu,
-#     name='H2TauTauSyncTreeProducerTauMu',
-#     varStyle='sync',
-#     # skimFunction='event.isSignal'
-# )
-
-# svfitProducer = cfg.Analyzer(
-#     SVfitProducer,
-#     name='SVfitProducer',
-#     # integration='VEGAS',
-#     integration='MarkovChain',
-#     # verbose=True,
-#     # order='21', # muon first, tau second
-#     integrateOverVisPtResponse = True          ,
-#     visPtResponseFile = os.environ['CMSSW_BASE']+'/src/CMGTools/SVfitStandalone/data/svFitVisMassAndPtResolutionPDF.root', 
-#     l1type='muon',
-#     l2type='tau'
-# )
-
-# tauIsoCalc = cfg.Analyzer(
-#     TauIsolationCalculator,
-#     name='TauIsolationCalculator',
-#     getter=lambda event: [event.leg2]
-# )
-
-# muonIsoCalc = cfg.Analyzer(
-#     MuonIsolationCalculator,
-#     name='MuonIsolationCalculator',
-#     getter=lambda event: [event.leg1]
-# )
-
-# fileCleaner = cfg.Analyzer(
-#     FileCleaner,
-#     name='FileCleaner'
-# )
-
-# ##################
-# # Sequence
-# ##################
-
-# sequence = commonSequence
-# sequence.insert(sequence.index(httGenAna), tauMuAna)
-# # sequence.append(tauDecayModeWeighter) # not measured in 2017
-# # sequence.append(tauFakeRateWeighter) # empty
-# sequence.append(muTauFakeWeighter)
-# # sequence.append(tauWeighter) # empty
-# sequence.append(muonWeighter)
-# sequence.append(treeProducer)
-
-# if syncntuple:
-#     sequence.append(syncTreeProducer)
-
-# if add_iso_info:
-#     sequence.insert(sequence.index(treeProducer), muonIsoCalc)
-#     sequence.insert(sequence.index(treeProducer), tauIsoCalc)
-
-# if events_to_pick:
-#     eventSelector.toSelect = events_to_pick
-#     sequence.insert(0, eventSelector)
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
@@ -351,7 +182,8 @@ fakefactor = cfg.Analyzer(
     FakeFactorAnalyzer,
     'FakeFactorAnalyzer',
     channel = 'tt',
-    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root'
+    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
+    met = 'pfmet'
 )
 
 # ntuple ================================================================

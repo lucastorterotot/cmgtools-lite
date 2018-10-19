@@ -31,8 +31,8 @@ class RecoilCorrector(Analyzer):
 
         if self.apply:
             # FIXME - no recoil corrections yet for 2017
-            self.rcMVAMET = RC('CMGTools/H2TauTau/data/TypeI-PFMet_Run2016BtoH.root')
-            self.rcPFMET = RC('CMGTools/H2TauTau/data/TypeI-PFMet_Run2016BtoH.root')
+            self.rcMVAMET = RC('CMGTools/H2TauTau/data/Type1_PFMET_2017.root')
+            self.rcPFMET = RC('CMGTools/H2TauTau/data/Type1_PFMET_2017.root')
 
 
 
@@ -87,9 +87,9 @@ class RecoilCorrector(Analyzer):
         if not self.apply:
             return
 
-        dil = event.diLepton
+        dil = event.dileptons_sorted[0]
 
-        n_jets_30 = len(event.cleanJets30)
+        n_jets_30 = len(event.jets_30)
         
         if self.isWJets:
             n_jets_30 += 1
