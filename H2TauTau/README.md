@@ -34,6 +34,9 @@ mkdir data
 git clone ssh://git@gitlab.cern.ch:7999/cms-htt/Jet2TauFakesFiles.git data
 cd $CMSSW_BASE/src
 
+# get the recoil correction interface
+git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections 
+
 #compile
 scram b -j 20
 ```
