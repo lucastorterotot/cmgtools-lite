@@ -1,4 +1,5 @@
-from tools import * 
+from tools import *
+import math
 
 default = Variable.default
 
@@ -57,7 +58,6 @@ jets20 = Block(
     j1_flavour_parton = v(lambda x: x[0].partonFlavour() if len(x)>0 else default),
     j1_flavour_hadron = v(lambda x: x[0].hadronFlavour() if len(x)>0 else default),
     j1_rawf = v(lambda x: x[0].rawFactor() if len(x)>0 else default),
-    # j1_rawf
     j2_pt = v(lambda x: x[1].pt() if len(x)>1 else default),
     j2_eta = v(lambda x: x[1].eta() if len(x)>1 else default),
     j2_phi = v(lambda x: x[1].phi() if len(x)>1 else default),
@@ -66,7 +66,7 @@ jets20 = Block(
     j2_flavour_parton = v(lambda x: x[1].partonFlavour() if len(x)>1 else default),
     j2_flavour_hadron = v(lambda x: x[1].hadronFlavour() if len(x)>1 else default),
     j2_rawf = v(lambda x: x[1].rawFactor() if len(x)>1 else default),
-
+    dijet_m = v(lambda x: (x[0].p4()+x[1].p4()).M() if len(x)>1 else default),
 )
 
 bjets = Block(
@@ -92,7 +92,7 @@ weights = Block(
     weight_pu = v(lambda x : x.puWeight),
     weight_dy = v(lambda x : getattr(x, 'dy_weight', 1.)),
     weight_top = v(lambda x : getattr(x, 'topweight', 1.)),
-    weight_generator = v(lambda x : x.generatorWeight),
+    weight_generator = v(lambda x : math.copysign(1., x.weight_gen)),
     weight_njet = v(lambda x : x.NJetWeight),
 ) 
 
@@ -149,7 +149,9 @@ lepton_vars = dict(
 dilepton_vars = Block(
     'dilepton', lambda x: x.dileptons_sorted[0],
     m_vis = v(lambda x: x.mass()),
-    mt_tot = v(lambda x: x.mtTotal())
+    mt_tot = v(lambda x: x.mtTotal()),
+    l1_mt = v(lambda x: x.mTLeg1()),
+    l2_mt = v(lambda x: x.mTLeg2()),
 )
 
 metvars = Block(

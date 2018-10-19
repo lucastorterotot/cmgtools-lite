@@ -1,5 +1,5 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from CMGTools.H2TauTau.heppy.utils.IDWeights import IDWeights
+from CMGTools.H2TauTau.heppy.utils.tauid_weights import tauid_weights
 
 class TauIDWeighter(Analyzer):
     """Adds the following hadronic tau weights to the event:
@@ -29,13 +29,13 @@ class TauIDWeighter(Analyzer):
 
     def getTauWeight(self, gen_match, pt, eta, decaymode, working_point):
 
-        if self.gen_match_dict[gen_match] not in IDWeights:
+        if self.gen_match_dict[gen_match] not in tauid_weights:
             return 1.
 
         aeta = abs(eta)
         weight = 1.
 
-        wp_dict = IDWeights[self.gen_match_dict[gen_match]]
+        wp_dict = tauid_weights[self.gen_match_dict[gen_match]]
 
         if working_point not in wp_dict:
             return 1.
