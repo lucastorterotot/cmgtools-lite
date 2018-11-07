@@ -58,12 +58,12 @@ class XRD(object):
     def __init__(self, run=True, host='lyogrid06.in2p3.fr', prefix='/dpm/in2p3.fr/home/cms/data'):
         self.host = host
         self.prefix = prefix
-        self.lprefix = 'file:'
+        self.lprefix = ''
         self.run = run
 
     def _file(self, path):
         if path.startswith('/store'):
-            return 'root://{}/{}/{}'.format([self.host,self.prefix, path])
+            return 'root://{}/{}/{}'.format(self.host,self.prefix, path)
         else:
             return ''.join([self.lprefix, path])
 
@@ -78,7 +78,9 @@ class XRD(object):
             prefix=self.prefix,
             path=path)
         if self.run: 
-            return self._run(cmd).splitlines() 
+            paths = self._run(cmd).splitlines()
+            files = [os.path.basename(path) for path in paths]
+            return files
         else:
             return cmd
 
@@ -147,7 +149,8 @@ class Dataset(object):
             os.chdir(subd)
             for f in files:
                 path = self.abspath('/'.join([subd, f]))
-                print self.fhandler.ls(path)
+                print path
+                # print self.fhandler.ls(path)
                 self.fhandler.cp(path, '.')
             os.chdir(destpath)
         os.chdir(basepath)
