@@ -53,11 +53,54 @@ class GFAL(object):
 
 gfal = GFAL()
 
+class XRD(object):
+
+    def __init__(self, run=True, host='lyogrid06.in2p3.fr', prefix='/dpm/in2p3.fr/home/cms/data'):
+        self.host = host
+        self.prefix = prefix
+        self.lprefix = 'file:'
+        self.run = run
+
+    def _file(self, path):
+        if path.startswith('/store'):
+            return 'root://{}/{}/{}'.format([self.host,self.prefix, path])
+        else:
+            return ''.join([self.lprefix, path])
+
+    def _run(self, cmd):
+        pipe = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE)
+        return pipe.communicate()[0]
+
+    def ls(self, path, opt=''):
+        cmd = 'xrdfs {host} ls {opt} {prefix}/{path}'.format(
+            opt=opt, 
+            host=self.host,
+            prefix=self.prefix,
+            path=path)
+        if self.run: 
+            return self._run(cmd).splitlines() 
+        else:
+            return cmd
+
+    def cp(self, src, dest, opt=''):
+        cmd = 'xrdcp {opt} {src} {dest}'.format( 
+            opt=opt, 
+            src=self._file(src),
+            dest=self._file(dest)
+            )
+        if self.run: 
+            return self._run(cmd).splitlines() 
+        else:
+            return cmd
+
+lyonXRD = XRD()
+
 class Dataset(object):
     
-    def __init__(self,path,subdirs='*',tgzs='*'):
+    def __init__(self,path,subdirs='*',tgzs='*',fhandler=lyonXRD):
         self.path = path
         self.name = self.path.split('/')[-2]
+        self.fhandler=fhandler
         self.subdir_pattern = subdirs
         self.tgz_pattern = tgzs
         self.subdirs = self.find_subdirs(path)
@@ -70,15 +113,15 @@ class Dataset(object):
         return '/'.join([self.path, path])
 
     def find_subdirs(self,path):
-        subdirs = gfal.ls(self.path)
-        pattern = re.compile('^\d{4}$')
-        subdirs = [subd for subd in subdirs if pattern.match(subd)
+        subdirs = self.fhandler.ls(self.path)
+        pattern = re.compile('\d{4}$')
+        subdirs = [subd for subd in subdirs if pattern.search(subd)
                    and fnmatch.fnmatch(subd, self.subdir_pattern)]
         return subdirs
 
     def find_tgzs(self, subd):
         subd = self.abspath(subd)
-        files = gfal.ls(subd)
+        files = self.fhandler.ls(subd)
         files = [f for f in files if f.endswith('.tgz')
                  and fnmatch.fnmatch(f, self.tgz_pattern)]
         return files
@@ -91,7 +134,7 @@ class Dataset(object):
             while answer not in ['y','n']:
                 answer = raw_input('destination {} exists. continue? [y/n]'.format(dest))
             if answer == 'n':
-                return 
+                return False
             shutil.rmtree(dest)
         basepath=os.getcwd()
         os.makedirs(dest)
@@ -104,10 +147,11 @@ class Dataset(object):
             os.chdir(subd)
             for f in files:
                 path = self.abspath('/'.join([subd, f]))
-                print gfal.ls(path)
-                gfal.cp(path, '.')
+                print self.fhandler.ls(path)
+                self.fhandler.cp(path, '.')
             os.chdir(destpath)
         os.chdir(basepath)
+        return True
 
     def unpack(self):
         if self.dest is None:
@@ -156,5 +200,5 @@ if __name__ == '__main__':
     ds = Dataset(src, 
                  subdirs=options.subdir_pattern, 
                  tgzs=options.tgz_pattern)
-    ds.fetch()
-    ds.unpack()
+    if ds.fetch():
+        ds.unpack()
