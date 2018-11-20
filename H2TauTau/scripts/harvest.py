@@ -156,6 +156,23 @@ class Dataset(object):
         os.chdir(basepath)
         return True
 
+    def check(self, pattern='*'):
+        '''Not used do far, need to find a way to check output
+        '''
+        for subdir in self.tgzs:
+            path = '{dest}/{subd}/'.format(dest=self.dest,
+                                           subd=subdir)
+            os.system('heppy_check.py {path}{pattern}'.format(path=path,
+                                                              pattern=pattern))
+
+    def hadd(self, path=''):
+        for subdir in self.tgzs:
+            if not path:
+                path = '{dest}/{subd}/'.format(dest=self.dest,
+                                               subd=subdir)
+            os.system('heppy_hadd.py {path}'.format(path=path))
+            os.system('rm -rf {path}/*Chunk*'.format(path=path))
+
     def unpack(self):
         if self.dest is None:
             print 'dataset was not fetched, fetching now'
@@ -205,3 +222,4 @@ if __name__ == '__main__':
                  tgzs=options.tgz_pattern)
     if ds.fetch():
         ds.unpack()
+        ds.hadd()
