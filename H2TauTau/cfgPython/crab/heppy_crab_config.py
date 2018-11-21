@@ -28,6 +28,8 @@ config.Data.splitting = 'EventBased'
 username = os.environ["USER"]
 if username == 'torterotot':
     username = 'ltortero'
+if username == 'touquet':
+    username = 'gtouquet'
 config.Data.outLFNDirBase = '/store/user/' + username
 config.Data.publication = False
 
