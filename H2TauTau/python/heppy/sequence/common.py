@@ -18,7 +18,7 @@ from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
 
 
 
-puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_Jul9.root'
+puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_13Nov.root'
 puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
 
@@ -220,7 +220,7 @@ trigger_match = cfg.Analyzer(
 # Jet sequence ===========================================================
 
 gt_mc = 'Fall17_17Nov2017_V8_MC'
-gt_data = 'Fall17_17Nov2017{}_V8_DATA'
+gt_data = 'Fall17_17Nov2017{}_V6_DATA'
 
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
