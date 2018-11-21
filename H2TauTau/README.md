@@ -26,14 +26,6 @@ git checkout -t colin/94X_HTT
 # get the CMGTools subsystem from the cmgtools-lite repository
 git clone -o colin git@github.com:cbernet/cmgtools-lite.git -b modular CMGTools
 
-# get the Jet2TauFakes package and copy the file containing the current fake factors
-git clone https://github.com/CMS-HTT/Jet2TauFakes.git HTTutilities/Jet2TauFakes
-cd HTTutilities/Jet2TauFakes
-git checkout v0.2.2
-mkdir data
-git clone ssh://git@gitlab.cern.ch:7999/cms-htt/Jet2TauFakesFiles.git data
-cd $CMSSW_BASE/src
-
 # get the recoil correction interface
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections 
 

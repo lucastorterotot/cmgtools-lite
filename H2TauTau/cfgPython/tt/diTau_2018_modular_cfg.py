@@ -8,11 +8,11 @@ from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-ComponentCreator.useLyonAAA = True
+# ComponentCreator.useLyonAAA = True
 
 import logging
 logging.shutdown()
-reload(logging)
+# reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
 from PhysicsTools.HeppyCore.framework.event import Event
@@ -28,7 +28,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # production = True run on batch, production = False run locally
 test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', False)
+data = getHeppyOption('data', True)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 # For specific studies
@@ -50,16 +50,20 @@ from CMGTools.H2TauTau.proto.samples.component_index import ComponentIndex
 import CMGTools.H2TauTau.proto.samples.fall17.higgs as higgs
 index=ComponentIndex(higgs)
 
-from CMGTools.H2TauTau.proto.samples.fall17.data import data_tau
+import CMGTools.H2TauTau.proto.samples.fall17.data as data_forindex
+dindex = ComponentIndex(data_forindex)
+
 from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
 from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
+import CMGTools.H2TauTau.proto.samples.fall17.backgrounds as backgrounds_forindex
+bindex = ComponentIndex( backgrounds_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import backgrounds
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import mc_triggers, mc_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers, data_triggerfilters
-from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC
+from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
 mc_list = backgrounds + sync_list + mssm_signals
-data_list = data_tau
+data_list = data_forindex.data_tau
 
 n_events_per_job = 1e5
 
@@ -81,10 +85,16 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 
 if test:
     cache = True
-    comp = index.glob('HiggsVBF125')[0]
-    #comp.files = comp.files[:1]
-    #comp.splitFactor = 1
-    #comp.fineSplitFactor = 1
+    # comp = bindex.glob('DYJetsToLL_M50')[0]
+    # comp = bindex.glob('WJetsToLNu_LO')[0]
+    # comp = bindex.glob('TTLep_pow')[0]
+    # comp = bindex.glob('TTHad_pow')[0]
+    # comp = bindex.glob('TTSemi_pow')[0]
+    # comp = index.glob('HiggsVBF125')[0] 
+    comp = dindex.glob('Tau_Run2017F_31Mar2018')[0]
+    comp.files = comp.files[:1]
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
     selectedComponents = [comp]
     #comp.files = ['file1.root']
 
@@ -177,14 +187,14 @@ tauidweighter = cfg.Analyzer(
     taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()]
 )
 
-from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
-fakefactor = cfg.Analyzer(
-    FakeFactorAnalyzer,
-    'FakeFactorAnalyzer',
-    channel = 'tt',
-    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
-    met = 'pfmet'
-)
+# from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
+# fakefactor = cfg.Analyzer(
+#     FakeFactorAnalyzer,
+#     'FakeFactorAnalyzer',
+#     channel = 'tt',
+#     filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
+#     met = 'pfmet'
+# )
 
 # ntuple ================================================================
 
@@ -202,8 +212,8 @@ from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
-if data:
-    sequence.append(fakefactor)
+# if data:
+#     sequence.append(fakefactor)
 sequence.append(tauidweighter)
 sequence.append(ntuple)
 
