@@ -26,7 +26,7 @@ data_triggerfilters = [
                        triggers=['HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*']),
     TriggerFilterMatch(leg1_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'],
                        leg2_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'],
-                       triggers=['HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v']),
+                       triggers=['HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*']),
 ]
 
 mc_triggers = [
