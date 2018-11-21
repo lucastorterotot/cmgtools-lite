@@ -18,6 +18,8 @@ class TauP4Scaler(Analyzer):
 
 
     def process(self, event):
+        if self.cfg_comp.isData:
+            return True
         taus = getattr(event, self.cfg_ana.src)
         for tau in taus:
             self.correct_energy(tau)

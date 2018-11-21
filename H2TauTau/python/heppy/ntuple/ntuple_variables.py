@@ -143,7 +143,7 @@ lepton_vars = dict(
     weight_idso = v(lambda x: getattr(x, 'weight_idiso', 1.)),
     weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
     d0 = v(lambda x: x.dxy()),
-    gen_match = v(lambda x: x.gen_match, int),
+    gen_match = v(lambda x: getattr(x, 'gen_match', 0), int),
 )
 
 dilepton_vars = Block(
