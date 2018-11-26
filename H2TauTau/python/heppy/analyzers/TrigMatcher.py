@@ -32,36 +32,37 @@ class TrigMatcher(Analyzer):
         '''
         count = self.counters.counter('TrigMatcher')
         count.inc('all events')
-        dileptons = getattr(event, self.cfg_ana.src) 
+        srcs = [getattr(event, src) for src in self.cfg_ana.srcs]
         if len(self.cfg_comp.triggers) > 0:
-            # matching only the best di-lepton
-            matched = self.trigMatched(event, dileptons[0],
-                                       self.cfg_ana.require_all_matched)
-            if matched: 
+            matched_glob = 0
+            for src in srcs:
+                for ptc in src:
+                    matched = self.trigMatched(event, ptc)
+                    if matched: 
+                        matched_glob += 1
+            if matched_glob>0: 
                 count.inc('trig matched')
 
 
-    def trigMatched(self, event, diL, 
-                    require_all_matched=False, 
-                    ptMin=None,  etaMax=None):
+    def trigMatched(self, event, ptc, ptMin=None, etaMax=None):
         '''Check that at least one trigger object is matched to the corresponding
         leg. If require_all_matched is True, 
         requires that each single trigger object has a match.'''
         matched = False
-        diL.matchedPaths = set()
-        if hasattr(self.cfg_ana, 'filtersToMatch'):
-            filtersToMatch = self.cfg_ana.filtersToMatch[0]
-            legs = [diL.leg1(), diL.leg2()]
-            leg = legs[self.cfg_ana.filtersToMatch[1] - 1]
-            triggerObjects = self.handles['triggerObjects'].product()
-            for item in product(triggerObjects, filtersToMatch):
-                to     = item[0]
-                filter = item[1]
-                print to.filterLabels()[-1], to.filterLabels()[-1] != filter
-                if to.filterLabels()[-1] != filter:
-                    continue
-                if self.trigObjMatched(to, leg):
-                    setattr(leg, filter, to)
+        ptc.matchedPaths = set()
+        # if hasattr(self.cfg_ana, 'filtersToMatch'):
+        #     filtersToMatch = self.cfg_ana.filtersToMatch[0]
+        #     legs = [diL.leg1(), diL.leg2()]
+        #     leg = legs[self.cfg_ana.filtersToMatch[1] - 1]
+        #     triggerObjects = self.handles['triggerObjects'].product()
+        #     for item in product(triggerObjects, filtersToMatch):
+        #         to     = item[0]
+        #         filter = item[1]
+        #         print to.filterLabels()[-1], to.filterLabels()[-1] != filter
+        #         if to.filterLabels()[-1] != filter:
+        #             continue
+        #         if self.trigObjMatched(to, leg):
+        #             setattr(leg, filter, to)
                     
         if not self.cfg_comp.triggerobjects:
             if self.cfg_ana.verbose:
@@ -71,40 +72,14 @@ class TrigMatcher(Analyzer):
         for info in event.trigger_infos:
             if not info.fired:
                 continue
-            l1_matched = False
-            l2_matched = False
-            for to, to_names in zip(info.leg1_objs, info.leg1_names):
+            for to, to_names in zip(info.leg1_objs + info.leg2_objs, info.leg1_names + info.leg2_names):
                 if ptMin and to.pt() < ptMin:
                     continue
                 if etaMax and abs(to.eta()) > etaMax:
                     continue
-                if self.trigObjMatched(to, diL.leg1(), to_names):
-                    l1_matched = True
-            if require_all_matched and l1_matched and \
-                    len(info.leg1_names) > diL.leg1().triggernames:
-                l1_matched = False
-
-            for to, to_names in zip(info.leg2_objs, info.leg2_names):
-                if ptMin and to.pt() < ptMin:
-                    continue
-                if etaMax and abs(to.eta()) > etaMax:
-                    continue
-                if self.trigObjMatched(to, diL.leg2(), to_names):
-                    l2_matched = True
-
-            if require_all_matched and l2_matched and \
-                    len(info.leg2_names) > diL.leg2().triggernames:
-                l1_matched = False
-            if len(info.leg1_objs) == 0:
-                l1_matched = True
-            if len(info.leg2_objs) == 0:
-                l2_matched = True
-            path_matched = False
-            if (l1_matched and l2_matched) or (not info.match_both and (l1_matched or l2_matched)):
-                path_matched = True
-            if path_matched:
-                matched = True
-                diL.matchedPaths.add(info.name)
+                if self.trigObjMatched(to, ptc, to_names):
+                    ptc.matchedPaths.add(info.name)
+                    matched = True
         return matched
 
 
