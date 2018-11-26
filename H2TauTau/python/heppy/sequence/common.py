@@ -212,8 +212,7 @@ sequence_third_lepton_veto = cfg.Sequence([
 from CMGTools.H2TauTau.heppy.analyzers.TrigMatcher import TrigMatcher    
 trigger_match = cfg.Analyzer(
     TrigMatcher,
-    src='dileptons_sorted',
-    require_all_matched = True
+    srcs=['electrons', 'muons', 'taus']
 )
 
 
@@ -296,7 +295,7 @@ met_filters = cfg.Analyzer(
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Moriond_2018
     triggers=[
         'Flag_goodVertices',
-        'Flag_globalTightHalo2016Filter',
+        # 'Flag_globalTightHalo2016Filter',
         'Flag_globalSuperTightHalo2016Filter',
         'Flag_HBHENoiseFilter', 
         'Flag_HBHENoiseIsoFilter', 
@@ -375,12 +374,12 @@ sequence_beforedil = cfg.Sequence([
         electrons,
         genmatcher,
         tauenergyscale,
+        trigger, 
+        trigger_match,
 ])
 
 
 sequence_afterdil = cfg.Sequence([
-        trigger, 
-        trigger_match,
         met_filters,
         lheweight,
         httgenana,
