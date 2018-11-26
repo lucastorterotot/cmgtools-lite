@@ -97,12 +97,16 @@ debugger.condition = None # lambda event : len(event.sel_taus)>2
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
-    return tau.pt()    >= 20  and \
-        abs(tau.eta()) <= 2.3 and \
+    trgs = tau.matchedPaths
+    return (( any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg for trg in trgs) and tau.pt() > 32 and abs(tau.eta()) < 2.1)) and \
+        tau.pt()    > 23  and \
+        abs(tau.eta()) < 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
         abs(tau.charge()) == 1. and \
-        tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
+        tau.tauID('byTightIsolationMVArun2017v2DBoldDMwLT2017') and \
+        tau.tauID('againstElectronVLooseMVA6') and \
+        tau.tauID('againstMuonTight3')
 sel_taus = cfg.Analyzer(
     Selector,
     'sel_taus',
@@ -120,10 +124,14 @@ one_tau = cfg.Analyzer(
 )
 
 def select_muon(muon):
-    return muon.pt()    >= 21  and \
-        abs(muon.eta()) <= 2.1 and \
+    trgs = muon.matchedPaths
+    return (( any('IsoMu24_v' in trg for trg in trgs) and muon.pt() > 25 ) or \
+        ( any('IsoMu27_v' in trg for trg in trgs) and muon.pt() > 28 ) or \
+        ( any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg for trg in trgs) and muon.pt() > 21 and muon.pt() < 25 )) and \
+        abs(muon.eta()) < 2.1 and \
         abs(muon.dxy()) < 0.045 and \
         abs(muon.dz())  < 0.2 and \
+        muon.iso_htt() < 0.15 and \
         muon.isMediumMuon()  # muon.muonID("POG_ID_Medium")
 sel_muons = cfg.Analyzer(
     Selector, 
