@@ -373,7 +373,7 @@ sequence_beforedil = cfg.Sequence([
         muons, 
         electrons,
         genmatcher,
-        tauenergyscale,
+        # tauenergyscale,
         trigger, 
         trigger_match,
 ])

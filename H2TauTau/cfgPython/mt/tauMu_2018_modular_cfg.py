@@ -95,23 +95,36 @@ debugger.condition = None # lambda event : len(event.sel_taus)>2
 # Analyzers 
 ###############
 
+from CMGTools.H2TauTau.heppy.analyzers.TriggerFilter import TriggerFilter
+def select_mutau(muon, tau):
+    trgs = set()
+    trgs = trgs.union(muon.matchedPaths, tau.matchedPaths)
+    return (( any('IsoMu24_v' in trg for trg in trgs) and muon.pt() > 25 ) or \
+        ( any('IsoMu27_v' in trg for trg in trgs) and muon.pt() > 28 ) or \
+        ( any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg for trg in trgs) and muon.pt() > 21 and muon.pt() < 25 and tau.pt() > 32 and abs(tau.eta()) < 2.1))
+sel_trg_mutaus = cfg.Analyzer(
+    TriggerFilter,
+    'sel_mutau',
+    output1 = 'trg_muons',
+    output2 = 'trg_taus',
+    src1 = 'muons',
+    src2 = 'taus',
+    filter_func = select_mutau  
+)
+
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
-    trgs = tau.matchedPaths
-    return (( any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg for trg in trgs) and tau.pt() > 32 and abs(tau.eta()) < 2.1)) and \
-        tau.pt()    > 23  and \
+    return tau.pt()    > 23  and \
         abs(tau.eta()) < 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
         abs(tau.charge()) == 1. and \
-        tau.tauID('byTightIsolationMVArun2017v2DBoldDMwLT2017') and \
-        tau.tauID('againstElectronVLooseMVA6') and \
-        tau.tauID('againstMuonTight3')
+        tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
 sel_taus = cfg.Analyzer(
     Selector,
     'sel_taus',
     output = 'sel_taus',
-    src = 'taus',
+    src = 'trg_taus',
     filter_func = select_tau  
 )
 
@@ -124,11 +137,7 @@ one_tau = cfg.Analyzer(
 )
 
 def select_muon(muon):
-    trgs = muon.matchedPaths
-    return (( any('IsoMu24_v' in trg for trg in trgs) and muon.pt() > 25 ) or \
-        ( any('IsoMu27_v' in trg for trg in trgs) and muon.pt() > 28 ) or \
-        ( any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg for trg in trgs) and muon.pt() > 21 and muon.pt() < 25 )) and \
-        abs(muon.eta()) < 2.1 and \
+    return abs(muon.eta()) < 2.1 and \
         abs(muon.dxy()) < 0.045 and \
         abs(muon.dz())  < 0.2 and \
         muon.iso_htt() < 0.15 and \
@@ -137,7 +146,7 @@ sel_muons = cfg.Analyzer(
     Selector, 
     'sel_muons',
     output = 'sel_muons',
-    src = 'muons',
+    src = 'trg_muons',
     filter_func = select_muon
 )
 
@@ -201,6 +210,7 @@ dilepton_sorted = cfg.Analyzer(
 
 
 sequence_dilepton = cfg.Sequence([
+        sel_trg_mutaus,
         sel_taus,
         one_tau,
         sel_muons,
