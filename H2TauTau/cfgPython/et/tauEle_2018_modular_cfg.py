@@ -82,11 +82,11 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    # comp.files = comp.files[:1]
-    # comp.splitFactor = 1
-    # comp.fineSplitFactor = 1
+    comp.files = comp.files[:1]
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
     selectedComponents = [comp]
-    #comp.files = ['file1.root']
+    comp.files = ['/home/cms/torterotot/CMSSW_vanilla/CMSSW_9_4_8/Colin/Common/cfg/picked_events.root']
 
 events_to_pick = []
 
@@ -122,6 +122,10 @@ one_tau = cfg.Analyzer(
 )
 
 def select_electron(electron):
+    print 'pt = {}'.format(electron.pt())
+    for mva in "Fall17noIso", "Fall17Iso", "Fall17noIsoV2", "Fall17IsoV2":
+        print mva+'= {}'.format(electron.mvaRun2(mva))
+    print ' '
     return electron.pt()    >= 25  and \
         abs(electron.eta()) <= 2.1 and \
         abs(electron.dxy()) < 0.045 and \
@@ -148,6 +152,7 @@ one_electron = cfg.Analyzer(
 # dilepton veto ==============================================================
 
 def select_electron_dilepton_veto(electron):
+    # implement V2 ! cutBasedElectronID-Fall17-94X-V2-veto
     return electron.pt() > 15             and \
         abs(electron.eta()) < 2.5         and \
         electron.cutBasedId('POG_SPRING15_25ns_v1_Veto') and \
