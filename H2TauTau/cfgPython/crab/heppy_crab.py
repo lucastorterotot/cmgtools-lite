@@ -41,7 +41,7 @@ g2.add_option("--only-unpacked", dest="only_unpacked",
 
 parser.add_option("-n", "--dryrun", dest="dryrun", action="store_true",default=False, help="dryrun")
 parser.add_option("-w", "--siteWhitelist", dest="siteWhitelist", type="string", 
-                  action="append", default=['T3_FR_IPNL'], 
+                  action="append", default=[], 
                   help="Sites whitelist (default is using the one in heppy_crab_config.py)")
 parser.add_option("-N", dest="maxevents", default=-1, 
                   help="maximum number of events to process per heppy run (for debugging purposes)")
