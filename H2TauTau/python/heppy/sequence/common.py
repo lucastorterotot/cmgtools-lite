@@ -160,7 +160,7 @@ sel_muons_third_lepton_veto_cleaned = cfg.Analyzer(
 def select_electron_third_lepton_veto(electron):
     return electron.pt() > 10             and \
         abs(electron.eta()) < 2.5         and \
-        electron.mvaIDRun2("Fall17noIsoV2","wp90") and \
+        electron.mvaIDRun2("Fall17NoIsoV2","wp90") and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
@@ -374,7 +374,7 @@ sequence_beforedil = cfg.Sequence([
         muons, 
         electrons,
         genmatcher,
-        # tauenergyscale,
+        tauenergyscale,
 ])
 
 
