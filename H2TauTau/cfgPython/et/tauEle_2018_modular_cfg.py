@@ -128,7 +128,7 @@ def select_electron(electron):
         abs(electron.dz())  < 0.2 and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.mvaIDRun2("Fall17NoIsoV2","wp90") 
+        electron.electronID("MVA_ID_nonIso_Fall17_V2_wp90") 
 
 sel_electrons = cfg.Analyzer(
     Selector, 

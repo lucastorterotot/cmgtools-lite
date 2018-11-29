@@ -12,12 +12,12 @@ class ElectronAnalyzer(Analyzer):
             'std::vector<pat::Electron>'
         )
 
-        self.handles['Eleconversions'] = AutoHandle(
+        self.handles['conversions'] = AutoHandle(
             'reducedEgamma:reducedConversions',
             'reco::ConversionCollection'
         )
 
-        self.handles['Beam_spot'] = AutoHandle(
+        self.handles['beamspot'] = AutoHandle(
             'offlineBeamSpot',
             'reco::BeamSpot'
         )
@@ -31,8 +31,8 @@ class ElectronAnalyzer(Analyzer):
             helectron.associatedVertex = event.vertices[0]
             helectron.event = event.input.object()
             helectron.rho = event.rho
-            helectron.convs = self.handles['Eleconversions'].product()
-            helectron.beam_spot = self.handles['Beam_spot'].product()
+            helectron.conversions = self.handles['conversions'].product()
+            helectron.beamspot = self.handles['beamspot'].product()
             output_electrons.append(helectron)
         setattr(event, self.cfg_ana.output, output_electrons)
         
