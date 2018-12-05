@@ -14,13 +14,13 @@ export SCRAM_ARCH=slc6_amd64_gcc630
 cmsrel CMSSW_9_4_11_cand1
 cd CMSSW_9_4_11_cand1/src
 cmsenv
-git init 
+git cms-init --upstream-only
 
 # add custom CMSSW repo
 git remote add colin git@github.com:cbernet/cmg-cmssw.git  -f  -t htt_9_4_11_cand1_v1
 
 # configure the sparse checkout, and get the base heppy packages
-cp /afs/cern.ch/user/c/cmgtools/public/sparse-checkout_94X_heppy .git/info/sparse-checkout
+cp /afs/cern.ch/user/c/cbern/public/HTT/sparse-checkouts/sparse-checkouts-htt_9_4_11_cand1_v1 .git/info/sparse-checkout
 git checkout -t colin/htt_9_4_11_cand1_v1
 
 # get the CMGTools subsystem from the cmgtools-lite repository
