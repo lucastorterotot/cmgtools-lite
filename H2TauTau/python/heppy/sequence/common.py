@@ -236,7 +236,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
+    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight") and not ( x.pt() < 50 and abs(x.eta()) > 2.65 and abs(x.eta()) < 3.139 )
 )
 
 
@@ -254,8 +254,7 @@ jets_30 = cfg.Analyzer(
     'jets_30',
     output = 'jets_30',
     src = 'jets_20',
-    filter_func = lambda x : x.pt()>30 and not (x.pt()<50 and abs(x.eta())>2.65 and abs(x.eta())<3.139) 
-    # second requirement to mitigate EE noise effect in recoil correction, see : https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Computation_of_hadronic_jet_mult
+    filter_func = lambda x : x.pt()>30 
 )
 
 # bjets ==================================================================
