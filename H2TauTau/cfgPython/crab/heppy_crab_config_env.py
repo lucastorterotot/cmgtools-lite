@@ -2,14 +2,25 @@
 # values we'll be taken from environment variables set in launchall.py
 # fixed options will be taken from heppy_crab_config.py
 
-import imp, os
-file = open( "heppy_crab_config.py", 'r' )
-cfg = imp.load_source( 'cfg', "heppy_crab_config.py", file)
+import imp, os, datetime
+file = open( os.environ["CMSSW_BASE"]+"/src/CMGTools/H2TauTau/cfgPython/crab/heppy_crab_config.py", 'r' )
+cfg = imp.load_source( 'cfg', os.environ["CMSSW_BASE"]+"/src/CMGTools/H2TauTau/cfgPython/crab/heppy_crab_config.py", file)
 config = cfg.config
 
 print "Will send dataset", os.environ["DATASET"], "with", os.environ["NJOBS"], "jobs"
 
-config.General.requestName = os.environ["DATASET"] + "_" + os.environ["CMG_VERSION"] # task name
+def ask_confirmation():
+    '''ask user confirmation for submission and exit if no'''
+    answer = None
+    while answer not in ['y','n']:
+        answer=raw_input('Confirm submission? [y/n]')
+    if answer == 'n':
+        print 'submission cancelled.'
+        sys.exit(3)
+ask_confirmation()
+
+
+config.General.requestName = os.environ["DATASET"] + "_" + os.environ["CMG_VERSION"] + "_" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') # task name
 config.General.workArea = 'crab_' + os.environ["DATASET"] + "_" + os.environ["PROD_LABEL"] # crab dir name
 
 # this will divide task in *exactly* NJOBS jobs (for this we need JobType.pluginName = 'PrivateMC' and Data.splitting = 'EventBased')
@@ -34,30 +45,44 @@ config.Data.outputDatasetTag = os.environ["DATASET"]
 config.Data.ignoreLocality = (os.environ["USEAAA"]!="local") # "full" or "eos"
 if (os.environ["USEAAA"]!="local"): 
     config.Site.whitelist = [
-        'T3_FR_LYON'
-        # "T2_CH_CSCS", 
-        # "T2_IT_Legnaro", 
-        # "T2_UK_London_IC", 
-        # "T2_UK_SGrid_Bristol", 
-        # "T2_DE_DESY", 
-        # "T2_ES_CIEMAT", 
-        # "T2_IT_Rome", 
-        # "T2_AT_Vienna",
-        # "T2_DE_RWTH",
-        # "T2_FR_GRIF_IRFU", 
-        # "T2_HU_Budapest", 
-        # "T2_FR_IPHC", 
-        # "T2_BE_IIHE", 
-        # "T2_IT_Pisa", 
-        # "T2_ES_IFCA", 
-        # "T2_UK_London_Brunel", 
-        # "T2_US_Purdue", 
-        # "T2_UA_KIPT", 
-        # "T2_US_MIT", 
-        # "T2_US_Wisconsin", 
-        # "T2_US_UCSD", 
-        # "T2_US_Vanderbilt", 
-        # "T2_US_Caltech"
+        # "T3_FR_LYON",
+        "T2_CH_CSCS", 
+        "T2_IT_Legnaro", 
+        "T2_UK_London_IC", 
+        "T2_UK_SGrid_Bristol", 
+        "T2_DE_DESY", 
+        "T2_ES_CIEMAT", 
+        "T2_IT_Rome", 
+        "T2_AT_Vienna",
+        "T2_DE_RWTH",
+        "T2_FR_GRIF_IRFU", 
+        "T2_HU_Budapest", 
+        "T2_FR_IPHC", 
+        "T2_BE_IIHE", 
+        "T2_IT_Pisa", 
+        "T2_ES_IFCA", 
+        "T2_UK_London_Brunel", 
+        "T2_US_Purdue", 
+        "T2_UA_KIPT", 
+        "T2_US_MIT", 
+        "T2_US_Wisconsin", 
+        "T2_US_UCSD", 
+        "T2_US_Vanderbilt", 
+        "T2_US_Caltech"
+]
+
+config.Site.blacklist = [
+    "T2_UK_London_Brunel",
+    "T2_HU_Budapest",
+    "T2_IT_Pisa",
+    "T2_DE_DESY",
+    "T2_IT_Rome",
+    "T2_FR_IPHC",
+    "T2_UA_KIPT",
+    "T2_IT_Legnaro",
+    "T2_ES_IFCA",
+    "T2_FR_GRIF_IRFU",
+    "T2_UK_London_IC",
 ]
 
 config.Site.storageSite = os.environ["OUTSITE"]
