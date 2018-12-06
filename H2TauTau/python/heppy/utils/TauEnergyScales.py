@@ -13,10 +13,10 @@ TauEnergyScales = {
         '3prong1pi0' : 1.00 ,
         },
     'HadronicTau' : {
-        '1prong0pi0' : 1.07 ,
-        '1prong1pi0' : 0.98 ,
-        '3prong0pi0' : 1.01 ,
-        '3prong1pi0' : 0.99 ,
+        '1prong0pi0' : 1. + 0.7 / 100 ,
+        '1prong1pi0' : 1. - 0.2 / 100 ,
+        '3prong0pi0' : 1. + 0.1 / 100 ,
+        '3prong1pi0' : 1. - 0.1 / 100 ,
         },
     'TauDecayedToMuon' : {
         '1prong0pi0' : 1.00 ,
