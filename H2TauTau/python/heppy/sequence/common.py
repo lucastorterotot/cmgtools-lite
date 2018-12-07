@@ -160,7 +160,7 @@ sel_muons_third_lepton_veto_cleaned = cfg.Analyzer(
 def select_electron_third_lepton_veto(electron):
     return electron.pt() > 10             and \
         abs(electron.eta()) < 2.5         and \
-        electron.electronID("MVA_ID_nonIso_Fall17_V2_wp90") and \
+        electron.electronID_passed("mvaEleID-Fall17-noIso-V2-wp90") and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \

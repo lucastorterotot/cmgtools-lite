@@ -161,7 +161,7 @@ metvars = Block(
 )
 
 electron_vars = dict(
-    id_e_mva_nt_loose = v(lambda x: x.mvaRun2('NonTrigSpring15MiniAOD')), 
+    id_e_mva_nt_loose = v(lambda x: x.physObj.userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values")), 
     weight_tracking = v(lambda x: getattr(x, 'weight_tracking', 1. )),
     iso = v(lambda x: x.iso_htt()),
     dz = v(lambda x: x.dz()),
