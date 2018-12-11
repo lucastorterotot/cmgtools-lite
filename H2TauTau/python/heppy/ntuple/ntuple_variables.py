@@ -9,7 +9,7 @@ event = Block(
     lumi = v(lambda x: x.lumi, int),
     event = v(lambda x: x.eventId, int, 'l'),
     n_up = v(lambda x: getattr(x, 'NUP', default), int),
-    n_pu = v(lambda x: x.nPU if x.nPU is not None else default),
+    n_pu = v(lambda x: getattr(x, 'nPU', default), int),
     n_pv = v(lambda x: len(x.vertices), int),
     rho = v(lambda x: x.rho),
     is_data = v(lambda x: x.input.eventAuxiliary().isRealData(), int),
@@ -37,7 +37,7 @@ flags = [
 ]
 event_flags = Block('event_flags', lambda x: x)
 for flag in flags: 
-    event_flags[flag] = v(lambda x: getattr(x,flag), int)
+    event_flags[flag] = v(lambda x: getattr(x,flag,1), int)
 
 vetoes = Block(
     'vetoes', lambda x: x,
@@ -89,11 +89,17 @@ jets30 = Block(
 weights = Block(
     'weights', lambda x: x, 
     weight = v(lambda x : x.eventWeight),
-    weight_pu = v(lambda x : x.puWeight),
+    weight_pu = v(lambda x : getattr(x, 'puWeight', 1.)),
     weight_dy = v(lambda x : getattr(x, 'dy_weight', 1.)),
     weight_top = v(lambda x : getattr(x, 'topweight', 1.)),
-    weight_generator = v(lambda x : math.copysign(1., x.weight_gen)),
+    weight_generator = v(lambda x : getattr(x, 'weight_gen', 1.)),
     weight_njet = v(lambda x : x.NJetWeight),
+    ###weights embedding
+    weight_embed_DoubleMuonHLT_eff = v(lambda x : getattr(x, 'weight_embed_DoubleMuonHLT_eff', 1.)),
+    weight_embed_muonID_eff_l1 = v(lambda x : getattr(x, 'weight_embed_muonID_eff_l1', 1.)),
+    weight_embed_muonID_eff_l2 = v(lambda x : getattr(x, 'weight_embed_muonID_eff_l2', 1.)),
+    weight_embed_DoubleTauHLT_eff_l1 = v(lambda x : getattr(x, 'weight_embed_DoubleTauHLT_eff_l1', 1.)),
+    weight_embed_DoubleTauHLT_eff_l2 = v(lambda x : getattr(x, 'weight_embed_DoubleTauHLT_eff_l2', 1.))
 ) 
 
 triggers = Block(
