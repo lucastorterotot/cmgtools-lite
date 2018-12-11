@@ -117,10 +117,11 @@ class METAnalyzer(Analyzer):
         pfmet_py_old = event.pfmet.py()
 
         # Correct MET for tau energy scale
-        if hasattr(dil.leg1(),'unscaledP4') and hasattr(dil.leg2(),'unscaledP4'):
-            scaled_diff = (dil.leg1().unscaledP4 - dil.leg1().p4()) + (dil.leg2().unscaledP4 - dil.leg2().p4())
-            pfmet_px_old += scaled_diff.px()
-            pfmet_py_old += scaled_diff.py()
+        for leg in [dil.leg1(), dil.leg2()]:
+            if hasattr(leg,'unscaledP4') :
+                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
+                pfmet_px_old += scaled_diff_for_leg.px()
+                pfmet_py_old += scaled_diff_for_leg.py()
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
         new = self.rcMET.CorrectByMeanResolution(
