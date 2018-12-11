@@ -82,9 +82,9 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    #comp.files = comp.files[:1]
-    #comp.splitFactor = 1
-    #comp.fineSplitFactor = 1
+    comp.files = comp.files[:1]
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
     selectedComponents = [comp]
     #comp.files = ['file1.root']
 
@@ -128,7 +128,7 @@ def select_electron(electron):
         abs(electron.dz())  < 0.2 and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.electronID_passed("mvaEleID-Fall17-noIso-V2-wp90") 
+        electron.mva_passes("mvaEleID-Fall17-noIso-V2","wp90") 
 
 sel_electrons = cfg.Analyzer(
     Selector, 
@@ -151,7 +151,7 @@ def select_electron_dilepton_veto(electron):
     # implement V2 ! cutBasedElectronID-Fall17-94X-V2-veto
     return electron.pt() > 15             and \
         abs(electron.eta()) < 2.5         and \
-        electron.electronID_passed('cutBasedElectronID-Spring15-25ns-V1-standalone-veto') and \
+        electron.mva_passes('cutBasedElectronID-Spring15-25ns-V1-standalone', 'veto') and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.iso_htt() < 0.3
