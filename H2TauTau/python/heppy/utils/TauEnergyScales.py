@@ -25,8 +25,8 @@ TauEnergyScales = {
         '3prong1pi0' : 1.00 ,
         },
     'TauDecayedToEle' : {
-        '1prong0pi0' : 1.00 ,
-        '1prong1pi0' : 1.00 ,
+        '1prong0pi0' : 1. + 0.3 / 100 ,
+        '1prong1pi0' : 1. + 3.6 / 100 ,
         '3prong0pi0' : 1.00 ,
         '3prong1pi0' : 1.00 ,
         },
@@ -37,8 +37,8 @@ TauEnergyScales = {
         '3prong1pi0' : 1.00 ,
         },
     'promptEle' : {
-        '1prong0pi0' : 1.00 ,
-        '1prong1pi0' : 1.00 ,
+        '1prong0pi0' : 1. + 0.3 / 100 ,
+        '1prong1pi0' : 1. + 3.6 / 100 ,
         '3prong0pi0' : 1.00 ,
         '3prong1pi0' : 1.00 ,
         }}
