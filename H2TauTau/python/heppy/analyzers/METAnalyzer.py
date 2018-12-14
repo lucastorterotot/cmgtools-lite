@@ -14,6 +14,15 @@ from ROOT import HTTRecoilCorrector as RC
 
 LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
 
+def get_final_ptcs(ptc):
+    if ptc.numberOfDaughters() == 0 :
+        return [ptc]
+    else :
+        final_ptcs = []
+        for N in range(ptc.numberOfDaughters()):
+            l = get_final_ptcs(ptc.daughter(N))
+            final_ptcs += l
+        return final_ptcs
 
 class METAnalyzer(Analyzer):
 
@@ -41,6 +50,16 @@ class METAnalyzer(Analyzer):
         self.handles['pfMET'] = AutoHandle(
             'slimmedMETs',
             'std::vector<pat::MET>'
+        )
+
+        self.handles['photons'] = AutoHandle(
+            'slimmedPhotons',
+            'std::vector<pat::Photon>'
+        )
+
+        self.handles['packedPFCandidates'] = AutoHandle(
+            'packedPFCandidates',
+            'std::vector<pat::PackedCandidate>'
         )
 
     def getGenP4(self, event):
@@ -122,6 +141,105 @@ class METAnalyzer(Analyzer):
                 scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
                 pfmet_px_old += scaled_diff_for_leg.px()
                 pfmet_py_old += scaled_diff_for_leg.py()
+
+        if event.metShift :
+            pfmet_px_old += event.metShift[0]
+            pfmet_py_old += event.metShift[1]
+
+        #import pdb; pdb.set_trace()
+
+        # noise cleaning
+
+        pt_cut = 50
+        eta_min = 2.65
+        eta_max = 3.139
+        eta_diff_cut = 1e-3
+        pt_diff_cut = 1e-3
+
+        bad_jets = []
+        for x in event.jets:
+            if ( x.pt() < pt_cut and abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
+                bad_jets.append(x)
+        
+        ptcs_from_jets = []
+        pfCandidateJetsWithEEnoise  = []
+
+        for jet in event.jets:
+            ptcs_from_jets += get_final_ptcs(jet)
+
+        for jet in bad_jets:
+            pfCandidateJetsWithEEnoise  += get_final_ptcs(jet)
+
+        # import pdb; pdb.set_trace()
+        if not hasattr(event, 'photons'): # fast construction of photons list
+            event.photons = []
+            pre_photons = self.handles['photons'].product()
+            for photon in pre_photons:
+                event.photons.append(photon)
+
+        pfcandidateClustered = event.electrons + event.muons \
+            + event.taus + event.photons + ptcs_from_jets
+
+        pre_cands = self.handles['packedPFCandidates'].product() # "packedPFCandidates"
+        cands = []
+        for c in pre_cands:
+            cands.append(c)
+
+        # pfcandidateForUnclusteredUnc = cands - pfcandidateClustered
+        pfcandidateForUnclusteredUnc = []
+        for ptc1 in cands :
+            keep_ptc = True
+            for ptc2 in pfcandidateClustered :
+                if keep_ptc :
+                    if ( ptc1.pdgId() == ptc2.pdgId() \
+                        and abs( ptc1.eta() - ptc2.eta() ) < eta_diff_cut \
+                        and abs( ptc1.pt()  - ptc2.pt()  ) < pt_diff_cut ) :
+                        keep_ptc = False
+            if keep_ptc:
+                pfcandidateForUnclusteredUnc.append(ptc1)
+
+        # badUnclustered = pfcandidateForUnclusteredUnc if range eta
+        badUnclustered = []
+        for x in pfcandidateForUnclusteredUnc :
+            if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
+                badUnclustered.append(x)
+
+        superbad = badUnclustered + pfCandidateJetsWithEEnoise
+
+        # if event.eventId in [969113, 969147]:
+        #     import pdb; pdb.set_trace()
+
+        for ptc in superbad :
+            if ptc in cands :
+                pfmet_px_old += ptc.px()
+                pfmet_py_old += ptc.py()
+
+        # conserver jets pas noise et cand pas superbad
+        # -> ajouer a la MET les (superbad intersect cand)
+
+        # do not double count ptcs also in jets
+        # ptcs_from_jets = [jet.daughter(k) for jet in pfCandidateJetsWithEEnoise for k in range(jet.numberOfDaughters())]
+
+        # for ptc in ptcs_from_jets :
+        #     if ptc.numberOfDaughters() > 0 :
+        #         ptcs_from_jets += [ptc.daughter(k) for k in range(ptc.numberOfDaughters())]
+        #         ptcs_from_jets.remove(ptc)
+
+                        
+
+        # to_remove = pfCandidateJetsWithEEnoise \
+        #     + eles_to_remove \
+        #     + mus_to_remove \
+        #     + taus_to_remove \
+        #     + phot_to_remove
+        # for x in to_remove :
+        #     pfmet_px_old += x.px()
+        #     pfmet_py_old += x.py()
+
+        # event.jets[0].numberOfDaughters() && event.jets[0].daughter(1).eta() // pdgID()
+            # --> if ele/mu/tau/gamma : do not double count
+
+
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
         new = self.rcMET.CorrectByMeanResolution(
