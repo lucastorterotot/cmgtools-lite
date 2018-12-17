@@ -142,9 +142,9 @@ class METAnalyzer(Analyzer):
                 pfmet_px_old += scaled_diff_for_leg.px()
                 pfmet_py_old += scaled_diff_for_leg.py()
 
-        # if event.metShift :
-        #     pfmet_px_old += event.metShift[0]
-        #     pfmet_py_old += event.metShift[1]
+        if event.metShift :
+            pfmet_px_old += event.metShift[0]
+            pfmet_py_old += event.metShift[1]
 
         # noise cleaning
 
@@ -207,21 +207,6 @@ class METAnalyzer(Analyzer):
                 py += ptc.py()
         pfmet_px_old += px
         pfmet_py_old += py
-
-        print '\n\n'
-        print 'Event {}'.format(event.eventId)
-        print '{} {}'.format( len(event.jets) , 'jets')
-        print '{} {}'.format( len(bad_jets) , 'bad jets')
-        # print '{} ptcs in {}'.format(len(pfCandidateJetsWithEEnoise) , 'pfCandidateJetsWithEEnoise' )
-        print '{} ptcs in {}'.format( len(pfcandidateClustered) , 'pfcandidateClustered')
-        print '{} ptcs in {}'.format( len(cands) , 'cands')
-        print '{} ptcs in {}'.format( len(pfcandidateForUnclusteredUnc) , 'pfcandidateForUnclusteredUnc')
-        print '{} ptcs in {}'.format( len(badUnclustered) , 'badUnclustered')
-        print '{} ptcs in {}'.format( len(superbad) , 'superbad')
-        print 'px = {} \t py = {}'.format(px, py)
-
-        # import pdb; pdb.set_trace()
-
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
         new = self.rcMET.CorrectByMeanResolution(
