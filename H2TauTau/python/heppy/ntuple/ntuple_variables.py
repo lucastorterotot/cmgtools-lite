@@ -99,7 +99,9 @@ weights = Block(
     weight_embed_muonID_eff_l1 = v(lambda x : getattr(x, 'weight_embed_muonID_eff_l1', 1.)),
     weight_embed_muonID_eff_l2 = v(lambda x : getattr(x, 'weight_embed_muonID_eff_l2', 1.)),
     weight_embed_DoubleTauHLT_eff_l1 = v(lambda x : getattr(x, 'weight_embed_DoubleTauHLT_eff_l1', 1.)),
-    weight_embed_DoubleTauHLT_eff_l2 = v(lambda x : getattr(x, 'weight_embed_DoubleTauHLT_eff_l2', 1.))
+    weight_embed_DoubleTauHLT_eff_l2 = v(lambda x : getattr(x, 'weight_embed_DoubleTauHLT_eff_l2', 1.)),
+    weight_embed_track_l1 = v(lambda x : getattr(x, 'weight_embed_track_l1', 1.)),
+    weight_embed_track_l2 = v(lambda x : getattr(x, 'weight_embed_track_l2', 1.))
 ) 
 
 triggers = Block(
