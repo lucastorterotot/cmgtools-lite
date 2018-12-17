@@ -210,15 +210,26 @@ class METAnalyzer(Analyzer):
 
         print '\n\n'
         print 'Event {}'.format(event.eventId)
+
+        blob_px = 0
+        blob_py = 0
+        for ptc in badUnclustered :
+            blob_px += ptc.px()
+            blob_py += ptc.py()
+
+        blob_pt = (blob_px**2 + blob_py**2)**.5
+
+        print 'blob with {} ptcs'.format(len(badUnclustered)), blob_pt
+
+        met = event.pfmet
+        print 'mod met pt, px, py', (pfmet_px_old**2+pfmet_py_old**2)**.5,pfmet_px_old, pfmet_py_old
+        print 'met px, py', met.px(), met.py()
+        print 'met pt, phi', met.pt(), met.phi()
+
         print '{} {}'.format( len(event.jets) , 'jets')
-        print '{} {}'.format( len(bad_jets) , 'bad jets')
-        # print '{} ptcs in {}'.format(len(pfCandidateJetsWithEEnoise) , 'pfCandidateJetsWithEEnoise' )
-        print '{} ptcs in {}'.format( len(pfcandidateClustered) , 'pfcandidateClustered')
-        print '{} ptcs in {}'.format( len(cands) , 'cands')
-        print '{} ptcs in {}'.format( len(pfcandidateForUnclusteredUnc) , 'pfcandidateForUnclusteredUnc')
-        print '{} ptcs in {}'.format( len(badUnclustered) , 'badUnclustered')
-        print '{} ptcs in {}'.format( len(superbad) , 'superbad')
-        print 'px = {} \t py = {}'.format(px, py)
+        print '{} {}'.format( len(bad_jets) , 'bad jets:')
+        for jet in bad_jets :
+            print '\t', jet.pt(), jet.eta(), jet.phi()
 
         # import pdb; pdb.set_trace()
 
