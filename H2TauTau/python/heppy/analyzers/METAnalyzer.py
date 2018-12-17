@@ -148,45 +148,40 @@ class METAnalyzer(Analyzer):
 
         # noise cleaning
 
-        pt_cut = 50
+        pt_cut = 50.0
         eta_min = 2.65
         eta_max = 3.139
 
+        # BadPFCandidateJetsEEnoiseProducer
         bad_jets = []
         good_jets = []
         for x in event.jets:
-            if ( x.rawEnergy() < pt_cut and abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
-                bad_jets.append(x)
-            else :
+            if not ( x.rawEnergy() > pt_cut or abs(x.eta()) > eta_min or abs(x.eta()) < eta_max ) :
                 good_jets.append(x)
-        
-        ptcs_from_jets = []
-        pfCandidateJetsWithEEnoise  = []
+            else :
+                bad_jets.append(x)
 
-        for jet in event.jets:
-            ptcs_from_jets += get_final_ptcs(jet)
 
-        for jet in bad_jets:
-            pfCandidateJetsWithEEnoise += get_final_ptcs(jet)
-
-        taus_final_ptcs = []
-        for tau in event.taus :
-             taus_final_ptcs += get_final_ptcs(tau)
+        # CandViewMerger, pfcandidateClustered
 
         if not hasattr(event, 'photons'): # fast construction of photons list
             event.photons = [p for p in self.handles['photons'].product()]
 
         pfcandidateClustered = event.electrons + event.muons \
-            + taus_final_ptcs  + event.photons + ptcs_from_jets
+            + event.taus  + event.photons + event.jets
+
+        pfcandidateClustered_ptcs = []
+        for ptc in pfcandidateClustered :
+            pfcandidateClustered_ptcs += get_final_ptcs(ptc)
 
         # "packedPFCandidates"
         cands = [c for c in self.handles['packedPFCandidates'].product()]
 
-        # pfcandidateForUnclusteredUnc = cands - pfcandidateClustered
+        # CandPtrProjector, pfcandidateForUnclusteredUnc = cands - pfcandidateClustered
         pfcandidateForUnclusteredUnc = []
         for ptc1 in cands :
             keep_ptc = True
-            for ptc2 in pfcandidateClustered :
+            for ptc2 in pfcandidateClustered_ptcs :
                 if keep_ptc :
                     if ( ptc1.pdgId() == ptc2.pdgId() \
                         and ptc1.eta() == ptc2.eta() \
@@ -201,12 +196,29 @@ class METAnalyzer(Analyzer):
             if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
                 badUnclustered.append(x)
 
-        superbad = badUnclustered + pfCandidateJetsWithEEnoise
-
+        superbad = badUnclustered + bad_jets
+        
+        px, py = 0,0
         for ptc in superbad :
             if ptc in cands :
-                pfmet_px_old += ptc.px()
-                pfmet_py_old += ptc.py()
+                px += ptc.px()
+                py += ptc.py()
+        pfmet_px_old += px
+        pfmet_py_old += py
+
+        print '\n\n'
+        print 'Event {}'.format(event.eventId)
+        print '{} {}'.format( len(event.jets) , 'jets')
+        print '{} {}'.format( len(bad_jets) , 'bad jets')
+        # print '{} ptcs in {}'.format(len(pfCandidateJetsWithEEnoise) , 'pfCandidateJetsWithEEnoise' )
+        print '{} ptcs in {}'.format( len(pfcandidateClustered) , 'pfcandidateClustered')
+        print '{} ptcs in {}'.format( len(cands) , 'cands')
+        print '{} ptcs in {}'.format( len(pfcandidateForUnclusteredUnc) , 'pfcandidateForUnclusteredUnc')
+        print '{} ptcs in {}'.format( len(badUnclustered) , 'badUnclustered')
+        print '{} ptcs in {}'.format( len(superbad) , 'superbad')
+        print 'px = {} \t py = {}'.format(px, py)
+
+        # import pdb; pdb.set_trace()
 
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
