@@ -14,6 +14,15 @@ from ROOT import HTTRecoilCorrector as RC
 
 LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
 
+def get_final_ptcs(ptc):
+    if ptc.numberOfDaughters() == 0 :
+        return [ptc]
+    else :
+        final_ptcs = []
+        for N in range(ptc.numberOfDaughters()):
+            l = get_final_ptcs(ptc.daughter(N))
+            final_ptcs += l
+        return final_ptcs
 
 class METAnalyzer(Analyzer):
 
@@ -41,6 +50,16 @@ class METAnalyzer(Analyzer):
         self.handles['pfMET'] = AutoHandle(
             'slimmedMETs',
             'std::vector<pat::MET>'
+        )
+
+        self.handles['photons'] = AutoHandle(
+            'slimmedPhotons',
+            'std::vector<pat::Photon>'
+        )
+
+        self.handles['packedPFCandidates'] = AutoHandle(
+            'packedPFCandidates',
+            'std::vector<pat::PackedCandidate>'
         )
 
     def getGenP4(self, event):
@@ -117,10 +136,77 @@ class METAnalyzer(Analyzer):
         pfmet_py_old = event.pfmet.py()
 
         # Correct MET for tau energy scale
-        if hasattr(dil.leg1(),'unscaledP4') and hasattr(dil.leg2(),'unscaledP4'):
-            scaled_diff = (dil.leg1().unscaledP4 - dil.leg1().p4()) + (dil.leg2().unscaledP4 - dil.leg2().p4())
-            pfmet_px_old += scaled_diff.px()
-            pfmet_py_old += scaled_diff.py()
+        for leg in [dil.leg1(), dil.leg2()]:
+            if hasattr(leg,'unscaledP4') :
+                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
+                pfmet_px_old += scaled_diff_for_leg.px()
+                pfmet_py_old += scaled_diff_for_leg.py()
+
+        if event.metShift :
+            pfmet_px_old += event.metShift[0]
+            pfmet_py_old += event.metShift[1]
+
+        # noise cleaning
+
+        pt_cut = 50.0
+        eta_min = 2.65
+        eta_max = 3.139
+
+        # BadPFCandidateJetsEEnoiseProducer
+        bad_jets = []
+        good_jets = []
+        for x in event.jets:
+            if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
+                good_jets.append(x)
+            else :
+                bad_jets.append(x)
+
+
+        # CandViewMerger, pfcandidateClustered
+
+        if not hasattr(event, 'photons'): # fast construction of photons list
+            event.photons = [p for p in self.handles['photons'].product()]
+
+        pfcandidateClustered = event.electrons + event.muons \
+            + event.taus  + event.photons + event.jets
+
+        pfcandidateClustered_ptcs = []
+        for ptc in pfcandidateClustered :
+            pfcandidateClustered_ptcs += get_final_ptcs(ptc)
+
+        # "packedPFCandidates"
+        cands = [c for c in self.handles['packedPFCandidates'].product()]
+
+        # CandPtrProjector, pfcandidateForUnclusteredUnc = cands - pfcandidateClustered
+        pfcandidateForUnclusteredUnc = []
+        for ptc1 in cands :
+            keep_ptc = True
+            for ptc2 in pfcandidateClustered_ptcs :
+                if keep_ptc :
+                    if ( ptc1.pdgId() == ptc2.pdgId() \
+                        and ptc1.eta() == ptc2.eta() \
+                        and ptc1.pt()  == ptc2.pt() ) :
+                        keep_ptc = False
+            if keep_ptc:
+                pfcandidateForUnclusteredUnc.append(ptc1)
+
+        # badUnclustered = pfcandidateForUnclusteredUnc if range eta
+        badUnclustered = []
+        for x in pfcandidateForUnclusteredUnc :
+            if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
+                badUnclustered.append(x)
+
+        superbad = [ptc for ptc in badUnclustered]
+        for jet in bad_jets:
+            superbad += get_final_ptcs(jet)
+        
+        px, py = 0,0
+        for ptc in superbad :
+            if ptc in cands :
+                px += ptc.px()
+                py += ptc.py()
+        pfmet_px_old += px
+        pfmet_py_old += py
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
         new = self.rcMET.CorrectByMeanResolution(
