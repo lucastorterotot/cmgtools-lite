@@ -146,20 +146,19 @@ class METAnalyzer(Analyzer):
             pfmet_px_old += event.metShift[0]
             pfmet_py_old += event.metShift[1]
 
-        #import pdb; pdb.set_trace()
-
         # noise cleaning
 
         pt_cut = 50
         eta_min = 2.65
         eta_max = 3.139
-        eta_diff_cut = 1e-3
-        pt_diff_cut = 1e-3
 
         bad_jets = []
+        good_jets = []
         for x in event.jets:
-            if ( x.pt() < pt_cut and abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
+            if ( x.rawEnergy() < pt_cut and abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
                 bad_jets.append(x)
+            else :
+                good_jets.append(x)
         
         ptcs_from_jets = []
         pfCandidateJetsWithEEnoise  = []
@@ -168,22 +167,20 @@ class METAnalyzer(Analyzer):
             ptcs_from_jets += get_final_ptcs(jet)
 
         for jet in bad_jets:
-            pfCandidateJetsWithEEnoise  += get_final_ptcs(jet)
+            pfCandidateJetsWithEEnoise += get_final_ptcs(jet)
 
-        # import pdb; pdb.set_trace()
+        taus_final_ptcs = []
+        for tau in event.taus :
+             taus_final_ptcs += get_final_ptcs(tau)
+
         if not hasattr(event, 'photons'): # fast construction of photons list
-            event.photons = []
-            pre_photons = self.handles['photons'].product()
-            for photon in pre_photons:
-                event.photons.append(photon)
+            event.photons = [p for p in self.handles['photons'].product()]
 
         pfcandidateClustered = event.electrons + event.muons \
-            + event.taus + event.photons + ptcs_from_jets
+            + taus_final_ptcs  + event.photons + ptcs_from_jets
 
-        pre_cands = self.handles['packedPFCandidates'].product() # "packedPFCandidates"
-        cands = []
-        for c in pre_cands:
-            cands.append(c)
+        # "packedPFCandidates"
+        cands = [c for c in self.handles['packedPFCandidates'].product()]
 
         # pfcandidateForUnclusteredUnc = cands - pfcandidateClustered
         pfcandidateForUnclusteredUnc = []
@@ -192,8 +189,8 @@ class METAnalyzer(Analyzer):
             for ptc2 in pfcandidateClustered :
                 if keep_ptc :
                     if ( ptc1.pdgId() == ptc2.pdgId() \
-                        and abs( ptc1.eta() - ptc2.eta() ) < eta_diff_cut \
-                        and abs( ptc1.pt()  - ptc2.pt()  ) < pt_diff_cut ) :
+                        and ptc1.eta() == ptc2.eta() \
+                        and ptc1.pt()  == ptc2.pt() ) :
                         keep_ptc = False
             if keep_ptc:
                 pfcandidateForUnclusteredUnc.append(ptc1)
@@ -206,39 +203,10 @@ class METAnalyzer(Analyzer):
 
         superbad = badUnclustered + pfCandidateJetsWithEEnoise
 
-        # if event.eventId in [969113, 969147]:
-        #     import pdb; pdb.set_trace()
-
         for ptc in superbad :
             if ptc in cands :
                 pfmet_px_old += ptc.px()
                 pfmet_py_old += ptc.py()
-
-        # conserver jets pas noise et cand pas superbad
-        # -> ajouer a la MET les (superbad intersect cand)
-
-        # do not double count ptcs also in jets
-        # ptcs_from_jets = [jet.daughter(k) for jet in pfCandidateJetsWithEEnoise for k in range(jet.numberOfDaughters())]
-
-        # for ptc in ptcs_from_jets :
-        #     if ptc.numberOfDaughters() > 0 :
-        #         ptcs_from_jets += [ptc.daughter(k) for k in range(ptc.numberOfDaughters())]
-        #         ptcs_from_jets.remove(ptc)
-
-                        
-
-        # to_remove = pfCandidateJetsWithEEnoise \
-        #     + eles_to_remove \
-        #     + mus_to_remove \
-        #     + taus_to_remove \
-        #     + phot_to_remove
-        # for x in to_remove :
-        #     pfmet_px_old += x.px()
-        #     pfmet_py_old += x.py()
-
-        # event.jets[0].numberOfDaughters() && event.jets[0].daughter(1).eta() // pdgID()
-            # --> if ele/mu/tau/gamma : do not double count
-
 
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
