@@ -142,9 +142,9 @@ class METAnalyzer(Analyzer):
                 pfmet_px_old += scaled_diff_for_leg.px()
                 pfmet_py_old += scaled_diff_for_leg.py()
 
-        if event.metShift :
-            pfmet_px_old += event.metShift[0]
-            pfmet_py_old += event.metShift[1]
+        # if event.metShift :
+        #     pfmet_px_old += event.metShift[0]
+        #     pfmet_py_old += event.metShift[1]
 
         # noise cleaning
 
@@ -156,7 +156,7 @@ class METAnalyzer(Analyzer):
         bad_jets = []
         good_jets = []
         for x in event.jets:
-            if not ( x.rawEnergy() > pt_cut or abs(x.eta()) > eta_min or abs(x.eta()) < eta_max ) :
+            if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
                 good_jets.append(x)
             else :
                 bad_jets.append(x)
@@ -196,7 +196,9 @@ class METAnalyzer(Analyzer):
             if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
                 badUnclustered.append(x)
 
-        superbad = badUnclustered + bad_jets
+        superbad = [ptc for ptc in badUnclustered]
+        for jet in bad_jets:
+            superbad += get_final_ptcs(jet)
         
         px, py = 0,0
         for ptc in superbad :

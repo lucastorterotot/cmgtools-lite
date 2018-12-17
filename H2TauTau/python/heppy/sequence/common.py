@@ -311,7 +311,7 @@ from CMGTools.H2TauTau.heppy.analyzers.METAnalyzer import METAnalyzer
 pfmetana = cfg.Analyzer(
     METAnalyzer,
     name='PFMetana',
-    recoil_correction_file='CMGTools/H2TauTau/data/Type1_PFMET_2017.root',
+    recoil_correction_file='HTT-utilities/RecoilCorrections/data/Type1_PFMET_2017.root',
     met = 'pfmet',
     apply_recoil_correction= True#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
 )
