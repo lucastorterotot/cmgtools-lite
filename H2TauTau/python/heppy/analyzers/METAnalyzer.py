@@ -123,28 +123,15 @@ class METAnalyzer(Analyzer):
         
         if not self.apply_recoil_correction:
             return
-        
-        dil = event.dileptons_sorted[0]
-
-        n_jets_30 = len(event.jets_30)
-        
-        if self.isWJets:
-            n_jets_30 += 1
 
         # Correct PF MET
         pfmet_px_old = event.pfmet.px()
         pfmet_py_old = event.pfmet.py()
 
-        # Correct MET for tau energy scale
-        for leg in [dil.leg1(), dil.leg2()]:
-            if hasattr(leg,'unscaledP4') :
-                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
-                pfmet_px_old += scaled_diff_for_leg.px()
-                pfmet_py_old += scaled_diff_for_leg.py()
-
-        # if event.metShift :
-        #     pfmet_px_old += event.metShift[0]
-        #     pfmet_py_old += event.metShift[1]
+        # JEC
+        if event.metShift :
+            pfmet_px_old += event.metShift[0]
+            pfmet_py_old += event.metShift[1]
 
         # noise cleaning
 
@@ -231,8 +218,35 @@ class METAnalyzer(Analyzer):
         for jet in bad_jets :
             print '\t', jet.pt(), jet.eta(), jet.phi()
 
-        # import pdb; pdb.set_trace()
+        cpx = event.pfmet.uncorPx()
+        cpy = event.pfmet.uncorPy()
+        # blob
+        cpx += blob_px
+        cpy += blob_py
+        for jet in good_jets :
+            cpx -= jet.px() - jet.correctedJet("Uncorrected").px()
+            cpx -= jet.py() - jet.correctedJet("Uncorrected").py()
 
+        calc_met = (cpx**2+cpy**2)**.5
+        print 'calc met pt, px, py', calc_met, cpx, cpy
+        #import pdb; pdb.set_trace()
+
+
+        dil = event.dileptons_sorted[0]
+
+        # Correct MET for tau energy scale
+        for leg in [dil.leg1(), dil.leg2()]:
+            if hasattr(leg,'unscaledP4') :
+                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
+                pfmet_px_old += scaled_diff_for_leg.px()
+                pfmet_py_old += scaled_diff_for_leg.py()
+
+        print 'tauES met pt, px, py', (pfmet_px_old**2+pfmet_py_old**2)**.5,pfmet_px_old, pfmet_py_old
+        
+        n_jets_30 = len(event.jets_30)
+        
+        if self.isWJets:
+            n_jets_30 += 1
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
         new = self.rcMET.CorrectByMeanResolution(
@@ -250,6 +264,8 @@ class METAnalyzer(Analyzer):
 
         getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
+        newmet = getattr(event, self.cfg_ana.met)
+        print 'final met pt, px, py',newmet.pt(), newmet.px(), newmet.py(), newmet.phi()
 
     @staticmethod
     def p4sum(ps):
