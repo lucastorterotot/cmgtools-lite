@@ -148,9 +148,7 @@ class METAnalyzer(Analyzer):
             else :
                 bad_jets.append(x)
 
-
         # CandViewMerger, pfcandidateClustered
-
         if not hasattr(event, 'photons'): # fast construction of photons list
             event.photons = [p for p in self.handles['photons'].product()]
 
@@ -158,24 +156,34 @@ class METAnalyzer(Analyzer):
             + event.taus  + event.photons + event.jets
 
         pfcandidateClustered_ptcs = []
-        for ptc in pfcandidateClustered :
+        for ptc in event.electrons :
+            for assPFcand in ptc.physObj.associatedPackedPFCandidates():
+                pfcandidateClustered_ptcs.append(assPFcand.get())
+        for ptc in event.muons + event.taus :
+            for k in range(ptc.physObj.numberOfSourceCandidatePtrs()):
+                pfcandidateClustered_ptcs.append(ptc.physObj.sourceCandidatePtr(k).get())
+        for ptc in event.photons :
+            for k in range(ptc.numberOfSourceCandidatePtrs()):
+                pfcandidateClustered_ptcs.append(ptc.sourceCandidatePtr(k).get())
+        # for ptc in pfcandidateClustered :
+        for ptc in event.jets :
             pfcandidateClustered_ptcs += get_final_ptcs(ptc)
 
         # "packedPFCandidates"
         cands = [c for c in self.handles['packedPFCandidates'].product()]
-
         # CandPtrProjector, pfcandidateForUnclusteredUnc = cands - pfcandidateClustered
-        pfcandidateForUnclusteredUnc = []
-        for ptc1 in cands :
-            keep_ptc = True
-            for ptc2 in pfcandidateClustered_ptcs :
-                if keep_ptc :
-                    if ( ptc1.pdgId() == ptc2.pdgId() \
-                        and ptc1.eta() == ptc2.eta() \
-                        and ptc1.pt()  == ptc2.pt() ) :
-                        keep_ptc = False
-            if keep_ptc:
-                pfcandidateForUnclusteredUnc.append(ptc1)
+        # pfcandidateForUnclusteredUnc = []
+        # for ptc1 in cands :
+        #     keep_ptc = True
+        #     for ptc2 in pfcandidateClustered_ptcs :
+        #         if keep_ptc :
+        #             if ( ptc1.pdgId() == ptc2.pdgId() \
+        #                 and ptc1.eta() == ptc2.eta() \
+        #                 and ptc1.pt()  == ptc2.pt() ) :
+        #                 keep_ptc = False
+        #     if keep_ptc:
+        #         pfcandidateForUnclusteredUnc.append(ptc1)
+        pfcandidateForUnclusteredUnc = [c for c in cands if c not in pfcandidateClustered_ptcs]
 
         # badUnclustered = pfcandidateForUnclusteredUnc if range eta
         badUnclustered = []
@@ -186,6 +194,8 @@ class METAnalyzer(Analyzer):
         superbad = [ptc for ptc in badUnclustered]
         for jet in bad_jets:
             superbad += get_final_ptcs(jet)
+
+        pfCandidatesGoodEE2017 = [c for c in cands if c not in superbad]
         
         px, py = 0,0
         for ptc in superbad :
@@ -209,28 +219,65 @@ class METAnalyzer(Analyzer):
         print 'blob with {} ptcs'.format(len(badUnclustered)), blob_pt
 
         met = event.pfmet
-        print 'mod met pt, px, py', (pfmet_px_old**2+pfmet_py_old**2)**.5,pfmet_px_old, pfmet_py_old
-        print 'met px, py', met.px(), met.py()
-        print 'met pt, phi', met.pt(), met.phi()
+
+        print ''
+
+        LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
+        my_met = LorentzVector(0., 0., 0., 0.)
+
+        # calc raw met no fix ee 2017
+        for ptc in cands:
+            my_met -= ptc.p4()
+        print 'calc raw no fix met pt, px, py', my_met.Pt(), my_met.Px(), my_met.Py()
+
+        # blob
+        for ptc in superbad :
+            my_met += ptc.p4()
+        print 'calc met-blob pt, px, py',  my_met.Pt(), my_met.Px(), my_met.Py()
+
+        # jets
+        for jet in good_jets :
+            my_met -= jet.p4() - jet.correctedJet("Uncorrected").p4()
+        print 'calc met jets pt, px, py',  my_met.Pt(), my_met.Px(), my_met.Py()
+
+        # Correct MET for tau energy scale
+        dil = event.dileptons_sorted[0]
+        for leg in [dil.leg1(), dil.leg2()]:
+            if hasattr(leg,'unscaledP4') :
+                scaled_diff_for_leg = (leg.p4() - leg.unscaledP4)
+                my_met -= scaled_diff_for_leg
+        print 'calc met tauES pt, px, py',  my_met.Pt(), my_met.Px(), my_met.Py()
+        
+        n_jets_30 = len(event.jets_30)
+        
+        if self.isWJets:
+            n_jets_30 += 1
+
+        # Correct by mean and resolution as default (otherwise use .Correct(..))
+        new = self.rcMET.CorrectByMeanResolution(
+        # new = self.rcMET.Correct(    
+            my_met.Px(),    
+            my_met.Py(), 
+            gen_z_px,    
+            gen_z_py,    
+            gen_vis_z_px,    
+            gen_vis_z_py,    
+            n_jets_30,   
+        )
+
+        px_new, py_new = new.first, new.second
+
+        print 'calc met final pt, px, py', math.sqrt(px_new*px_new + py_new*py_new),  new.first, new.second
 
         print '{} {}'.format( len(event.jets) , 'jets')
+        print '{} {}'.format( len(good_jets) , 'good jets:')
+        for jet in good_jets :
+            print '\t', jet.pt(), jet.eta(), jet.phi()
         print '{} {}'.format( len(bad_jets) , 'bad jets:')
         for jet in bad_jets :
             print '\t', jet.pt(), jet.eta(), jet.phi()
 
-        cpx = event.pfmet.uncorPx()
-        cpy = event.pfmet.uncorPy()
-        # blob
-        cpx += blob_px
-        cpy += blob_py
-        for jet in good_jets :
-            cpx -= jet.px() - jet.correctedJet("Uncorrected").px()
-            cpx -= jet.py() - jet.correctedJet("Uncorrected").py()
-
-        calc_met = (cpx**2+cpy**2)**.5
-        print 'calc met pt, px, py', calc_met, cpx, cpy
-        #import pdb; pdb.set_trace()
-
+        import pdb; pdb.set_trace()
 
         dil = event.dileptons_sorted[0]
 
@@ -240,8 +287,6 @@ class METAnalyzer(Analyzer):
                 scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
                 pfmet_px_old += scaled_diff_for_leg.px()
                 pfmet_py_old += scaled_diff_for_leg.py()
-
-        print 'tauES met pt, px, py', (pfmet_px_old**2+pfmet_py_old**2)**.5,pfmet_px_old, pfmet_py_old
         
         n_jets_30 = len(event.jets_30)
         
@@ -265,7 +310,6 @@ class METAnalyzer(Analyzer):
         getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
         newmet = getattr(event, self.cfg_ana.met)
-        print 'final met pt, px, py',newmet.pt(), newmet.px(), newmet.py(), newmet.phi()
 
     @staticmethod
     def p4sum(ps):

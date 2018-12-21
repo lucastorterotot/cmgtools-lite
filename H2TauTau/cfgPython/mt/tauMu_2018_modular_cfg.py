@@ -81,10 +81,10 @@ if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
     selectedComponents = [comp]
-    # comp.files = comp.files[:1]
-    # comp.splitFactor = 1
-    # comp.fineSplitFactor = 1
-    # comp.files = ['test.root']
+    comp.files = comp.files[:1]
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
+    # comp.files = ['/home/cms/torterotot/CMSSW-MET/CMSSW_9_4_11_cand1/src/JetMETCorrections/Type1MET/test/metv2.root']
 
 events_to_pick = []
 
