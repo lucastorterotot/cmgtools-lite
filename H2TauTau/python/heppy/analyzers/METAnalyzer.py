@@ -8,6 +8,8 @@ from ROOT import gSystem
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 
+from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection
+
 gSystem.Load("libCMGToolsH2TauTau")
 
 from ROOT import HTTRecoilCorrector as RC
@@ -128,156 +130,19 @@ class METAnalyzer(Analyzer):
         pfmet_px_old = event.pfmet.px()
         pfmet_py_old = event.pfmet.py()
 
+        if hasattr(self.cfg_ana, 'runFixEE2017') and self.cfg_ana.runFixEE2017:
+            rawMET = self.runFixEE2017(event)
+            pfmet_px_old = rawMET.px()
+            pfmet_py_old = rawMET.py()
+            
+            if event.type1METCorr :
+                pfmet_px_old += event.type1METCorr[0]
+                pfmet_py_old += event.type1METCorr[1]
+
         # JEC
-        if event.metShift :
+        elif event.metShift :
             pfmet_px_old += event.metShift[0]
             pfmet_py_old += event.metShift[1]
-
-        # noise cleaning
-
-        pt_cut = 50.0
-        eta_min = 2.65
-        eta_max = 3.139
-
-        # BadPFCandidateJetsEEnoiseProducer
-        bad_jets = []
-        good_jets = []
-        for x in event.jets:
-            if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
-                good_jets.append(x)
-            else :
-                bad_jets.append(x)
-
-        # CandViewMerger, pfcandidateClustered
-        if not hasattr(event, 'photons'): # fast construction of photons list
-            event.photons = [p for p in self.handles['photons'].product()]
-
-        pfcandidateClustered = event.electrons + event.muons \
-            + event.taus  + event.photons + event.jets
-
-        pfcandidateClustered_ptcs = []
-        for ptc in event.electrons :
-            for assPFcand in ptc.physObj.associatedPackedPFCandidates():
-                pfcandidateClustered_ptcs.append(assPFcand.get())
-        for ptc in event.muons + event.taus :
-            for k in range(ptc.physObj.numberOfSourceCandidatePtrs()):
-                pfcandidateClustered_ptcs.append(ptc.physObj.sourceCandidatePtr(k).get())
-        for ptc in event.photons :
-            for k in range(ptc.numberOfSourceCandidatePtrs()):
-                pfcandidateClustered_ptcs.append(ptc.sourceCandidatePtr(k).get())
-        # for ptc in pfcandidateClustered :
-        for ptc in event.jets :
-            pfcandidateClustered_ptcs += get_final_ptcs(ptc)
-
-        # "packedPFCandidates"
-        cands = [c for c in self.handles['packedPFCandidates'].product()]
-        # CandPtrProjector, pfcandidateForUnclusteredUnc = cands - pfcandidateClustered
-        # pfcandidateForUnclusteredUnc = []
-        # for ptc1 in cands :
-        #     keep_ptc = True
-        #     for ptc2 in pfcandidateClustered_ptcs :
-        #         if keep_ptc :
-        #             if ( ptc1.pdgId() == ptc2.pdgId() \
-        #                 and ptc1.eta() == ptc2.eta() \
-        #                 and ptc1.pt()  == ptc2.pt() ) :
-        #                 keep_ptc = False
-        #     if keep_ptc:
-        #         pfcandidateForUnclusteredUnc.append(ptc1)
-        pfcandidateForUnclusteredUnc = [c for c in cands if c not in pfcandidateClustered_ptcs]
-
-        # badUnclustered = pfcandidateForUnclusteredUnc if range eta
-        badUnclustered = []
-        for x in pfcandidateForUnclusteredUnc :
-            if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
-                badUnclustered.append(x)
-
-        superbad = [ptc for ptc in badUnclustered]
-        for jet in bad_jets:
-            superbad += get_final_ptcs(jet)
-
-        pfCandidatesGoodEE2017 = [c for c in cands if c not in superbad]
-        
-        px, py = 0,0
-        for ptc in superbad :
-            if ptc in cands :
-                px += ptc.px()
-                py += ptc.py()
-        pfmet_px_old += px
-        pfmet_py_old += py
-
-        print '\n\n'
-        print 'Event {}'.format(event.eventId)
-
-        blob_px = 0
-        blob_py = 0
-        for ptc in badUnclustered :
-            blob_px += ptc.px()
-            blob_py += ptc.py()
-
-        blob_pt = (blob_px**2 + blob_py**2)**.5
-
-        print 'blob with {} ptcs'.format(len(badUnclustered)), blob_pt
-
-        met = event.pfmet
-
-        print ''
-
-        LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
-        my_met = LorentzVector(0., 0., 0., 0.)
-
-        # calc raw met no fix ee 2017
-        for ptc in cands:
-            my_met -= ptc.p4()
-        print 'calc raw no fix met pt, px, py', my_met.Pt(), my_met.Px(), my_met.Py()
-
-        # blob
-        for ptc in superbad :
-            my_met += ptc.p4()
-        print 'calc met-blob pt, px, py',  my_met.Pt(), my_met.Px(), my_met.Py()
-
-        # jets
-        for jet in good_jets :
-            my_met -= jet.p4() - jet.correctedJet("Uncorrected").p4()
-        print 'calc met jets pt, px, py',  my_met.Pt(), my_met.Px(), my_met.Py()
-
-        # Correct MET for tau energy scale
-        dil = event.dileptons_sorted[0]
-        for leg in [dil.leg1(), dil.leg2()]:
-            if hasattr(leg,'unscaledP4') :
-                scaled_diff_for_leg = (leg.p4() - leg.unscaledP4)
-                my_met -= scaled_diff_for_leg
-        print 'calc met tauES pt, px, py',  my_met.Pt(), my_met.Px(), my_met.Py()
-        
-        n_jets_30 = len(event.jets_30)
-        
-        if self.isWJets:
-            n_jets_30 += 1
-
-        # Correct by mean and resolution as default (otherwise use .Correct(..))
-        new = self.rcMET.CorrectByMeanResolution(
-        # new = self.rcMET.Correct(    
-            my_met.Px(),    
-            my_met.Py(), 
-            gen_z_px,    
-            gen_z_py,    
-            gen_vis_z_px,    
-            gen_vis_z_py,    
-            n_jets_30,   
-        )
-
-        px_new, py_new = new.first, new.second
-
-        print 'calc met final pt, px, py', math.sqrt(px_new*px_new + py_new*py_new),  new.first, new.second
-
-        print '{} {}'.format( len(event.jets) , 'jets')
-        print '{} {}'.format( len(good_jets) , 'good jets:')
-        for jet in good_jets :
-            print '\t', jet.pt(), jet.eta(), jet.phi()
-        print '{} {}'.format( len(bad_jets) , 'bad jets:')
-        for jet in bad_jets :
-            print '\t', jet.pt(), jet.eta(), jet.phi()
-
-        import pdb; pdb.set_trace()
 
         dil = event.dileptons_sorted[0]
 
@@ -311,6 +176,66 @@ class METAnalyzer(Analyzer):
 
         newmet = getattr(event, self.cfg_ana.met)
 
+    def runFixEE2017(self, event):
+        '''Run the raw met computation including the cleaning of the noisy ECAL endcap in 2017 data and MC.
+        '''
+        pt_cut = 50.0
+        eta_min = 2.65
+        eta_max = 3.139
+
+        # BadPFCandidateJetsEEnoiseProducer
+        bad_jets = []
+        good_jets = []
+        for x in event.jets:
+            if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
+                good_jets.append(x)
+            else :
+                bad_jets.append(x)
+
+        # CandViewMerger, pfcandidateClustered
+        if not hasattr(event, 'photons'): # fast construction of photons list
+            event.photons = [p for p in self.handles['photons'].product()]
+
+        pfcandidateClustered = event.electrons + event.muons \
+            + event.taus  + event.photons + event.jets
+
+        pfcandidateClustered_ptcs = []
+        for ptc in event.electrons :
+            for assPFcand in ptc.physObj.associatedPackedPFCandidates():
+                pfcandidateClustered_ptcs.append(assPFcand.get())
+        for ptc in event.muons + event.taus :
+            for k in range(ptc.physObj.numberOfSourceCandidatePtrs()):
+                pfcandidateClustered_ptcs.append(ptc.physObj.sourceCandidatePtr(k).get())
+        for ptc in event.photons :
+            for k in range(ptc.numberOfSourceCandidatePtrs()):
+                pfcandidateClustered_ptcs.append(ptc.sourceCandidatePtr(k).get())
+        for ptc in event.jets :
+            pfcandidateClustered_ptcs += get_final_ptcs(ptc)
+
+        # "packedPFCandidates"
+        cands = [c for c in self.handles['packedPFCandidates'].product()]
+        pfcandidateForUnclusteredUnc = [c for c in cands if c not in pfcandidateClustered_ptcs]
+        badUnclustered = []
+        for x in pfcandidateForUnclusteredUnc :
+            if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
+                badUnclustered.append(x)
+
+        superbad = [ptc for ptc in badUnclustered]
+        for jet in bad_jets:
+            superbad += get_final_ptcs(jet)
+
+        pfCandidatesGoodEE2017 = [c for c in cands if c not in superbad]
+
+
+        LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
+        my_met = LorentzVector(0., 0., 0., 0.)
+
+        # calc raw met no fix ee 2017
+        for ptc in pfCandidatesGoodEE2017:
+            my_met -= ptc.p4()
+
+        return my_met
+        
     @staticmethod
     def p4sum(ps):
         '''Returns four-vector sum of objects in passed list. Returns None
