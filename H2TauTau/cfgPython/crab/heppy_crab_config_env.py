@@ -50,15 +50,19 @@ if (os.environ["USEAAA"]!="local"):
         "T2_IT_Legnaro", 
         "T2_UK_London_IC", 
         "T2_UK_SGrid_Bristol", 
+        "T2_BR_SPRACE",
         "T2_DE_DESY", 
         "T2_ES_CIEMAT", 
         "T2_IT_Rome", 
         "T2_AT_Vienna",
         "T2_DE_RWTH",
+        "T2_CH_CERN",
+        "T2_CN_Beijing",
         "T2_FR_GRIF_IRFU", 
         "T2_HU_Budapest", 
         "T2_FR_IPHC", 
         "T2_BE_IIHE", 
+        "T2_BE_UCL",
         "T2_IT_Pisa", 
         "T2_ES_IFCA", 
         "T2_UK_London_Brunel", 
@@ -72,22 +76,14 @@ if (os.environ["USEAAA"]!="local"):
 ]
 
 config.Site.blacklist = [
-    "T2_UK_London_Brunel",
-    "T2_HU_Budapest",
-    "T2_IT_Pisa",
-    "T2_DE_DESY",
-    "T2_IT_Rome",
-    "T2_FR_IPHC",
-    "T2_UA_KIPT",
-    "T2_IT_Legnaro",
-    "T2_ES_IFCA",
-    "T2_FR_GRIF_IRFU",
-    "T2_UK_London_IC",
 ]
 
 config.Site.storageSite = os.environ["OUTSITE"]
 
 try: config.Site.whitelist = os.environ["WHITESITES"].split(',')
+except KeyError: pass
+
+try: config.Site.blacklist = os.environ["BLACKSITES"].split(',')
 except KeyError: pass
 
 try: config.JobType.scriptArgs += ["nevents="+os.environ["MAXNUMEVENTS"]]
