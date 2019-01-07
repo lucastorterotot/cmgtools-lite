@@ -41,10 +41,8 @@ class EmbeddedAnalyzer(Analyzer):
             l1_eta = event.dileptons_sorted[0].leg1().eta()
             l2_pt = event.dileptons_sorted[0].leg2().pt()
             l2_eta = event.dileptons_sorted[0].leg2().eta()
-            genl1, dR2l1 = bestMatch(event.dileptons_sorted[0].leg1(), event.gentaus_hadronic)
-            genl2, dR2l2 = bestMatch(event.dileptons_sorted[0].leg2(), event.gentaus_hadronic)
-            if genl1 == genl2 or dR2l1>0.04 or dR2l2>0.04:
-                import pdb;pdb.set_trace()
+            genl1 = event.gentaus_hadronic[0]
+            genl2 = event.gentaus_hadronic[1]
             l1_genpt = genl1.pt()
             l1_geneta = genl1.eta()
             l2_genpt = genl2.pt()
@@ -65,6 +63,14 @@ class EmbeddedAnalyzer(Analyzer):
             event.weight_embed_DoubleTauHLT_eff_l1 = self.ws.function('tt_emb_PFTau35OR40_tight_kit_ratio').getVal()
             self.ws.var('t_pt').setVal(l2_pt)
             event.weight_embed_DoubleTauHLT_eff_l2 = self.ws.function('tt_emb_PFTau35OR40_tight_kit_ratio').getVal()
+
+            dm_corr_dict = {0: 0.975,
+                            1: 0.975*1.051,
+                            10:0.975*0.975*0.975,
+                            11:1.}
+            
+            event.weight_embed_track_l1 = dm_corr_dict[event.dileptons_sorted[0].leg1().decayMode()]
+            event.weight_embed_track_l2 = dm_corr_dict[event.dileptons_sorted[0].leg2().decayMode()]
 
 
     def getFinalTau(self, tau):

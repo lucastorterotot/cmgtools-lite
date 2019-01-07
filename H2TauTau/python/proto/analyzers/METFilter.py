@@ -11,7 +11,13 @@ class METFilter(Analyzer):
 
     def declareHandles(self):
         super(METFilter, self).declareHandles()
-        self.handles['TriggerResults'] = AutoHandle(('TriggerResults', '', self.processName), 'edm::TriggerResults', fallbackLabel=('TriggerResults', '', 'RECO')) # fallback for data
+        if hasattr(self.cfg_comp, 'isEmbed') and self.cfg_comp.isEmbed:
+            self.handles['TriggerResults'] = AutoHandle(
+                ('TriggerResults', '', 'MERGE'),
+                'edm::TriggerResults'
+                )
+        else:    
+            self.handles['TriggerResults'] = AutoHandle(('TriggerResults', '', self.processName), 'edm::TriggerResults', fallbackLabel=('TriggerResults', '', 'RECO')) # fallback for data
 
     def beginLoop(self, setup):
         super(METFilter, self).beginLoop(setup)
