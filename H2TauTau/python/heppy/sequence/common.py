@@ -313,7 +313,8 @@ pfmetana = cfg.Analyzer(
     name='PFMetana',
     recoil_correction_file='HTT-utilities/RecoilCorrections/data/Type1_PFMET_2017.root',
     met = 'pfmet',
-    apply_recoil_correction= True#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+    apply_recoil_correction= True,#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+    runFixEE2017= True
 )
 
 # if/when using MVAMET, use this to apply recoilcorrection
