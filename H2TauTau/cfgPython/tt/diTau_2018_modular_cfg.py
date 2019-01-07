@@ -26,7 +26,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', True)
 embedded = getHeppyOption('embedded', True)
@@ -66,9 +66,10 @@ from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers
 from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
 mc_list = backgrounds + sync_list + mssm_signals
-data_list = data_forindex.data_tau + embedded_forindex.embedded_tt
+data_list = data_forindex.data_tau
+embedded_list = embedded_forindex.embedded_tt
 
-n_events_per_job = 5e5
+n_events_per_job = 1e5
 
 for sample in mc_list:
     sample.triggers = mc_triggers
@@ -77,16 +78,23 @@ for sample in mc_list:
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
 
-for sample in data_list:
+for sample in data_list+embedded_list:
     sample.triggers = data_triggers
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
-    sample.dataGT = gt_data.format(sample.name[sample.name.find('2017')+4])
+    era = sample.name[sample.name.find('2017')+4]
+    if era in ['D','E']:
+        era = 'DE'
+    sample.dataGT = gt_data.format(era)
 
 for sample in embedded_forindex.embedded_tt:
     sample.isEmbed = True
 
-selectedComponents = data_list if data else backgrounds + mssm_signals
+selectedComponents = backgrounds + mssm_signals
+if data:
+    selectedComponents = data_list
+    if embedded:
+        selectedComponents = embedded_list
 
 
 if test:
@@ -97,7 +105,7 @@ if test:
     # comp = bindex.glob('TTHad_pow')[0]
     # comp = bindex.glob('TTSemi_pow')[0]
     # comp = index.glob('HiggsVBF125')[0] 
-    # comp = dindex.glob('Tau_Run2017F_31Mar2018')[0]
+    # comp = dindex.glob('Tau_Run2017D_31Mar2018')[0]
     comp = eindex.glob('Embedded2017B_tt')[0]
     comp.files = comp.files[:1]
     comp.splitFactor = 1
@@ -237,7 +245,7 @@ sequence.append(tauidweighter)
 sequence.append(ntuple)
 
 if embedded:
-    sequence = [x for x in sequence if x.name not in ['JSONAnalyzer','METFilter']] # TODO check with Artur that METFilters should be disabled for embedded samples
+    sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
     trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
     
 if events_to_pick:
