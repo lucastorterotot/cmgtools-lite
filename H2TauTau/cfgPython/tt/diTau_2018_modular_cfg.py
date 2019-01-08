@@ -8,7 +8,7 @@ from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-# ComponentCreator.useLyonAAA = True
+ComponentCreator.useAAA = True
 
 import logging
 logging.shutdown()
@@ -26,9 +26,10 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', True)
+embedded = getHeppyOption('embedded', True)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 # For specific studies
@@ -58,12 +59,15 @@ from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
 import CMGTools.H2TauTau.proto.samples.fall17.backgrounds as backgrounds_forindex
 bindex = ComponentIndex( backgrounds_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import backgrounds
+import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
+eindex = ComponentIndex( embedded_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import mc_triggers, mc_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers, data_triggerfilters
 from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
 mc_list = backgrounds + sync_list + mssm_signals
 data_list = data_forindex.data_tau
+embedded_list = embedded_forindex.embedded_tt
 
 n_events_per_job = 1e5
 
@@ -74,13 +78,23 @@ for sample in mc_list:
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
 
-for sample in data_list:
+for sample in data_list+embedded_list:
     sample.triggers = data_triggers
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
-    sample.dataGT = gt_data.format(sample.name[sample.name.find('2017')+4])
+    era = sample.name[sample.name.find('2017')+4]
+    if era in ['D','E']:
+        era = 'DE'
+    sample.dataGT = gt_data.format(era)
 
-selectedComponents = data_list if data else backgrounds + mssm_signals
+for sample in embedded_forindex.embedded_tt:
+    sample.isEmbed = True
+
+selectedComponents = backgrounds + mssm_signals
+if data:
+    selectedComponents = data_list
+    if embedded:
+        selectedComponents = embedded_list
 
 
 if test:
@@ -91,7 +105,8 @@ if test:
     # comp = bindex.glob('TTHad_pow')[0]
     # comp = bindex.glob('TTSemi_pow')[0]
     # comp = index.glob('HiggsVBF125')[0] 
-    comp = dindex.glob('Tau_Run2017F_31Mar2018')[0]
+    # comp = dindex.glob('Tau_Run2017D_31Mar2018')[0]
+    comp = eindex.glob('Embedded2017B_tt')[0]
     comp.files = comp.files[:1]
     comp.splitFactor = 1
     comp.fineSplitFactor = 1
@@ -208,15 +223,31 @@ ntuple = cfg.Analyzer(
     event_content = event_content_tautau
 )
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
+# embedded ================================================================
+
+from CMGTools.H2TauTau.heppy.analyzers.EmbeddedAnalyzer import EmbeddedAnalyzer
+embedded_ana = cfg.Analyzer(
+    EmbeddedAnalyzer,
+    name = 'EmbeddedAnalyzer',
+    channel = 'tt'
+)
+
+
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
+if embedded:
+    sequence.append(embedded_ana)
 # if data:
 #     sequence.append(fakefactor)
 sequence.append(tauidweighter)
 sequence.append(ntuple)
 
+if embedded:
+    sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
+    trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
+    
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
     eventSelector.toSelect = events_to_pick

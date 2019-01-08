@@ -1,4 +1,4 @@
-import math
+1import math
 import re
 
 import ROOT
@@ -115,17 +115,6 @@ class METAnalyzer(Analyzer):
 
         setattr(event,self.cfg_ana.met, met)
 
-        # recoil corrections
-        if not self.cfg_comp.isMC:
-            return
-        
-        # Calculate generator four-momenta even if not applying corrections
-        # to save them in final trees
-        gen_z_px, gen_z_py, gen_vis_z_px, gen_vis_z_py = self.getGenP4(event)
-        
-        if not self.apply_recoil_correction:
-            return
-
         # Correct PF MET
         pfmet_px_old = event.pfmet.px()
         pfmet_py_old = event.pfmet.py()
@@ -144,6 +133,14 @@ class METAnalyzer(Analyzer):
             pfmet_px_old += event.metShift[0]
             pfmet_py_old += event.metShift[1]
 
+        # recoil corrections
+        if not self.cfg_comp.isMC:
+            return
+        
+        # Calculate generator four-momenta even if not applying corrections
+        # to save them in final trees
+        gen_z_px, gen_z_py, gen_vis_z_px, gen_vis_z_py = self.getGenP4(event)
+
         dil = event.dileptons_sorted[0]
 
         # Correct MET for tau energy scale
@@ -153,6 +150,9 @@ class METAnalyzer(Analyzer):
                 pfmet_px_old += scaled_diff_for_leg.px()
                 pfmet_py_old += scaled_diff_for_leg.py()
         
+        if not self.apply_recoil_correction:
+            return
+
         n_jets_30 = len(event.jets_30)
         
         if self.isWJets:
@@ -174,7 +174,6 @@ class METAnalyzer(Analyzer):
 
         getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
-        newmet = getattr(event, self.cfg_ana.met)
 
     def runFixEE2017(self, event):
         '''Run the raw met computation including the cleaning of the noisy ECAL endcap in 2017 data and MC.

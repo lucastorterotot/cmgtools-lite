@@ -43,6 +43,9 @@ parser.add_option("-n", "--dryrun", dest="dryrun", action="store_true",default=F
 parser.add_option("-w", "--siteWhitelist", dest="siteWhitelist", type="string", 
                   action="append", default=[], 
                   help="Sites whitelist (default is using the one in heppy_crab_config.py)")
+parser.add_option("-b", "--siteBlacklist", dest="siteBlacklist", type="string", 
+                  action="append", default=[], 
+                  help="Sites blacklist (default is using the one in heppy_crab_config.py)")
 parser.add_option("-N", dest="maxevents", default=-1, 
                   help="maximum number of events to process per heppy run (for debugging purposes)")
 parser.add_option("--ship-file", dest='filesToShip', 
@@ -93,6 +96,7 @@ os.environ["STAGEOUTREMDIR"] = options.outputDir
 os.environ["CFG_FILE"] = heppy_config
 os.environ["OUTSITE"] = options.storageSite
 if len(options.siteWhitelist)>0: os.environ["WHITESITES"] = ','.join(options.siteWhitelist)
+if len(options.siteBlacklist)>0: os.environ["BLACKSITES"] = ','.join(options.siteBlacklist)
 if len(options.filesToUnpack)>0: os.environ["FILESTOUNPACK"] = ','.join(options.filesToUnpack)
 if len(options.filesToShip)>0: os.environ["FILESTOSHIP"] = ','.join(options.filesToShip)
 if options.maxevents>0: os.environ["MAXNUMEVENTS"] = str(options.maxevents)

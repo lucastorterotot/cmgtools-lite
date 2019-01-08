@@ -220,7 +220,7 @@ trigger_match = cfg.Analyzer(
 # Jet sequence ===========================================================
 
 gt_mc = 'Fall17_17Nov2017_V32_MC'
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'
+gt_data = 'Fall17_17Nov2017{}_V32_DATA'
 
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
@@ -385,11 +385,11 @@ sequence_afterdil = cfg.Sequence([
         lheweight,
         httgenana,
         pileup, 
-        njets_ana,
-        debugger
+        njets_ana
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
 sequence_afterdil.append(pfmetana)
 # sequence_afterdil.append(mvametana)
 sequence_afterdil.extend(sequence_third_lepton_veto)
+sequence_afterdil.append(debugger)
