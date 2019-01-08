@@ -219,8 +219,8 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
-gt_mc = 'Fall17_17Nov2017_V8_MC'
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'
+gt_mc = 'Fall17_17Nov2017_V32_MC'
+gt_data = 'Fall17_17Nov2017{}_V32_DATA'
 
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
@@ -236,7 +236,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
+    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight") and not ( x.pt() < 50 and abs(x.eta()) > 2.65 and abs(x.eta()) < 3.139 )
 )
 
 
@@ -254,8 +254,7 @@ jets_30 = cfg.Analyzer(
     'jets_30',
     output = 'jets_30',
     src = 'jets_20',
-    filter_func = lambda x : x.pt()>30 and not (x.pt()<50 and abs(x.eta())>2.65 and abs(x.eta())<3.139) 
-    # second requirement to mitigate EE noise effect in recoil correction, see : https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Computation_of_hadronic_jet_mult
+    filter_func = lambda x : x.pt()>30 
 )
 
 # bjets ==================================================================
@@ -312,9 +311,10 @@ from CMGTools.H2TauTau.heppy.analyzers.METAnalyzer import METAnalyzer
 pfmetana = cfg.Analyzer(
     METAnalyzer,
     name='PFMetana',
-    recoil_correction_file='CMGTools/H2TauTau/data/Type1_PFMET_2017.root',
+    recoil_correction_file='HTT-utilities/RecoilCorrections/data/Type1_PFMET_2017.root',
     met = 'pfmet',
-    apply_recoil_correction= True#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+    apply_recoil_correction= True,#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+    runFixEE2017= True
 )
 
 # if/when using MVAMET, use this to apply recoilcorrection
@@ -385,11 +385,11 @@ sequence_afterdil = cfg.Sequence([
         lheweight,
         httgenana,
         pileup, 
-        njets_ana,
-        debugger
+        njets_ana
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
 sequence_afterdil.append(pfmetana)
 # sequence_afterdil.append(mvametana)
 sequence_afterdil.extend(sequence_third_lepton_veto)
+sequence_afterdil.append(debugger)

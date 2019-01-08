@@ -157,9 +157,9 @@ class CMSDataset( BaseDataset ):
             query += "  instance=prod/%s" % self.dbsInstance
         dbs='dasgoclient --query="file %s=%s"'%(qwhat,query) # files must be valid
         if begin >= 0:
-            dbs += ' --index %d' % begin
+            dbs += ' --idx %d' % begin
         if end >= 0:
-            dbs += ' --limit %d' % (end-begin+1)
+            dbs += ' --limit %d' % (end+1)
         else:
             dbs += ' --limit 0' 
         dbsOut = _dasPopen(dbs)

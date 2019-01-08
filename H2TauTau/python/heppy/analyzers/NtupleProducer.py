@@ -17,4 +17,7 @@ class NtupleProducer(TreeAnalyzerNumpy):
                 except OverflowError:
                     print 'value', var.function(data), "didn't fit in var", varname
                     continue
+                except TypeError:
+                    print varname, 'took the wrong type'
+                    raise
         self.tree.tree.Fill()
