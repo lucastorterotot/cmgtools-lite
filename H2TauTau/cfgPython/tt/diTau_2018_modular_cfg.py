@@ -28,7 +28,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # production = True run on batch, production = False run locally
 test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', True)
+data = getHeppyOption('data', False)
 embedded = getHeppyOption('embedded', True)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
@@ -104,9 +104,9 @@ if test:
     # comp = bindex.glob('TTLep_pow')[0]
     # comp = bindex.glob('TTHad_pow')[0]
     # comp = bindex.glob('TTSemi_pow')[0]
-    # comp = index.glob('HiggsVBF125')[0] 
+    comp = index.glob('HiggsVBF125')[0] 
     # comp = dindex.glob('Tau_Run2017D_31Mar2018')[0]
-    comp = eindex.glob('Embedded2017B_tt')[0]
+    # comp = eindex.glob('Embedded2017B_tt')[0]
     comp.files = comp.files[:1]
     comp.splitFactor = 1
     comp.fineSplitFactor = 1

@@ -151,7 +151,7 @@ def select_electron_dilepton_veto(electron):
     # implement V2 ! cutBasedElectronID-Fall17-94X-V2-veto
     return electron.pt() > 15             and \
         abs(electron.eta()) < 2.5         and \
-        electron.mva_passes('cutBasedElectronID-Spring15-25ns-V1-standalone', 'veto') and \
+        electron.mva_passes('cutBasedElectronID-Fall17-94X-V1', 'veto') and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.iso_htt() < 0.3
