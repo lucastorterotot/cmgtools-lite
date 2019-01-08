@@ -219,7 +219,7 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
-gt_mc = 'Fall17_17Nov2017_V32_MC'
+gt_mc = 'Fall17_17Nov2017_V8_MC' # V32 available but not for sync Ntuples
 gt_data = 'Fall17_17Nov2017{}_V32_DATA'
 
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer

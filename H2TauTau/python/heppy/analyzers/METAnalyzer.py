@@ -144,11 +144,11 @@ class METAnalyzer(Analyzer):
         dil = event.dileptons_sorted[0]
 
         # Correct MET for tau energy scale
-        for leg in [dil.leg1(), dil.leg2()]:
-            if hasattr(leg,'unscaledP4') :
-                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
-                pfmet_px_old += scaled_diff_for_leg.px()
-                pfmet_py_old += scaled_diff_for_leg.py()
+        # for leg in [dil.leg1(), dil.leg2()]:
+        #     if hasattr(leg,'unscaledP4') :
+        #         scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
+        #         pfmet_px_old += scaled_diff_for_leg.px()
+        #         pfmet_py_old += scaled_diff_for_leg.py()
         
         if not self.apply_recoil_correction:
             return
