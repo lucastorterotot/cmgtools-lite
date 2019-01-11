@@ -269,7 +269,7 @@ ntuple = cfg.Analyzer(
     event_content = event_content_eletau
 )
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )

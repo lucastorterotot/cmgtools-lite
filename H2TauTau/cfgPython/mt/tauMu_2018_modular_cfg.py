@@ -27,7 +27,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
-embedded = getHeppyOption('embedded', False)
+embedded = getHeppyOption('embedded', True)
 if embedded:
     data = True
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
@@ -99,7 +99,8 @@ if data:
 
 if test:
     cache = True
-    comp = index.glob('HiggsVBF125')[0]
+    #comp = index.glob('HiggsVBF125')[0]
+    comp = eindex.glob('Embedded2017B_mt')[0]
     selectedComponents = [comp]
     comp.files = comp.files[:1]
     comp.splitFactor = 1
@@ -263,7 +264,7 @@ ntuple = cfg.Analyzer(
     event_content = event_content_mutau
 )
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
