@@ -219,8 +219,8 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
-gt_mc = 'Fall17_17Nov2017_V32_MC'
-gt_data = 'Fall17_17Nov2017{}_V32_DATA'
+gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
+gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
 
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(

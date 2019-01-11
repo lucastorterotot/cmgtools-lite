@@ -30,6 +30,8 @@ test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', True)
 embedded = getHeppyOption('embedded', True)
+if embedded:
+    data = True
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 # For specific studies
@@ -83,7 +85,7 @@ for sample in data_list+embedded_list:
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
     era = sample.name[sample.name.find('2017')+4]
-    if era in ['D','E']:
+    if 'V32' in gt_data and era in ['D','E']:
         era = 'DE'
     sample.dataGT = gt_data.format(era)
 
