@@ -219,6 +219,9 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
+gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
+gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
+
 def select_good_jets_FixEE2017(jet):
     return jet.pt() > 50. or \
         abs(jet.eta()) < 2.65 or \
