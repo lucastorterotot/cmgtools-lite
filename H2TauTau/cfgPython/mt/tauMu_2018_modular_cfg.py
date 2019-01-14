@@ -6,11 +6,11 @@ from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-ComponentCreator.useLyonAAA = True
+ComponentCreator.useAAA = True
 
 import logging
 logging.shutdown()
-# reload(logging)
+reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
 from PhysicsTools.HeppyCore.framework.event import Event
@@ -78,7 +78,7 @@ for sample in mc_list:
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
 
-for sample in data_list:
+for sample in embedded_list:
     sample.triggers = data_triggers
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
@@ -233,14 +233,14 @@ tauidweighter = cfg.Analyzer(
     taus = lambda event: [event.dileptons_sorted[0].leg2()]
 )
 
-from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
-fakefactor = cfg.Analyzer(
-    FakeFactorAnalyzer,
-    'FakeFactorAnalyzer',
-    channel = 'mt',
-    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
-    met = 'pfmet'
-)
+# from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
+# fakefactor = cfg.Analyzer(
+#     FakeFactorAnalyzer,
+#     'FakeFactorAnalyzer',
+#     channel = 'mt',
+#     filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
+#     met = 'pfmet'
+# )
 
 # embedded ================================================================
 
@@ -270,8 +270,8 @@ sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
 if embedded:
     sequence.append(embedded_ana)
-if data:
-    sequence.append(fakefactor)
+# if data:
+#     sequence.append(fakefactor)
 sequence.append(tauidweighter)
 sequence.append(ntuple)
 
