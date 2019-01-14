@@ -38,10 +38,8 @@ class EmbeddedAnalyzer(Analyzer):
 
         l1_pt = event.dileptons_sorted[0].leg1().pt()
         l1_eta = event.dileptons_sorted[0].leg1().eta()
-        l1_iso = event.dileptons_sorted[0].leg1().iso_htt()
         l2_pt = event.dileptons_sorted[0].leg2().pt()
         l2_eta = event.dileptons_sorted[0].leg2().eta()
-        l2_iso = event.dileptons_sorted[0].leg2().iso_htt()
 
         if self.cfg_ana.channel == 'tt':
             genl1 = event.gentaus_hadronic[0]
@@ -49,11 +47,13 @@ class EmbeddedAnalyzer(Analyzer):
 
         if self.cfg_ana.channel == 'mt':
             genl1 = event.gentaus_muon[0]
-            genl2 = event.gentaus_hadronic[1]
+            genl2 = event.gentaus_hadronic[0]
+            l1_iso = event.dileptons_sorted[0].leg1().iso_htt()
 
         if self.cfg_ana.channel == 'et':
             genl1 = event.gentaus_elec[0]
-            genl2 = event.gentaus_hadronic[1]
+            genl2 = event.gentaus_hadronic[0]
+            l1_iso = event.dileptons_sorted[0].leg1().iso_htt()
 
         l1_genpt = genl1.pt()
         l1_geneta = genl1.eta()
@@ -109,7 +109,8 @@ class EmbeddedAnalyzer(Analyzer):
                         10:0.975*0.975*0.975,
                         11:1.}
         
-        event.weight_embed_track_l1 = dm_corr_dict[event.dileptons_sorted[0].leg1().decayMode()]
+        if self.cfg_ana.channel == 'tt':
+            event.weight_embed_track_l1 = dm_corr_dict[event.dileptons_sorted[0].leg1().decayMode()]
         event.weight_embed_track_l2 = dm_corr_dict[event.dileptons_sorted[0].leg2().decayMode()]
 
 
