@@ -9,7 +9,7 @@ event = Block(
     lumi = v(lambda x: x.lumi, int),
     event = v(lambda x: x.eventId, int, 'l'),
     n_up = v(lambda x: getattr(x, 'NUP', default), int),
-    n_pu = v(lambda x: getattr(x, 'nPU', default) if getattr(x, 'nPU', default) is not None else default, int),
+    n_pu = v(lambda x: getattr(x, 'nPU', default) if getattr(x, 'nPU', default) is not None else default, int),# to handle data and embedded samples
     n_pv = v(lambda x: len(x.vertices), int),
     rho = v(lambda x: x.rho),
     is_data = v(lambda x: x.input.eventAuxiliary().isRealData(), int),
@@ -37,7 +37,7 @@ flags = [
 ]
 event_flags = Block('event_flags', lambda x: x)
 for flag in flags: 
-    event_flags[flag] = v(lambda x: getattr(x,flag,1), int)
+    event_flags[flag] = v(lambda x: getattr(x,flag,1), int) #flag default at 1 because no flag means event is good
 
 vetoes = Block(
     'vetoes', lambda x: x,
