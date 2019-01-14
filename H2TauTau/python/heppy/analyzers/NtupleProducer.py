@@ -18,6 +18,10 @@ class NtupleProducer(TreeAnalyzerNumpy):
                     print 'value', var.function(data), "didn't fit in var", varname
                     continue
                 except TypeError:
-                    print varname, 'took the wrong type'
-                    raise
+                    message = 'Variable {} took the type: {} \n instead of the intended type: {}'.format(
+			    varname,
+			    str(type(var.function(data))),
+			    str(var)
+		    )
+                    raise TypeError(message)
         self.tree.tree.Fill()
