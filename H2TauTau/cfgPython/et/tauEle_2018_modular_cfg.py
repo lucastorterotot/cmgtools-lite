@@ -82,9 +82,9 @@ selectedComponents = data_list if data else backgrounds + mssm_signals
 if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
-    #comp.files = comp.files[:1]
-    #comp.splitFactor = 1
-    #comp.fineSplitFactor = 1
+    # comp.files = comp.files[:1]
+    # comp.splitFactor = 1
+    # comp.fineSplitFactor = 1
     selectedComponents = [comp]
     #comp.files = ['file1.root']
 
@@ -99,7 +99,7 @@ condition = None # lambda event : len(event.sel_taus)>2
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
-    return tau.pt()    >= 20  and \
+    return tau.pt()    >= 23  and \
         abs(tau.eta()) <= 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \

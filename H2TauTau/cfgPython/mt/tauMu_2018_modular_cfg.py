@@ -81,10 +81,10 @@ if test:
     cache = True
     comp = index.glob('HiggsVBF125')[0]
     selectedComponents = [comp]
-    # comp.files = comp.files[:1]
-    # comp.splitFactor = 1
-    # comp.fineSplitFactor = 1
-    # comp.files = ['test.root']
+    comp.files = comp.files[:1]
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
+    # comp.files = ['/home/cms/torterotot/CMSSW-MET/CMSSW_9_4_11_cand1/src/JetMETCorrections/Type1MET/test/metv2.root']
 
 events_to_pick = []
 
@@ -97,7 +97,7 @@ debugger.condition = None # lambda event : len(event.sel_taus)>2
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
-    return tau.pt()    >= 20  and \
+    return tau.pt()    >= 23  and \
         abs(tau.eta()) <= 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \

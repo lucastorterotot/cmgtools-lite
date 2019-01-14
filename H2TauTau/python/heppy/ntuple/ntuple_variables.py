@@ -9,7 +9,7 @@ event = Block(
     lumi = v(lambda x: x.lumi, int),
     event = v(lambda x: x.eventId, int, 'l'),
     n_up = v(lambda x: getattr(x, 'NUP', default), int),
-    n_pu = v(lambda x: x.nPU if x.nPU is not None else default),
+    n_pu = v(lambda x: getattr(x, 'nPU', default) if getattr(x, 'nPU', default) is not None else default, int),# to handle data and embedded samples
     n_pv = v(lambda x: len(x.vertices), int),
     rho = v(lambda x: x.rho),
     is_data = v(lambda x: x.input.eventAuxiliary().isRealData(), int),
@@ -37,7 +37,7 @@ flags = [
 ]
 event_flags = Block('event_flags', lambda x: x)
 for flag in flags: 
-    event_flags[flag] = v(lambda x: getattr(x,flag), int)
+    event_flags[flag] = v(lambda x: getattr(x,flag,1), int) #flag default at 1 because no flag means event is good
 
 vetoes = Block(
     'vetoes', lambda x: x,
@@ -89,11 +89,19 @@ jets30 = Block(
 weights = Block(
     'weights', lambda x: x, 
     weight = v(lambda x : x.eventWeight),
-    weight_pu = v(lambda x : x.puWeight),
+    weight_pu = v(lambda x : getattr(x, 'puWeight', 1.)),
     weight_dy = v(lambda x : getattr(x, 'dy_weight', 1.)),
     weight_top = v(lambda x : getattr(x, 'topweight', 1.)),
-    weight_generator = v(lambda x : math.copysign(1., x.weight_gen)),
+    weight_generator = v(lambda x : getattr(x, 'weight_gen', 1.)),
     weight_njet = v(lambda x : x.NJetWeight),
+    ###weights embedding
+    weight_embed_DoubleMuonHLT_eff = v(lambda x : getattr(x, 'weight_embed_DoubleMuonHLT_eff', 1.)),
+    weight_embed_muonID_eff_l1 = v(lambda x : getattr(x, 'weight_embed_muonID_eff_l1', 1.)),
+    weight_embed_muonID_eff_l2 = v(lambda x : getattr(x, 'weight_embed_muonID_eff_l2', 1.)),
+    weight_embed_DoubleTauHLT_eff_l1 = v(lambda x : getattr(x, 'weight_embed_DoubleTauHLT_eff_l1', 1.)),
+    weight_embed_DoubleTauHLT_eff_l2 = v(lambda x : getattr(x, 'weight_embed_DoubleTauHLT_eff_l2', 1.)),
+    weight_embed_track_l1 = v(lambda x : getattr(x, 'weight_embed_track_l1', 1.)),
+    weight_embed_track_l2 = v(lambda x : getattr(x, 'weight_embed_track_l2', 1.))
 ) 
 
 triggers = Block(
@@ -142,7 +150,6 @@ lepton_vars = dict(
     q = v(lambda x: x.charge()),
     weight_idso = v(lambda x: getattr(x, 'weight_idiso', 1.)),
     weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
-    d0 = v(lambda x: x.dxy()),
     gen_match = v(lambda x: getattr(x, 'gen_match', 0), int),
 )
 
@@ -164,12 +171,14 @@ electron_vars = dict(
     id_e_mva_nt_loose = v(lambda x: x.physObj.userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values")), 
     weight_tracking = v(lambda x: getattr(x, 'weight_tracking', 1. )),
     iso = v(lambda x: x.iso_htt()),
+    d0 = v(lambda x: x.dxy()),
     dz = v(lambda x: x.dz()),
 )
 
 muon_vars = dict(
     weight_tracking = v(lambda x: getattr(x, 'weight_tracking', 1. )),
     iso = v(lambda x: x.iso_htt()), 
+    d0 = v(lambda x: x.dxy()),
     dz = v(lambda x: x.dz()),  
 )
 
@@ -197,6 +206,7 @@ tau_ids = [
 tau_vars = dict(
     # weight_fakerate = v(lambda x: x),
     decay_mode = v(lambda x: x.decayMode(), int),
+    d0 = v(lambda x: x.leadChargedHadrCand().dxy()),
     dz = v(lambda x: x.leadChargedHadrCand().dz()),
     weight_etotaufake_vloose = v(lambda x : getattr(x, 'weight_EToTaufake_VLoose', 1.)),
     weight_etotaufake_loose = v(lambda x : getattr(x, 'weight_EToTaufake_Loose', 1.)),
