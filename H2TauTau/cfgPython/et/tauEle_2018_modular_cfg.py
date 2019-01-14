@@ -128,7 +128,7 @@ def select_electron(electron):
         abs(electron.dz())  < 0.2 and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.mva_passes("mvaEleID-Fall17-noIso-V2","wp90") 
+        electron.id_passes("mvaEleID-Fall17-noIso-V2","wp90") 
 
 sel_electrons = cfg.Analyzer(
     Selector, 
@@ -150,7 +150,7 @@ one_electron = cfg.Analyzer(
 def select_electron_dilepton_veto(electron):
     return electron.pt() > 15             and \
         abs(electron.eta()) < 2.5         and \
-        electron.mva_passes('cutBasedElectronID-Fall17-94X-V2', 'veto') and \
+        electron.id_passes('cutBasedElectronID-Fall17-94X-V2', 'veto') and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.iso_htt() < 0.3
