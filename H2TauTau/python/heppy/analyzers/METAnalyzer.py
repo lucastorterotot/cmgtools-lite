@@ -21,8 +21,8 @@ def get_final_ptcs(ptc):
         return [ptc]
     else :
         final_ptcs = []
-        for N in range(ptc.numberOfDaughters()):
-            l = get_final_ptcs(ptc.daughter(N))
+        for i_daughter in range(ptc.numberOfDaughters()):
+            l = get_final_ptcs(ptc.daughter(i_daughter))
             final_ptcs += l
         return final_ptcs
 
@@ -123,11 +123,9 @@ class METAnalyzer(Analyzer):
             rawMET = self.runFixEE2017(event)
             pfmet_px_old = rawMET.px()
             pfmet_py_old = rawMET.py()
-            
             if event.type1METCorr :
                 pfmet_px_old += event.type1METCorr[0]
                 pfmet_py_old += event.type1METCorr[1]
-
         # JEC
         elif event.metShift :
             pfmet_px_old += event.metShift[0]

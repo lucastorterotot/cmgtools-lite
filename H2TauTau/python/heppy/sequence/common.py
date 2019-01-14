@@ -160,7 +160,7 @@ sel_muons_third_lepton_veto_cleaned = cfg.Analyzer(
 def select_electron_third_lepton_veto(electron):
     return electron.pt() > 10             and \
         abs(electron.eta()) < 2.5         and \
-        electron.mva_passes("mvaEleID-Fall17-noIso-V2", "wp90") and \
+        electron.id_passes("mvaEleID-Fall17-noIso-V2", "wp90") and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
@@ -222,6 +222,11 @@ trigger_match = cfg.Analyzer(
 gt_mc = 'Fall17_17Nov2017_V8_MC' # V32 available but not for sync Ntuples
 gt_data = 'Fall17_17Nov2017{}_V32_DATA'
 
+def select_good_jets_FixEE2017(jet):
+    return jet.pt() > 50. or \
+        abs(jet.eta()) < 2.65 or \
+        abs(jet.eta()) > 3.139
+
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
     JetAnalyzer, 
@@ -229,6 +234,7 @@ jets = cfg.Analyzer(
     jets = 'slimmedJets',
     do_jec = True,
     gt_mc = gt_mc,
+    selection = select_good_jets_FixEE2017
 )
 
 jets_20_unclean = cfg.Analyzer(
@@ -236,7 +242,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight") and not ( x.pt() < 50 and abs(x.eta()) > 2.65 and abs(x.eta()) < 3.139 )
+    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
 )
 
 
