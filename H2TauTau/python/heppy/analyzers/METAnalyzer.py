@@ -192,9 +192,6 @@ class METAnalyzer(Analyzer):
         if not hasattr(event, 'photons'): # fast construction of photons list
             event.photons = [p for p in self.handles['photons'].product()]
 
-        pfcandidateClustered = event.electrons + event.muons \
-            + event.taus  + event.photons + event.jets
-
         pfcandidateClustered_ptcs = []
         for ptc in event.electrons :
             for assPFcand in ptc.physObj.associatedPackedPFCandidates():
