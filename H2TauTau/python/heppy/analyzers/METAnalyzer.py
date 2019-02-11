@@ -64,6 +64,12 @@ class METAnalyzer(Analyzer):
             'std::vector<pat::PackedCandidate>'
         )
 
+        self.handles['jets'] = AutoHandle(
+            'slimmedJets',
+            'std::vector<pat::Jet>'
+        )
+        
+
     def getGenP4(self, event):
         leptons_prompt = [p for p in event.genParticles if abs(p.pdgId()) in [11, 12, 13, 14] and p.fromHardProcessFinalState()]
         leptons_prompt_vis = [p for p in leptons_prompt if abs(p.pdgId()) not in [12, 14]]
@@ -133,6 +139,7 @@ class METAnalyzer(Analyzer):
 
         # recoil corrections
         if not self.cfg_comp.isMC:
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(pfmet_px_old, pfmet_py_old, 0., math.sqrt(pfmet_px_old*pfmet_px_old + pfmet_py_old*pfmet_py_old)))
             return
         
         # Calculate generator four-momenta even if not applying corrections
@@ -182,7 +189,8 @@ class METAnalyzer(Analyzer):
         # BadPFCandidateJetsEEnoiseProducer
         bad_jets = []
         good_jets = []
-        for x in event.jets:
+        jets = self.handles['jets'].product()
+        for x in jets:
             if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
                 good_jets.append(x)
             else :
