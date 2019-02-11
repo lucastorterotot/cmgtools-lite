@@ -49,6 +49,12 @@ class TriggerAnalyzer(Analyzer):
                 (myhandle[0], myhandle[1], myhandle[2]),
                 'edm::TriggerResults'
                 )
+        elif hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed == True:
+            self.handles['triggerResultsHLT'] = AutoHandle(
+                ('TriggerResults','','SIMembedding'),
+                'edm::TriggerResults'
+                )
+            print 'using embed triggers'
         else:    
             trig_proc_name = 'HLT2' if 'reHLT' in self.cfg_comp.dataset else 'HLT'
             self.handles['triggerResultsHLT'] = AutoHandle(
