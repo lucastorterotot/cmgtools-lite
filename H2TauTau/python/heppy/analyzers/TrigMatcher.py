@@ -1,5 +1,8 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.HeppyCore.utils.deltar import deltaR2
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.Particle import Particle
+from PhysicsTools.HeppyCore.utils.deltar import deltaR2, bestMatch
+from ROOT import TLorentzVector
 
 class TrigMatcher(Analyzer):
     '''Performs trigger matching on the first di-lepton 
@@ -24,6 +27,13 @@ class TrigMatcher(Analyzer):
         count.register('all events')
         count.register('trig matched')
     
+    def declareHandles(self):
+        super(TrigMatcher, self).declareHandles()
+        if not self.cfg_comp.isEmbed:
+            self.handles['L1triggerObjects'] =  AutoHandle(
+                ('caloStage2Digis','Tau','RECO'),
+                'l1t::TauBxCollection'
+                )
 
     def process(self, event):
         '''event must contain
@@ -32,6 +42,16 @@ class TrigMatcher(Analyzer):
         '''
         count = self.counters.counter('TrigMatcher')
         count.inc('all events')
+        if not self.cfg_comp.isEmbed:
+            ### for L1 matching
+            self.readCollections(event.input)
+            l1tobxvect = self.handles['L1triggerObjects'].product()
+            self.l1tos = []
+            l1to = l1tobxvect.begin(0)
+            while l1to != l1tobxvect.end(0):
+                self.l1tos.append(TLorentzVector(l1to.px(),l1to.py(),l1to.pz(),l1to.energy()))
+                l1to += 1
+            ###
         dileptons = getattr(event, self.cfg_ana.src) 
         if len(self.cfg_comp.triggers) > 0:
             # matching only the best di-lepton
@@ -80,6 +100,8 @@ class TrigMatcher(Analyzer):
                     continue
                 if self.trigObjMatched(to, diL.leg1(), to_names):
                     l1_matched = True
+                    if self.cfg_comp.isMC and not self.matchL1TriggerObject(to):
+                        l1_matched = False
             if require_all_matched and l1_matched and \
                     len(info.leg1_names) > diL.leg1().triggernames:
                 l1_matched = False
@@ -91,7 +113,8 @@ class TrigMatcher(Analyzer):
                     continue
                 if self.trigObjMatched(to, diL.leg2(), to_names):
                     l2_matched = True
-
+                    if self.cfg_comp.isMC and not self.matchL1TriggerObject(to):
+                        l2_matched = False
             if require_all_matched and l2_matched and \
                     len(info.leg2_names) > diL.leg2().triggernames:
                 l1_matched = False
@@ -127,3 +150,12 @@ class TrigMatcher(Analyzer):
                 else:
                     leg.triggernames = set(names)
         return to.matched
+
+    def matchL1TriggerObject(self, to):
+        l1to, dR2 = bestMatch(to, self.l1tos)
+        if dR2<0.25 and l1to.Pt()>31.9999:
+            return True
+        # for l1to in self.l1tos:
+        #     if deltaR2(to.eta(),to.phi(),l1to.Eta(),l1to.Phi()) < 0.25 and l1to.Pt()>31.9999:# because some come with 31.999999999996 and are passed by KIT
+        #         return True
+        return False

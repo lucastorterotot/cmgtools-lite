@@ -64,14 +64,16 @@ from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import backgrounds
 import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
 eindex = ComponentIndex( embedded_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import mc_triggers, mc_triggerfilters
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers, data_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers, data_triggerfilters, embedded_triggerfilters
 from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
 mc_list = backgrounds + sync_list + mssm_signals
 data_list = data_forindex.data_tau
 embedded_list = embedded_forindex.embedded_tt
 
-n_events_per_job = 1e5
+n_events_per_job = 5e5
+if embedded:
+    n_events_per_job = 1e5
 
 for sample in mc_list:
     sample.triggers = mc_triggers
@@ -79,6 +81,7 @@ for sample in mc_list:
     sample.splitFactor = splitFactor(sample, n_events_per_job)
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
+    sample.channel = 'tt'
 
 for sample in data_list+embedded_list:
     sample.triggers = data_triggers
@@ -89,10 +92,13 @@ for sample in data_list+embedded_list:
         era = 'DE'
     sample.dataGT = gt_data.format(era)
 
+for sample in embedded_list:
+    sample.triggerobjects = embedded_triggerfilters
+
 for sample in embedded_forindex.embedded_tt:
     sample.isEmbed = True
 
-selectedComponents = backgrounds + mssm_signals
+selectedComponents = [x for x in backgrounds if x.name not in ['DY2JetsToLL_M50_LO','DY3JetsToLL_M50_LO','DYJetsToLL_M50','TTLep_pow','TTSemi_pow']]
 if data:
     selectedComponents = data_list
     if embedded:
@@ -101,24 +107,27 @@ if data:
 
 if test:
     cache = True
-    # comp = bindex.glob('DYJetsToLL_M50')[0]
+    # comp = bindex.glob('DYJetsToLL_M50_ext')[0]
     # comp = bindex.glob('WJetsToLNu_LO')[0]
     # comp = bindex.glob('TTLep_pow')[0]
     # comp = bindex.glob('TTHad_pow')[0]
     # comp = bindex.glob('TTSemi_pow')[0]
-    # comp = index.glob('HiggsVBF125')[0] 
-    # comp = dindex.glob('Tau_Run2017D_31Mar2018')[0]
-    comp = eindex.glob('Embedded2017B_tt')[0]
-    comp.files = comp.files[:1]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    comp = index.glob('HiggsVBF125')[0] 
+    if data:
+        comp = dindex.glob('Tau_Run2017B_31Mar2018')[0]
+    if embedded:
+        comp = eindex.glob('Embedded2017B_tt')[0]
+    for comp in selectedComponents:
+        comp.files = comp.files[:1]
+        comp.splitFactor = 1
+        comp.fineSplitFactor = 1
     selectedComponents = [comp]
     #comp.files = ['file1.root']
 
 events_to_pick = []
 
 from CMGTools.H2TauTau.heppy.sequence.common import debugger
-debugger.condition = None # lambda event : len(event.sel_taus)>2
+debugger.condition = None#lambda event : True # lambda event : len(event.sel_taus)>2
 ###############
 # Analyzers 
 ###############
@@ -215,6 +224,29 @@ tauidweighter = cfg.Analyzer(
 
 # ntuple ================================================================
 
+#KIT's skimming function
+def skim_KIT(event):
+    flags = [
+        'Flag_goodVertices',
+        'Flag_globalTightHalo2016Filter',
+        'Flag_globalSuperTightHalo2016Filter',
+        'Flag_HBHENoiseFilter',
+        'Flag_HBHENoiseIsoFilter',
+        'Flag_EcalDeadCellTriggerPrimitiveFilter',
+        'Flag_BadPFMuonFilter',
+        'Flag_BadChargedCandidateFilter',
+        'Flag_eeBadScFilter',
+        'Flag_ecalBadCalibFilter']
+    l2_ids = [
+        'againstElectronVLooseMVA6',
+        'againstMuonLoose3',
+        'byVLooseIsolationMVArun2017v2DBoldDMwLT2017']
+    return all([getattr(event,x)==1 for x in flags]) and\
+        event.veto_third_lepton_electrons_passed and\
+        event.veto_third_lepton_muons_passed and\
+        all([event.dileptons_sorted[0].leg2().tauID(x) for x in l2_ids]) and\
+        event.dileptons_sorted[0].leg1().tauID('byVLooseIsolationMVArun2017v2DBoldDMwLT2017')
+
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
 from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import tautau as event_content_tautau
 ntuple = cfg.Analyzer(
@@ -222,7 +254,8 @@ ntuple = cfg.Analyzer(
     name = 'NtupleProducer',
     outputfile = 'events.root',
     treename = 'events',
-    event_content = event_content_tautau
+    event_content = event_content_tautau,
+    skim_func = skim_KIT
 )
 
 # embedded ================================================================
