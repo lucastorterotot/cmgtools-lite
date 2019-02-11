@@ -29,7 +29,7 @@ class TrigMatcher(Analyzer):
     
     def declareHandles(self):
         super(TrigMatcher, self).declareHandles()
-        if not self.cfg_comp.isEmbed:
+        if not self.cfg_comp.isEmbed and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
             self.handles['L1triggerObjects'] =  AutoHandle(
                 ('caloStage2Digis','Tau','RECO'),
                 'l1t::TauBxCollection'
@@ -42,7 +42,7 @@ class TrigMatcher(Analyzer):
         '''
         count = self.counters.counter('TrigMatcher')
         count.inc('all events')
-        if not self.cfg_comp.isEmbed:
+        if not self.cfg_comp.isEmbed and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
             ### for L1 matching
             self.readCollections(event.input)
             l1tobxvect = self.handles['L1triggerObjects'].product()
@@ -100,7 +100,8 @@ class TrigMatcher(Analyzer):
                     continue
                 if self.trigObjMatched(to, diL.leg1(), to_names):
                     l1_matched = True
-                    if self.cfg_comp.isMC and not self.matchL1TriggerObject(to):
+                    import pdb;pdb.set_trace()
+                    if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt' and not self.matchL1TriggerObject(to):
                         l1_matched = False
             if require_all_matched and l1_matched and \
                     len(info.leg1_names) > diL.leg1().triggernames:
@@ -113,7 +114,7 @@ class TrigMatcher(Analyzer):
                     continue
                 if self.trigObjMatched(to, diL.leg2(), to_names):
                     l2_matched = True
-                    if self.cfg_comp.isMC and not self.matchL1TriggerObject(to):
+                    if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt' and not self.matchL1TriggerObject(to):
                         l2_matched = False
             if require_all_matched and l2_matched and \
                     len(info.leg2_names) > diL.leg2().triggernames:

@@ -29,6 +29,18 @@ data_triggerfilters = [
                        triggers=['HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*']),
 ]
 
+embedded_triggerfilters = [
+    TriggerFilterMatch(leg1_names=['hltDoubleL2IsoTau26eta2p2'],
+                       leg2_names=['hltDoubleL2IsoTau26eta2p2'],
+                       triggers=['HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*']),
+    TriggerFilterMatch(leg1_names=['hltDoubleL2IsoTau26eta2p2'],
+                       leg2_names=['hltDoubleL2IsoTau26eta2p2'],
+                       triggers=['HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*']),
+    TriggerFilterMatch(leg1_names=['hltDoubleL2IsoTau26eta2p2'],
+                       leg2_names=['hltDoubleL2IsoTau26eta2p2'],
+                       triggers=['HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*']),
+]
+
 mc_triggers = [
     # 'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v5',
     # 'HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_v2',
