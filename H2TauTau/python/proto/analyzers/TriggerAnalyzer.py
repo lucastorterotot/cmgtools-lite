@@ -170,6 +170,8 @@ class TriggerAnalyzer(Analyzer):
                 to.unpackPathNames(names)
                 # import pdb; pdb.set_trace()
                 to.unpackFilterLabels(event.input.object(), triggerBits)
+                # if any(['L1' in path for path in to.pathNames()]):
+                #     import pdb;pdb.set_trace()
                 for info in trigger_infos:
                     if to.hasPathName(info.name):
                         for match_info in self.triggerObjects + self.extraTriggerObjects:
