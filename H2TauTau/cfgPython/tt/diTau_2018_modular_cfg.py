@@ -26,9 +26,9 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', False)
+test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', True)
+data = getHeppyOption('data', False)
 embedded = getHeppyOption('embedded', True)
 if embedded:
     data = True
@@ -42,7 +42,7 @@ add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 # global tags
 ###############
 
-from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data
+from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data, gt_embed
 
 ###############
 # Components
@@ -71,9 +71,9 @@ mc_list = backgrounds + sync_list + mssm_signals
 data_list = data_forindex.data_tau
 embedded_list = embedded_forindex.embedded_tt
 
-n_events_per_job = 5e5
+n_events_per_job = 1e4
 if embedded:
-    n_events_per_job = 1e5
+    n_events_per_job = 3e4
 
 for sample in mc_list:
     sample.triggers = mc_triggers
@@ -91,14 +91,19 @@ for sample in data_list+embedded_list:
     if 'V32' in gt_data and era in ['D','E']:
         era = 'DE'
     sample.dataGT = gt_data.format(era)
+    sample.channel = 'tt'
 
 for sample in embedded_list:
     sample.triggerobjects = embedded_triggerfilters
+    era = sample.name[sample.name.find('2017')+4]
+    if 'V32' in gt_embed and era in ['D','E']:
+        era = 'DE'
+    sample.dataGT = gt_embed.format(era)
 
 for sample in embedded_forindex.embedded_tt:
     sample.isEmbed = True
 
-selectedComponents = [x for x in backgrounds if x.name not in ['DY2JetsToLL_M50_LO','DY3JetsToLL_M50_LO','DYJetsToLL_M50','TTLep_pow','TTSemi_pow']]
+selectedComponents = mssm_signals#[x for x in backgrounds if x.name not in ['DY2JetsToLL_M50_LO','DY3JetsToLL_M50_LO','DYJetsToLL_M50','TTLep_pow','TTSemi_pow']]
 if data:
     selectedComponents = data_list
     if embedded:
@@ -117,17 +122,43 @@ if test:
         comp = dindex.glob('Tau_Run2017B_31Mar2018')[0]
     if embedded:
         comp = eindex.glob('Embedded2017B_tt')[0]
+    selectedComponents = [comp]
     for comp in selectedComponents:
         comp.files = comp.files[:1]
         comp.splitFactor = 1
         comp.fineSplitFactor = 1
-    selectedComponents = [comp]
     #comp.files = ['file1.root']
 
 events_to_pick = []
 
+#KIT's skimming function
+def skim_KIT(event):
+    flags = [
+        'Flag_goodVertices',
+        'Flag_globalTightHalo2016Filter',
+        'Flag_globalSuperTightHalo2016Filter',
+        'Flag_HBHENoiseFilter',
+        'Flag_HBHENoiseIsoFilter',
+        'Flag_EcalDeadCellTriggerPrimitiveFilter',
+        'Flag_BadPFMuonFilter',
+        'Flag_BadChargedCandidateFilter',
+        'Flag_eeBadScFilter',
+        'Flag_ecalBadCalibFilter']
+    if embedded or data:
+        flags = ['Flag_goodVertices','Flag_globalSuperTightHalo2016Filter','Flag_HBHENoiseFilter','Flag_HBHENoiseIsoFilter','Flag_EcalDeadCellTriggerPrimitiveFilter','Flag_BadPFMuonFilter','Flag_BadChargedCandidateFilter','Flag_eeBadScFilter','Flag_ecalBadCalibFilter']
+    l2_ids = [
+        'againstElectronVLooseMVA6',
+        'againstMuonLoose3',
+        'byVLooseIsolationMVArun2017v2DBoldDMwLT2017']
+    return all([getattr(event,x)==1 for x in flags]) and\
+        event.veto_third_lepton_electrons_passed and\
+        event.veto_third_lepton_muons_passed and\
+        all([event.dileptons_sorted[0].leg2().tauID(x) for x in l2_ids]) and\
+        event.dileptons_sorted[0].leg1().tauID('byVLooseIsolationMVArun2017v2DBoldDMwLT2017')
+
+
 from CMGTools.H2TauTau.heppy.sequence.common import debugger
-debugger.condition = None#lambda event : True # lambda event : len(event.sel_taus)>2
+debugger.condition = None#skim_KIT#lambda event : True # lambda event : len(event.sel_taus)>2
 ###############
 # Analyzers 
 ###############
@@ -224,28 +255,6 @@ tauidweighter = cfg.Analyzer(
 
 # ntuple ================================================================
 
-#KIT's skimming function
-def skim_KIT(event):
-    flags = [
-        'Flag_goodVertices',
-        'Flag_globalTightHalo2016Filter',
-        'Flag_globalSuperTightHalo2016Filter',
-        'Flag_HBHENoiseFilter',
-        'Flag_HBHENoiseIsoFilter',
-        'Flag_EcalDeadCellTriggerPrimitiveFilter',
-        'Flag_BadPFMuonFilter',
-        'Flag_BadChargedCandidateFilter',
-        'Flag_eeBadScFilter',
-        'Flag_ecalBadCalibFilter']
-    l2_ids = [
-        'againstElectronVLooseMVA6',
-        'againstMuonLoose3',
-        'byVLooseIsolationMVArun2017v2DBoldDMwLT2017']
-    return all([getattr(event,x)==1 for x in flags]) and\
-        event.veto_third_lepton_electrons_passed and\
-        event.veto_third_lepton_muons_passed and\
-        all([event.dileptons_sorted[0].leg2().tauID(x) for x in l2_ids]) and\
-        event.dileptons_sorted[0].leg1().tauID('byVLooseIsolationMVArun2017v2DBoldDMwLT2017')
 
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
 from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import tautau as event_content_tautau
@@ -255,7 +264,7 @@ ntuple = cfg.Analyzer(
     outputfile = 'events.root',
     treename = 'events',
     event_content = event_content_tautau,
-    skim_func = skim_KIT
+    skim_func = lambda x: True#skim_KIT
 )
 
 # embedded ================================================================
@@ -268,7 +277,7 @@ embedded_ana = cfg.Analyzer(
 )
 
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
@@ -281,8 +290,7 @@ sequence.append(ntuple)
 
 if embedded:
     sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
-    trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
-    
+
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
     eventSelector.toSelect = events_to_pick

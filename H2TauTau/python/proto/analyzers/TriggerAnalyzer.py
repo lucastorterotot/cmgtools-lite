@@ -54,7 +54,6 @@ class TriggerAnalyzer(Analyzer):
                 ('TriggerResults','','SIMembedding'),
                 'edm::TriggerResults'
                 )
-            print 'using embed triggers'
         else:    
             trig_proc_name = 'HLT2' if 'reHLT' in self.cfg_comp.dataset else 'HLT'
             self.handles['triggerResultsHLT'] = AutoHandle(
@@ -179,7 +178,7 @@ class TriggerAnalyzer(Analyzer):
                 # if any(['L1' in path for path in to.pathNames()]):
                 #     import pdb;pdb.set_trace()
                 for info in trigger_infos:
-                    if to.hasPathName(info.name):
+                    if to.hasPathName(info.name) or (hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed and 'hltDoubleL2IsoTau26eta2p2' in to.filterLabels()): # necessary for KIT's embedded samples 2017
                         for match_info in self.triggerObjects + self.extraTriggerObjects:
                             if match_info.triggers:
                                 if not any(fnmatch(info.name, n) for n in match_info.triggers):
@@ -195,7 +194,7 @@ class TriggerAnalyzer(Analyzer):
                                 info.leg2_names.append([n for n in to.filterLabels() if n in match_info.leg2_names])
                                 info.match_both = match_info.match_both_legs
                                 info.match_infos.add(match_info)
-
+            # import pdb;pdb.set_trace()
             for info in trigger_infos:
                 if not info.fired: 
                     break
