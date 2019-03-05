@@ -149,7 +149,7 @@ class METAnalyzer(Analyzer):
 
         dil = event.dileptons_sorted[0]
 
-        Correct MET for tau energy scale
+        # Correct MET for tau energy scale
         for leg in [dil.leg1(), dil.leg2()]:
             if hasattr(leg,'unscaledP4') :
                 scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
