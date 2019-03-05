@@ -159,6 +159,7 @@ dilepton_vars = Block(
     mt_tot = v(lambda x: x[0].mtTotal(x[1])),
     l1_mt = v(lambda x: x[0].mTLeg1(x[1])),
     l2_mt = v(lambda x: x[0].mTLeg2(x[1])),
+    pt_tt = v(lambda x: x[0].pt_tt(x[1]))
 )
 
 metvars = Block(

@@ -54,6 +54,11 @@ class DiLepton(object):
     def sumPt(self):
         return self.leg1().pt() + self.leg2().pt()
 
+    def pt_tt(self, met):
+        px = self.leg1().px() + self.leg2().px() + met.px()
+        py = self.leg1().py() + self.leg2().py() + met.py()
+        return math.sqrt(px*px + py*py)
+
     @staticmethod
     def mT(cand1, cand2):
         pt = cand1.pt() + cand2.pt()

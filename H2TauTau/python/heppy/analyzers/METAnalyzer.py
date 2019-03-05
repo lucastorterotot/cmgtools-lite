@@ -7,6 +7,7 @@ from ROOT import gSystem
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.Jet import Jet
 
 from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection
 
@@ -141,7 +142,7 @@ class METAnalyzer(Analyzer):
         if not self.cfg_comp.isMC:
             getattr(event, self.cfg_ana.met).setP4(LorentzVector(pfmet_px_old, pfmet_py_old, 0., math.sqrt(pfmet_px_old*pfmet_px_old + pfmet_py_old*pfmet_py_old)))
             return
-        
+
         # Calculate generator four-momenta even if not applying corrections
         # to save them in final trees
         gen_z_px, gen_z_py, gen_vis_z_px, gen_vis_z_py = self.getGenP4(event)
@@ -190,7 +191,7 @@ class METAnalyzer(Analyzer):
         # BadPFCandidateJetsEEnoiseProducer
         bad_jets = []
         good_jets = []
-        jets = self.handles['jets'].product()
+        jets = [Jet(jet) for jet in self.handles['jets'].product()]
         for x in jets:
             if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
                 good_jets.append(x)
@@ -202,7 +203,7 @@ class METAnalyzer(Analyzer):
             event.photons = [p for p in self.handles['photons'].product()]
 
         pfcandidateClustered = event.electrons + event.muons \
-            + event.taus  + event.photons + event.jets
+            + event.taus  + event.photons + jets
 
         pfcandidateClustered_ptcs = []
         for ptc in event.electrons :
@@ -214,7 +215,7 @@ class METAnalyzer(Analyzer):
         for ptc in event.photons :
             for k in range(ptc.numberOfSourceCandidatePtrs()):
                 pfcandidateClustered_ptcs.append(ptc.sourceCandidatePtr(k).get())
-        for ptc in event.jets :
+        for ptc in jets :
             pfcandidateClustered_ptcs += get_final_ptcs(ptc)
 
         # "packedPFCandidates"

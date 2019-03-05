@@ -5,6 +5,7 @@ import subprocess
 import re
 import shutil
 import fnmatch
+from ROOT import TFile
 
 class GFAL(object):
 
@@ -204,6 +205,9 @@ def get_options():
     parser.add_option("-s", "--subdir-pattern", dest="subdir_pattern",
                       default='*',
                       help='subdir pattern')
+    parser.add_option("-S", "--skim", dest="skim", action='store_true',
+                      default=False,
+                      help='whether or not to skim ntuples KIT style')
  
     
     (options,args) = parser.parse_args()
@@ -213,13 +217,49 @@ def get_options():
     return options, args
 
 
+def skimntuple(ogpath, newpath):
+    f = TFile(ogpath)
+
+    tree = f.Get('events')
+    newfile = TFile(newpath,'recreate')
+
+    newtree = tree.CloneTree(0)
+
+    for event in tree:
+        if event.Flag_goodVertices and event.Flag_globalTightHalo2016Filter and event.Flag_HBHENoiseFilter and event.Flag_HBHENoiseIsoFilter and event.Flag_EcalDeadCellTriggerPrimitiveFilter and event.Flag_BadPFMuonFilter and event.Flag_BadChargedCandidateFilter and event.Flag_ecalBadCalibFilter and (not event.veto_extra_elec) and (not event.veto_extra_muon) and event.l2_againstElectronVLooseMVA6 and event.l2_againstMuonLoose3 and event.l2_byVLooseIsolationMVArun2017v2DBoldDMwLT2017 and event.l1_byVLooseIsolationMVArun2017v2DBoldDMwLT2017:
+            newtree.Fill()
+
+    newtree.Write()
+
+def harvest(src, subdir_pattern='*', tgz_pattern='*', skim=False):
+    print src, subdir_pattern, tgz_pattern
+    ds = Dataset(src, 
+                 subdirs=subdir_pattern, 
+                 tgzs=tgz_pattern)
+    if ds.fetch():
+        print ds.dest
+        ds.unpack()
+        ds.hadd()
+        if skim:
+            ogpath = '{}/0000/{}/NtupleProducer/tree.root'.format(ds.dest,ds.dest[:ds.dest.find('/')])
+            newpath = '{}/tree.root'.format(ds.dest[:ds.dest.find('/')])
+            skimntuple(ogpath,newpath)
+            os.system('rm -rf {}'.format(ds.dest))
+
+
 if __name__ == '__main__':
 
     options, args = get_options()
     src = args[0]
+    print src, options.subdir_pattern, options.tgz_pattern
     ds = Dataset(src, 
                  subdirs=options.subdir_pattern, 
                  tgzs=options.tgz_pattern)
     if ds.fetch():
         ds.unpack()
         ds.hadd()
+        if options.skim:
+            ogpath = '{}/0000/{}/NtupleProducer/tree.root'.format(ds.dest,ds.dest[:ds.dest.find('/')])
+            newpath = '{}/tree.root'.format(ds.dest[:ds.dest.find('/')])
+            skimntuple(ogpath,newpath)
+            os.system('rm -rf {}'.format(ds.dest))
