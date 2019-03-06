@@ -29,7 +29,7 @@ class TrigMatcher(Analyzer):
     
     def declareHandles(self):
         super(TrigMatcher, self).declareHandles()
-        if hasattr(self.cfg_comp,'isEmbed') and (not self.cfg_comp.isEmbed) and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
+        if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
             self.handles['L1triggerObjects'] =  AutoHandle(
                 ('caloStage2Digis','Tau','RECO'),
                 'l1t::TauBxCollection'
@@ -42,7 +42,7 @@ class TrigMatcher(Analyzer):
         '''
         count = self.counters.counter('TrigMatcher')
         count.inc('all events')
-        if hasattr(self.cfg_comp,'isEmbed') and (not self.cfg_comp.isEmbed) and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
+        if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
             ### for L1 matching
             self.readCollections(event.input)
             l1tobxvect = self.handles['L1triggerObjects'].product()
