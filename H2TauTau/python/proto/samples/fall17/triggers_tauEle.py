@@ -37,5 +37,19 @@ mc_triggerfilters = [
         triggers=['HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*'])
 ]
 
-embed_triggers = [
-    ]
+embed_triggers = data_triggers
+
+embed_triggerfilters = [
+    # Ele32
+    TFM(leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
+        leg2_names=[], 
+        triggers=['HLT_Ele32_WPTight_Gsf_v*']),
+    # Ele35
+    TFM(leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
+        leg2_names=[], 
+        triggers=['HLT_Ele35_WPTight_Gsf_v*']),
+    # CrossTrigger
+    TFM(leg1_names=['hltL1sBigORLooseIsoEGXXerIsoTauYYerdRMin0p3'], 
+        leg2_names=['hltL1sBigORLooseIsoEGXXerIsoTauYYerdRMin0p3'], 
+        triggers=['HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*'])
+]
