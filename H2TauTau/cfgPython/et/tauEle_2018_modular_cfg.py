@@ -42,7 +42,7 @@ add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 # global tags
 ###############
 
-from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data
+from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data, gt_embed
 
 ###############
 # Components
@@ -79,6 +79,7 @@ for sample in mc_list:
     sample.splitFactor = splitFactor(sample, n_events_per_job)
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
+    sample.channel = 'et'
 
 for sample in embedded_list:
     sample.triggers = data_triggers
@@ -268,7 +269,7 @@ ntuple = cfg.Analyzer(
     event_content = event_content_eletau
 )
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
@@ -281,7 +282,7 @@ sequence.append(ntuple)
 
 if embedded:
     sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
-    trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
+    # trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
 
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector

@@ -10,7 +10,7 @@ ComponentCreator.useAAA = True
 
 import logging
 logging.shutdown()
-reload(logging)
+#reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
 from PhysicsTools.HeppyCore.framework.event import Event
@@ -40,7 +40,7 @@ add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 # global tags
 ###############
 
-from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data
+from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data, gt_embed
 
 ###############
 # Components
@@ -61,7 +61,7 @@ bindex = ComponentIndex( backgrounds_forindex)
 backgrounds = backgrounds_forindex.backgrounds
 import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
 eindex = ComponentIndex( embedded_forindex)
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauMu import mc_triggers, mc_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauMu import mc_triggers, mc_triggerfilters, embed_triggers, embed_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauMu import data_triggers, data_triggerfilters
 from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
@@ -77,8 +77,9 @@ for sample in mc_list:
     sample.splitFactor = splitFactor(sample, n_events_per_job)
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
+    sample.channel = 'mt'
 
-for sample in embedded_list:
+for sample in data_list+embedded_list:
     sample.triggers = data_triggers
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
@@ -86,6 +87,9 @@ for sample in embedded_list:
     if 'V32' in gt_data and era in ['D','E']:
         era = 'DE'
     sample.dataGT = gt_data.format(era)
+
+for sample in embedded_list:
+    sample.triggerobjects = embed_triggerfilters
 
 for sample in embedded_list:
     sample.isEmbed = True
@@ -264,7 +268,7 @@ ntuple = cfg.Analyzer(
     event_content = event_content_mutau
 )
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
@@ -277,7 +281,7 @@ sequence.append(ntuple)
 
 if embedded:
     sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
-    trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
+    # trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
 
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
