@@ -97,15 +97,15 @@ class EmbeddedAnalyzer(Analyzer):
             self.ws.var('e_eta').setVal(l1_eta)
             self.ws.var('e_iso').setVal(l1_iso)
             event.weight_embed_eleID_iso_sf = self.ws.function('e_iso_binned_embed_kit_ratio').getVal() # Rel. PFIsolation < 0.15
-            event.weight_embed_eleID_id_sf = self.ws.function('e_id_embed_kit_ratio').getVal() # MVA ID 17 v2 wp90 
+            event.weight_embed_eleID_id_sf = self.ws.function('e_id90_embed_kit_ratio').getVal() # MVA ID 17 v2 wp90 
             # For endcap electrons (abs(eta_electron)>1.479) do not apply the electron triggers for embedded and scale with data efficiency instead.
             str_weight_embed_eleID_HLT_sf = 'e_trg27_trg32_trg35_embed_kit_ratio'
             if abs(l1_eta)>1.479:
                 str_weight_embed_eleID_HLT_sf = 'e_trg27_trg32_trg35_kit_data'
-            event.weight_embed_eleID_HLT_sf = self.ws.function().getVal(str_weight_embed_eleID_HLT_sf) # Ele 27 OR Ele 32 OR Ele35 
+            event.weight_embed_eleID_HLT_sf = self.ws.function(str_weight_embed_eleID_HLT_sf).getVal() # Ele 27 OR Ele 32 OR Ele35 
             event.weight_embed_eleID_HLT_lept_leg_sf = self.ws.function('e_trg_EleTau_Ele24Leg_kit_ratio_embed').getVal() # Ele24_LooseChargedIsoPFTau30 
             event.weight_embed_tauID_HLT_lept_leg_sf = self.ws.function('et_emb_LooseChargedIsoPFTau30_kit_ratio').getVal() # Ele24_LooseChargedIsoPFTau30 
-            event.weight_embed_eleID_HLT_27_to_32_eff = self.ws.function('e_trg27_trg_32_trg35_kit_data').getVal() # Ele 27 OR Ele 32 OR Ele35 
+            event.weight_embed_eleID_HLT_27_to_32_eff = self.ws.function('e_trg27_trg32_trg35_kit_data').getVal() # Ele 27 OR Ele 32 OR Ele35 
             event.weight_embed_eleID_HLT_24_eff = self.ws.function('e_trg_EleTau_Ele24Leg_desy_data').getVal() # Ele24_LooseChargedIsoPFTau30 
 
         dm_corr_dict = {0: 0.975,
