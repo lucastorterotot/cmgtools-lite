@@ -1,12 +1,17 @@
 from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer import TriggerFilterMatch as TFM
 
 data_triggers = [
+    'HLT_Ele27_WPTight_Gsf_v*',
     'HLT_Ele32_WPTight_Gsf_v*',
     'HLT_Ele35_WPTight_Gsf_v*',
     'HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*'
     ]
 
 data_triggerfilters = [
+    # Ele27
+    TFM(leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
+        leg2_names=[], 
+        triggers=['HLT_Ele27_WPTight_Gsf_v*']),
     # Ele32
     TFM(leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
@@ -22,15 +27,25 @@ data_triggerfilters = [
 ]
 
 mc_triggers = [
+    'HLT_Ele27_WPTight_Gsf_v*',
     'HLT_Ele32_WPTight_Gsf_v*',
+    'HLT_Ele35_WPTight_Gsf_v*',
     'HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*'
     ]
 
 mc_triggerfilters = [
+    # Ele27
+    TFM(leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
+        leg2_names=[], 
+        triggers=['HLT_Ele27_WPTight_Gsf_v*']),
     # Ele32
     TFM(leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele32_WPTight_Gsf_v*']),
+    # Ele35
+    TFM(leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
+        leg2_names=[], 
+        triggers=['HLT_Ele35_WPTight_Gsf_v*']),
     # CrossTrigger
     TFM(leg1_names=['hltEle24erWPTightGsfTrackIsoFilterForTau','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
         leg2_names=['hltSelectedPFTau30LooseChargedIsolationL1HLTMatched','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
@@ -40,6 +55,10 @@ mc_triggerfilters = [
 embed_triggers = data_triggers
 
 embed_triggerfilters = [
+    # Ele27
+    TFM(leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
+        leg2_names=[], 
+        triggers=['HLT_Ele27_WPTight_Gsf_v*']),
     # Ele32
     TFM(leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
