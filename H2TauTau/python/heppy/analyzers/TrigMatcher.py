@@ -102,9 +102,13 @@ class TrigMatcher(Analyzer):
                     l1_matched = True
                     if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt' and not self.matchL1TriggerObject(to):
                         l1_matched = False
-            if require_all_matched and l1_matched and \
-                    len(info.leg1_names) > diL.leg1().triggernames:
-                l1_matched = False
+            if require_all_matched and l1_matched :
+                required_triggernames = set()
+                for match_info in info.match_infos :
+                    for name in match_info.leg1_names :
+                         required_triggernames.add(name)
+                if not all(trgname in diL.leg1().triggernames for trgname in required_triggernames):
+                    l1_matched = False
 
             for to, to_names in zip(info.leg2_objs, info.leg2_names):
                 if ptMin and to.pt() < ptMin:
@@ -115,9 +119,14 @@ class TrigMatcher(Analyzer):
                     l2_matched = True
                     if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel in ['tt', 'mt', 'et'] and not self.matchL1TriggerObject(to):
                         l2_matched = False
-            if require_all_matched and l2_matched and \
-                    len(info.leg2_names) > diL.leg2().triggernames:
-                l1_matched = False
+            if require_all_matched and l2_matched :
+                required_triggernames = set()
+                for match_info in info.match_infos :
+                    for name in match_info.leg2_names :
+                         required_triggernames.add(name)
+                if not all(trgname in diL.leg2().triggernames for trgname in required_triggernames):
+                    l2_matched = False
+
             if len(info.leg1_objs) == 0 and not (hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed):
                 l1_matched = True
             if len(info.leg2_objs) == 0 and not (hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed):
