@@ -163,7 +163,6 @@ class TrigMatcher(Analyzer):
 
     def matchL1TriggerObject(self, to):
         l1to, dR2 = bestMatch(to, self.l1tos)
-        import pdb; pdb.set_trace()
         if hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel  == 'tt' :
             ptcut = 31.9999
         else :
