@@ -163,7 +163,12 @@ class TrigMatcher(Analyzer):
 
     def matchL1TriggerObject(self, to):
         l1to, dR2 = bestMatch(to, self.l1tos)
-        if dR2<0.25 and l1to.Pt()>31.9999:
+        import pdb; pdb.set_trace()
+        if hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel  == 'tt' :
+            ptcut = 31.9999
+        else :
+            ptcut = 0
+        if dR2<0.25 and l1to.Pt() > ptcut:
             return True
         # for l1to in self.l1tos:
         #     if deltaR2(to.eta(),to.phi(),l1to.Eta(),l1to.Phi()) < 0.25 and l1to.Pt()>31.9999:# because some come with 31.999999999996 and are passed by KIT
