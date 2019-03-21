@@ -29,7 +29,7 @@ class TrigMatcher(Analyzer):
     
     def declareHandles(self):
         super(TrigMatcher, self).declareHandles()
-        if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
+        if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel in ['tt', 'mt', 'et']:
             self.handles['L1triggerObjects'] =  AutoHandle(
                 ('caloStage2Digis','Tau','RECO'),
                 'l1t::TauBxCollection'
@@ -42,7 +42,7 @@ class TrigMatcher(Analyzer):
         '''
         count = self.counters.counter('TrigMatcher')
         count.inc('all events')
-        if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt':
+        if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel in ['tt', 'mt', 'et']:
             ### for L1 matching
             self.readCollections(event.input)
             l1tobxvect = self.handles['L1triggerObjects'].product()
@@ -102,9 +102,13 @@ class TrigMatcher(Analyzer):
                     l1_matched = True
                     if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt' and not self.matchL1TriggerObject(to):
                         l1_matched = False
-            if require_all_matched and l1_matched and \
-                    len(info.leg1_names) > diL.leg1().triggernames:
-                l1_matched = False
+            if require_all_matched and l1_matched :
+                required_triggernames = set()
+                for match_info in info.match_infos :
+                    for name in match_info.leg1_names :
+                         required_triggernames.add(name)
+                if not all(trgname in diL.leg1().triggernames for trgname in required_triggernames):
+                    l1_matched = False
 
             for to, to_names in zip(info.leg2_objs, info.leg2_names):
                 if ptMin and to.pt() < ptMin:
@@ -113,11 +117,16 @@ class TrigMatcher(Analyzer):
                     continue
                 if self.trigObjMatched(to, diL.leg2(), to_names):
                     l2_matched = True
-                    if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt' and not self.matchL1TriggerObject(to):
+                    if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel in ['tt', 'mt', 'et'] and not self.matchL1TriggerObject(to):
                         l2_matched = False
-            if require_all_matched and l2_matched and \
-                    len(info.leg2_names) > diL.leg2().triggernames:
-                l1_matched = False
+            if require_all_matched and l2_matched :
+                required_triggernames = set()
+                for match_info in info.match_infos :
+                    for name in match_info.leg2_names :
+                         required_triggernames.add(name)
+                if not all(trgname in diL.leg2().triggernames for trgname in required_triggernames):
+                    l2_matched = False
+
             if len(info.leg1_objs) == 0 and not (hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed):
                 l1_matched = True
             if len(info.leg2_objs) == 0 and not (hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed):
@@ -154,7 +163,11 @@ class TrigMatcher(Analyzer):
 
     def matchL1TriggerObject(self, to):
         l1to, dR2 = bestMatch(to, self.l1tos)
-        if dR2<0.25 and l1to.Pt()>31.9999:
+        if hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel  == 'tt' :
+            ptcut = 31.9999
+        else :
+            ptcut = 0
+        if dR2<0.25 and l1to.Pt() > ptcut:
             return True
         # for l1to in self.l1tos:
         #     if deltaR2(to.eta(),to.phi(),l1to.Eta(),l1to.Phi()) < 0.25 and l1to.Pt()>31.9999:# because some come with 31.999999999996 and are passed by KIT

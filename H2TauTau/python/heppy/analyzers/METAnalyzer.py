@@ -180,6 +180,7 @@ class METAnalyzer(Analyzer):
 
         getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
+
     def runFixEE2017(self, event):
         '''Run the raw met computation including the cleaning of the noisy ECAL endcap in 2017 data and MC.
         '''
@@ -230,7 +231,6 @@ class METAnalyzer(Analyzer):
             superbad += get_final_ptcs(jet)
 
         pfCandidatesGoodEE2017 = [c for c in cands if c not in superbad]
-
 
         LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
         my_met = LorentzVector(0., 0., 0., 0.)
