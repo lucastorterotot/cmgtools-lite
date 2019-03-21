@@ -1,6 +1,7 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from CMGTools.H2TauTau.heppy.utils.TauEnergyScales import TauEnergyScales
+import copy
 
 class TauP4Scaler(Analyzer):
 
@@ -18,6 +19,8 @@ class TauP4Scaler(Analyzer):
 
 
     def process(self, event):
+        if self.cfg_comp.isData:
+            return True
         taus = getattr(event, self.cfg_ana.src)
         for tau in taus:
             self.correct_energy(tau)
@@ -33,7 +36,10 @@ class TauP4Scaler(Analyzer):
             if gen_match in self.gen_match_dict.keys():
                 if decayMode in self.decay_modes_dict.keys():
                     energy_scale = TauEnergyScales[ self.gen_match_dict[gen_match] ][ self.decay_modes_dict[decayMode] ]
-
+            tau.unscaledP4 = copy.copy(tau.p4())
+            # call isolation before energy scale to match score derived and stored in MINIAOD/NANOAOD
+            tau.tauID('byIsolationMVArun2017v2DBoldDMwLTraw2017')
+            tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
             tau.scaleEnergy(energy_scale)
         else:
             print 'No gen match for tau lepton!'

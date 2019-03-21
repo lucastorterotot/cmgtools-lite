@@ -12,7 +12,7 @@ ComponentCreator.useLyonAAA = True
 
 import logging
 logging.shutdown()
-reload(logging)
+# reload(logging)
 logging.basicConfig(level=logging.WARNING)
 
 from PhysicsTools.HeppyCore.framework.event import Event
@@ -29,6 +29,9 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
+embedded = getHeppyOption('embedded', False)
+if embedded:
+    data = True
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 # For specific studies
@@ -39,7 +42,7 @@ add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 # global tags
 ###############
 
-from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data
+from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data, gt_embed
 
 ###############
 # Components
@@ -50,16 +53,23 @@ from CMGTools.H2TauTau.proto.samples.component_index import ComponentIndex
 import CMGTools.H2TauTau.proto.samples.fall17.higgs as higgs
 index=ComponentIndex(higgs)
 
-from CMGTools.H2TauTau.proto.samples.fall17.data import data_single_electron
+import CMGTools.H2TauTau.proto.samples.fall17.data as data_forindex
+dindex = ComponentIndex(data_forindex)
+
 from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
 from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
-from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import backgrounds
+import CMGTools.H2TauTau.proto.samples.fall17.backgrounds as backgrounds_forindex
+bindex = ComponentIndex( backgrounds_forindex)
+backgrounds = backgrounds_forindex.backgrounds
+import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
+eindex = ComponentIndex( embedded_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, mc_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import data_triggers, data_triggerfilters
-from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC
+from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
 mc_list = backgrounds + sync_list + mssm_signals
-data_list = data_single_electron
+data_list = data_forindex.data_single_electron
+embedded_list = embedded_forindex.embedded_et
 
 n_events_per_job = 1e5
 
@@ -69,14 +79,25 @@ for sample in mc_list:
     sample.splitFactor = splitFactor(sample, n_events_per_job)
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
+    sample.channel = 'et'
 
-for sample in data_list:
+for sample in embedded_list:
     sample.triggers = data_triggers
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
-    sample.dataGT = gt_data.format(sample.name[sample.name.find('2017')+4])
+    era = sample.name[sample.name.find('2017')+4]
+    if 'V32' in gt_data and era in ['D','E']:
+        era = 'DE'
+    sample.dataGT = gt_data.format(era)
 
-selectedComponents = data_list if data else backgrounds + mssm_signals
+for sample in embedded_list:
+    sample.isEmbed = True
+
+selectedComponents = backgrounds + mssm_signals
+if data:
+    selectedComponents = data_list
+    if embedded:
+        selectedComponents = embedded_list
 
 
 if test:
@@ -99,7 +120,7 @@ condition = None # lambda event : len(event.sel_taus)>2
 
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 def select_tau(tau):
-    return tau.pt()    >= 20  and \
+    return tau.pt()    >= 23  and \
         abs(tau.eta()) <= 2.3 and \
         abs(tau.leadChargedHadrCand().dz()) < 0.2 and \
         tau.tauID('decayModeFinding') > 0.5 and \
@@ -128,7 +149,7 @@ def select_electron(electron):
         abs(electron.dz())  < 0.2 and \
         electron.passConversionVeto()     and \
         electron.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and \
-        electron.mvaIDRun2("Fall17noIsoV2","wp90") 
+        electron.id_passes("mvaEleID-Fall17-noIso-V2","wp90") 
 
 sel_electrons = cfg.Analyzer(
     Selector, 
@@ -150,7 +171,7 @@ one_electron = cfg.Analyzer(
 def select_electron_dilepton_veto(electron):
     return electron.pt() > 15             and \
         abs(electron.eta()) < 2.5         and \
-        electron.cutBasedId('POG_SPRING15_25ns_v1_Veto') and \
+        electron.id_passes('cutBasedElectronID-Fall17-94X-V2', 'veto') and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.iso_htt() < 0.3
@@ -217,14 +238,24 @@ tauidweighter = cfg.Analyzer(
     taus = lambda event: [event.dileptons_sorted[0].leg2()]
 )
 
-from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
-fakefactor = cfg.Analyzer(
-    FakeFactorAnalyzer,
-    'FakeFactorAnalyzer',
-    channel = 'et',
-    filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
-    met = 'pfmet'
+# from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
+# fakefactor = cfg.Analyzer(
+#     FakeFactorAnalyzer,
+#     'FakeFactorAnalyzer',
+#     channel = 'et',
+#     filepath = '$CMSSW_BASE/src/HTTutilities/Jet2TauFakes/data/MSSM2016/20170628_medium/{}/{}/fakeFactors_20170628_medium.root',
+#     met = 'pfmet'
+# )
+
+# embedded ================================================================
+
+from CMGTools.H2TauTau.heppy.analyzers.EmbeddedAnalyzer import EmbeddedAnalyzer
+embedded_ana = cfg.Analyzer(
+    EmbeddedAnalyzer,
+    name = 'EmbeddedAnalyzer',
+    channel = 'et'
 )
+
 
 # ntuple ================================================================
 
@@ -238,14 +269,20 @@ ntuple = cfg.Analyzer(
     event_content = event_content_eletau
 )
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
-if data:
-    sequence.append(fakefactor)
+if embedded:
+    sequence.append(embedded_ana)
+# if data:
+#     sequence.append(fakefactor)
 sequence.append(tauidweighter)
 sequence.append(ntuple)
+
+if embedded:
+    sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
+    # trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
 
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector

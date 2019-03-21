@@ -9,5 +9,5 @@ echo 'set cmssw environment...'
 cmsenv
 echo 'set cmssw environment:' $CMSSW_RELEASE_BASE
 cd CMGTools/H2TauTau
-export X509_USER_PROXY=$HOME/private/cms.proxy
+# export X509_USER_PROXY=$HOME/private/cms.proxy # conflict with xrdcp
 mkdir -p $HOME/private

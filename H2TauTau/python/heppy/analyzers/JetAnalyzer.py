@@ -11,14 +11,15 @@ class JetAnalyzer(Analyzer):
         if self.cfg_ana.do_jec: 
             global_tag = self.cfg_ana.gt_mc 
             if not self.cfg_comp.isMC:
-                global_tag = self.cfg_comp.gt_data
+                global_tag = self.cfg_comp.dataGT
             do_residual = not self.cfg_comp.isMC
             from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
             self.jet_calibrator = JetReCalibrator(
                 global_tag, 'AK4PFchs', do_residual, 
                 jecPath=os.path.expandvars(
                     "${CMSSW_BASE}/src/CMGTools/RootTools/data/jec"
-                    )
+                    ),
+                calculateType1METCorrection=True
                 )
         self.counters.addCounter('JetAnalyzer')
         count = self.counters.counter('JetAnalyzer')
@@ -40,10 +41,15 @@ class JetAnalyzer(Analyzer):
         output_jets = []
         for jet in jets:
             hjet = Jet(jet)
-            output_jets.append(hjet)
+            if not hasattr(self.cfg_ana,'selection'):
+                output_jets.append(hjet)
+            elif self.cfg_ana.selection(hjet):
+                output_jets.append(hjet)
         if self.cfg_ana.do_jec:
             event.metShift = [0., 0.]
+            event.type1METCorr = [0.,0.,0.]
             self.jet_calibrator.correctAll(output_jets, event.rho, delta=0.,
                                            addCorr=True, addShifts=True, 
-                                           metShift=event.metShift)
+                                           metShift=event.metShift,
+                                           type1METCorr=event.type1METCorr)
         setattr(event, self.cfg_ana.output, output_jets)

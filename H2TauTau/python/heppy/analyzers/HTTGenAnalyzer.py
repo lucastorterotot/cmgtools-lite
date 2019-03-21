@@ -59,7 +59,7 @@ class HTTGenAnalyzer(Analyzer):
 
         self.readCollections(event.input)
 
-        event.weight_gen = self.mchandles['genInfo'].product().weight()
+        event.weight_gen = math.copysign(1., self.mchandles['genInfo'].product().weight())
         event.eventWeight *= math.copysign(1., event.weight_gen)
 
         # gen MET as sum of the neutrino 4-momenta

@@ -18,7 +18,7 @@ from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
 
 
 
-puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_Jul9.root'
+puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_13Nov.root'
 puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
 
@@ -160,7 +160,7 @@ sel_muons_third_lepton_veto_cleaned = cfg.Analyzer(
 def select_electron_third_lepton_veto(electron):
     return electron.pt() > 10             and \
         abs(electron.eta()) < 2.5         and \
-        electron.mvaIDRun2("Fall17noIsoV2","wp90") and \
+        electron.id_passes("mvaEleID-Fall17-noIso-V2", "wp90") and \
         abs(electron.dxy()) < 0.045       and \
         abs(electron.dz())  < 0.2         and \
         electron.passConversionVeto()     and \
@@ -219,8 +219,14 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
-gt_mc = 'Fall17_17Nov2017_V8_MC'
-gt_data = 'Fall17_17Nov2017{}_V8_DATA'
+gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
+gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
+gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
+
+def select_good_jets_FixEE2017(jet):
+    return jet.correctedJet("Uncorrected").pt() > 50. or \
+        abs(jet.eta()) < 2.65 or \
+        abs(jet.eta()) > 3.139
 
 from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
@@ -229,6 +235,7 @@ jets = cfg.Analyzer(
     jets = 'slimmedJets',
     do_jec = True,
     gt_mc = gt_mc,
+    selection = select_good_jets_FixEE2017
 )
 
 jets_20_unclean = cfg.Analyzer(
@@ -254,8 +261,7 @@ jets_30 = cfg.Analyzer(
     'jets_30',
     output = 'jets_30',
     src = 'jets_20',
-    filter_func = lambda x : x.pt()>30 and not (x.pt()<50 and abs(x.eta())>2.65 and abs(x.eta())<3.139) 
-    # second requirement to mitigate EE noise effect in recoil correction, see : https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Computation_of_hadronic_jet_mult
+    filter_func = lambda x : x.pt()>30 
 )
 
 # bjets ==================================================================
@@ -312,9 +318,10 @@ from CMGTools.H2TauTau.heppy.analyzers.METAnalyzer import METAnalyzer
 pfmetana = cfg.Analyzer(
     METAnalyzer,
     name='PFMetana',
-    recoil_correction_file='CMGTools/H2TauTau/data/Type1_PFMET_2017.root',
+    recoil_correction_file='HTT-utilities/RecoilCorrections/data/Type1_PFMET_2017.root',
     met = 'pfmet',
-    apply_recoil_correction= True#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+    apply_recoil_correction= True,#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+    runFixEE2017= True
 )
 
 # if/when using MVAMET, use this to apply recoilcorrection
@@ -385,11 +392,11 @@ sequence_afterdil = cfg.Sequence([
         lheweight,
         httgenana,
         pileup, 
-        njets_ana,
-        debugger
+        njets_ana
 ]) 
 
 sequence_afterdil.extend(sequence_jets)
 sequence_afterdil.append(pfmetana)
 # sequence_afterdil.append(mvametana)
 sequence_afterdil.extend(sequence_third_lepton_veto)
+sequence_afterdil.append(debugger)

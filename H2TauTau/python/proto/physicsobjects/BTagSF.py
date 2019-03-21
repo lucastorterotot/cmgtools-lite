@@ -13,7 +13,7 @@ class BTagSF(object):
         self.randm = TRandom3(seed)
 
         rootfname = '/'.join([os.environ["CMSSW_BASE"],
-                              'src/CMGTools/H2TauTau/data/tagging_efficiencies_Moriond2017.root'])
+                              'src/CMGTools/H2TauTau/data/tagging_efficiencies_Moriond2017.root'])# tagging_efficiencies_march2018_btageff-all_samp-inc-DeepCSV_medium.root
         self.mc_eff_file = TFile(rootfname)
 
         # MC b-tag efficiencies as measured in HTT by Adinda

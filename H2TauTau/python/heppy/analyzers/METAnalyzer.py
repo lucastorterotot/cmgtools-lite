@@ -7,6 +7,9 @@ from ROOT import gSystem
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.Jet import Jet
+
+from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection
 
 gSystem.Load("libCMGToolsH2TauTau")
 
@@ -14,6 +17,15 @@ from ROOT import HTTRecoilCorrector as RC
 
 LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
 
+def get_final_ptcs(ptc):
+    if ptc.numberOfDaughters() == 0 :
+        return [ptc]
+    else :
+        final_ptcs = []
+        for i_daughter in range(ptc.numberOfDaughters()):
+            l = get_final_ptcs(ptc.daughter(i_daughter))
+            final_ptcs += l
+        return final_ptcs
 
 class METAnalyzer(Analyzer):
 
@@ -42,6 +54,22 @@ class METAnalyzer(Analyzer):
             'slimmedMETs',
             'std::vector<pat::MET>'
         )
+
+        self.handles['photons'] = AutoHandle(
+            'slimmedPhotons',
+            'std::vector<pat::Photon>'
+        )
+
+        self.handles['packedPFCandidates'] = AutoHandle(
+            'packedPFCandidates',
+            'std::vector<pat::PackedCandidate>'
+        )
+
+        self.handles['jets'] = AutoHandle(
+            'slimmedJets',
+            'std::vector<pat::Jet>'
+        )
+        
 
     def getGenP4(self, event):
         leptons_prompt = [p for p in event.genParticles if abs(p.pdgId()) in [11, 12, 13, 14] and p.fromHardProcessFinalState()]
@@ -94,27 +122,47 @@ class METAnalyzer(Analyzer):
 
         setattr(event,self.cfg_ana.met, met)
 
+        # Correct PF MET
+        pfmet_px_old = event.pfmet.px()
+        pfmet_py_old = event.pfmet.py()
+
+        if hasattr(self.cfg_ana, 'runFixEE2017') and self.cfg_ana.runFixEE2017:
+            rawMET = self.runFixEE2017(event)
+            pfmet_px_old = rawMET.px()
+            pfmet_py_old = rawMET.py()
+            if event.type1METCorr :
+                pfmet_px_old += event.type1METCorr[0]
+                pfmet_py_old += event.type1METCorr[1]
+        # JEC
+        elif event.metShift :
+            pfmet_px_old += event.metShift[0]
+            pfmet_py_old += event.metShift[1]
+
         # recoil corrections
         if not self.cfg_comp.isMC:
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(pfmet_px_old, pfmet_py_old, 0., math.sqrt(pfmet_px_old*pfmet_px_old + pfmet_py_old*pfmet_py_old)))
             return
-        
+
         # Calculate generator four-momenta even if not applying corrections
         # to save them in final trees
         gen_z_px, gen_z_py, gen_vis_z_px, gen_vis_z_py = self.getGenP4(event)
+
+        dil = event.dileptons_sorted[0]
+
+        # Correct MET for tau energy scale
+        for leg in [dil.leg1(), dil.leg2()]:
+            if hasattr(leg,'unscaledP4') :
+                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
+                pfmet_px_old += scaled_diff_for_leg.px()
+                pfmet_py_old += scaled_diff_for_leg.py()
         
         if not self.apply_recoil_correction:
             return
-        
-        dil = event.dileptons_sorted[0]
 
         n_jets_30 = len(event.jets_30)
         
         if self.isWJets:
             n_jets_30 += 1
-
-        # Correct PF MET
-        pfmet_px_old = event.pfmet.px()
-        pfmet_py_old = event.pfmet.py()
 
         # Correct by mean and resolution as default (otherwise use .Correct(..))
         new = self.rcMET.CorrectByMeanResolution(
@@ -133,6 +181,66 @@ class METAnalyzer(Analyzer):
         getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
 
+    def runFixEE2017(self, event):
+        '''Run the raw met computation including the cleaning of the noisy ECAL endcap in 2017 data and MC.
+        '''
+        pt_cut = 50.0
+        eta_min = 2.65
+        eta_max = 3.139
+
+        # BadPFCandidateJetsEEnoiseProducer
+        bad_jets = []
+        good_jets = []
+        jets = [Jet(jet) for jet in self.handles['jets'].product()]
+        for x in jets:
+            if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
+                good_jets.append(x)
+            else :
+                bad_jets.append(x)
+
+        # CandViewMerger, pfcandidateClustered
+        if not hasattr(event, 'photons'): # fast construction of photons list
+            event.photons = [p for p in self.handles['photons'].product()]
+
+        pfcandidateClustered = event.electrons + event.muons \
+            + event.taus  + event.photons + jets
+
+        pfcandidateClustered_ptcs = []
+        for ptc in event.electrons :
+            for assPFcand in ptc.physObj.associatedPackedPFCandidates():
+                pfcandidateClustered_ptcs.append(assPFcand.get())
+        for ptc in event.muons + event.taus :
+            for k in range(ptc.physObj.numberOfSourceCandidatePtrs()):
+                pfcandidateClustered_ptcs.append(ptc.physObj.sourceCandidatePtr(k).get())
+        for ptc in event.photons :
+            for k in range(ptc.numberOfSourceCandidatePtrs()):
+                pfcandidateClustered_ptcs.append(ptc.sourceCandidatePtr(k).get())
+        for ptc in jets :
+            pfcandidateClustered_ptcs += get_final_ptcs(ptc)
+
+        # "packedPFCandidates"
+        cands = [c for c in self.handles['packedPFCandidates'].product()]
+        pfcandidateForUnclusteredUnc = [c for c in cands if c not in pfcandidateClustered_ptcs]
+        badUnclustered = []
+        for x in pfcandidateForUnclusteredUnc :
+            if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
+                badUnclustered.append(x)
+
+        superbad = [ptc for ptc in badUnclustered]
+        for jet in bad_jets:
+            superbad += get_final_ptcs(jet)
+
+        pfCandidatesGoodEE2017 = [c for c in cands if c not in superbad]
+
+        LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
+        my_met = LorentzVector(0., 0., 0., 0.)
+
+        # calc raw met no fix ee 2017
+        for ptc in pfCandidatesGoodEE2017:
+            my_met -= ptc.p4()
+
+        return my_met
+        
     @staticmethod
     def p4sum(ps):
         '''Returns four-vector sum of objects in passed list. Returns None
