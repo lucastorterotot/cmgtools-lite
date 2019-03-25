@@ -9,15 +9,15 @@ config = cfg.config
 
 print "Will send dataset", os.environ["DATASET"], "with", os.environ["NJOBS"], "jobs"
 
-def ask_confirmation():
-    '''ask user confirmation for submission and exit if no'''
-    answer = None
-    while answer not in ['y','n']:
-        answer=raw_input('Confirm submission? [y/n]')
-    if answer == 'n':
-        print 'submission cancelled.'
-        sys.exit(3)
-ask_confirmation()
+# def ask_confirmation():
+#     '''ask user confirmation for submission and exit if no'''
+#     answer = None
+#     while answer not in ['y','n']:
+#         answer=raw_input('Confirm submission? [y/n]')
+#     if answer == 'n':
+#         print 'submission cancelled.'
+#         sys.exit(3)
+# ask_confirmation()
 
 
 config.General.requestName = os.environ["DATASET"] + "_" + os.environ["CMG_VERSION"] + "_" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') # task name
@@ -29,7 +29,7 @@ config.Data.totalUnits = config.Data.unitsPerJob * int(os.environ["NJOBS"])
 
 config.JobType.inputFiles.append(os.environ["CFG_FILE"])
 # arguments to pass to scriptExe. They have to be like "arg=value". 
-config.JobType.scriptArgs = ["dataset="+os.environ["DATASET"], "total="+os.environ["NJOBS"], "useAAA="+os.environ["USEAAA"], "cfgfile="+os.environ["CFG_FILE"].split('/')[-1]]
+config.JobType.scriptArgs = ["dataset="+os.environ["DATASET"], "total="+os.environ["NJOBS"], "useAAA="+os.environ["USEAAA"], "cfgfile="+os.environ["CFG_FILE"].split('/')[-1], "cfgname="+os.environ["CFG_NAME"]]
 try: config.JobType.inputFiles.extend(os.environ["FILESTOSHIP"].split(','))
 except KeyError: pass
 try:
