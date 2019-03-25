@@ -1,5 +1,6 @@
 import math
 import re
+import copy
 
 import ROOT
 
@@ -139,7 +140,7 @@ class METAnalyzer(Analyzer):
             pfmet_py_old += event.metShift[1]
 
         # recoil corrections
-        if not self.cfg_comp.isMC:
+        if not self.cfg_comp.isMC and not (hasattr(self.cfg_comp, 'Embed') and self.cfg_comp.isEmbed):
             getattr(event, self.cfg_ana.met).setP4(LorentzVector(pfmet_px_old, pfmet_py_old, 0., math.sqrt(pfmet_px_old*pfmet_px_old + pfmet_py_old*pfmet_py_old)))
             return
 
@@ -149,36 +150,47 @@ class METAnalyzer(Analyzer):
 
         dil = event.dileptons_sorted[0]
 
-        # Correct MET for tau energy scale
-        for leg in [dil.leg1(), dil.leg2()]:
-            if hasattr(leg,'unscaledP4') :
-                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
-                pfmet_px_old += scaled_diff_for_leg.px()
-                pfmet_py_old += scaled_diff_for_leg.py()
-        
-        if not self.apply_recoil_correction:
-            return
-
         n_jets_30 = len(event.jets_30)
         
         if self.isWJets:
             n_jets_30 += 1
 
-        # Correct by mean and resolution as default (otherwise use .Correct(..))
-        new = self.rcMET.CorrectByMeanResolution(
-        # new = self.rcMET.Correct(    
-            pfmet_px_old, 
-            pfmet_py_old, 
-            gen_z_px,    
-            gen_z_py,    
-            gen_vis_z_px,    
-            gen_vis_z_py,    
-            n_jets_30,   
-        )
+        def recoil_correct(met_px, met_py):
+            '''Applies recoil correction to met, and sets the 
+            new met to the attribute met_to_set if provided.
+            '''
+            # Correct by mean and resolution as default (otherwise use .Correct(..))
+            new = self.rcMET.CorrectByMeanResolution(
+                # new = self.rcMET.Correct(    
+                pfmet_px_old, 
+                pfmet_py_old, 
+                gen_z_px,    
+                gen_z_py,    
+                gen_vis_z_px,    
+                gen_vis_z_py,    
+                n_jets_30,   
+                )
+            px_new, py_new = new.first, new.second
+            return LorentzVector(px_new, py_new,0.,math.sqrt(px_new*px_new + py_new*py_new))
 
-        px_new, py_new = new.first, new.second
+        def propagate_TES(tau, unscaledP4, met_px, met_py):
+            '''If tau has been scaled, changes the met accordingly.
+            '''
+            scaled_diff_for_tau = (unscaledP4 - tau.p4())
+            met_px += scaled_diff_for_tau.px()
+            met_py += scaled_diff_for_tau.py()
+            return met_px, met_py
 
-        getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
+        # Correct MET for tau energy scale
+        for leg in [dil.leg1(), dil.leg2()]:
+            if hasattr(leg, 'unscaledP4'):
+                pfmet_px_old, pfmet_py_old = propagate_TES(leg, leg.unscaledP4, pfmet_px_old, pfmet_py_old)
+        
+        #recoil corrections
+        if self.apply_recoil_correction and not (hasattr(self.cfg_comp, 'Embed') and self.cfg_comp.isEmbed):
+            getattr(event, self.cfg_ana.met).setP4(recoil_correct(pfmet_px_old,pfmet_py_old))
+        else:
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
 
     def runFixEE2017(self, event):
@@ -232,7 +244,6 @@ class METAnalyzer(Analyzer):
 
         pfCandidatesGoodEE2017 = [c for c in cands if c not in superbad]
 
-        LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
         my_met = LorentzVector(0., 0., 0., 0.)
 
         # calc raw met no fix ee 2017

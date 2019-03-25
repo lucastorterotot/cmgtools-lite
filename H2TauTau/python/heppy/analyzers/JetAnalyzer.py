@@ -2,6 +2,8 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Jet import Jet
 
+from CMGTools.H2TauTau.heppy.utils.JesEnergyScaleSources import data_analysis_2017
+
 import os 
 
 class JetAnalyzer(Analyzer):
@@ -19,7 +21,8 @@ class JetAnalyzer(Analyzer):
                 jecPath=os.path.expandvars(
                     "${CMSSW_BASE}/src/CMGTools/RootTools/data/jec"
                     ),
-                calculateType1METCorrection=True
+                calculateType1METCorrection=True,
+                groupForUncertaintySources = data_analysis_2017
                 )
         self.counters.addCounter('JetAnalyzer')
         count = self.counters.counter('JetAnalyzer')

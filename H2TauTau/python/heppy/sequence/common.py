@@ -92,17 +92,6 @@ from PhysicsTools.Heppy.physicsutils.EffectiveAreas import areas
 
 Electron.EffectiveArea03 = areas['Fall17']['electron']
 
-# Electron.EffectiveArea03 = { 
-#     '03' : 
-#     [ (1.000, 0.1440),
-#       (1.479, 0.1562),
-#       (2.000, 0.1032),
-#       (2.200, 0.0859),
-#       (2.300, 0.1116),
-#       (2.400, 0.1321),
-#       (2.500, 0.1654) ],
-#     'eta' : lambda x: x.superCluster().eta()
-#     }
 Electron.iso_htt = lambda x: x.relIso(0.3, "EA", 
                                       all_charged=False)
 
@@ -130,6 +119,7 @@ tauenergyscale = cfg.Analyzer(
     TauP4Scaler,
     'tauenergyscale',
     src = 'taus',
+    systematics = True
 )
 
 # third lepton veto =========================================================                  
@@ -224,7 +214,7 @@ gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
 gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
 
 def select_good_jets_FixEE2017(jet):
-    return jet.correctedJet("Uncorrected").pt() > 50. or \
+    return jet.correctedJet("Uncorrected").pt() >50. or \
         abs(jet.eta()) < 2.65 or \
         abs(jet.eta()) > 3.139
 
@@ -357,7 +347,7 @@ from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
 njets_ana = cfg.Analyzer(
     NJetsAnalyzer,
     name='NJetsAnalyzer',
-    fillTree=True,
+    fillTree=False,
     verbose=False
 )
 
