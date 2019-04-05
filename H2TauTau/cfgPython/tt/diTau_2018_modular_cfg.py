@@ -337,7 +337,7 @@ def config_JetEnergyScale(group, up_or_down):
     jet_calibrator = cfg.Analyzer(
         Calibrator,
         src = 'jets',
-        calibrator_factor_func = lambda x: getattr(x,"corr_{}_JECup".format(group)) * x.rawFactor()
+        calibrator_factor_func = lambda x: getattr(x,"corr_{}_JEC_{}".format(group,up_or_down), 1./x.rawFactor()) * x.rawFactor()
     )
 
     new_config.sequence.insert(jets_ana_index+1, jet_calibrator)
