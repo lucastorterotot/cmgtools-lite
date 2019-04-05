@@ -6,7 +6,7 @@ from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-ComponentCreator.useAAA = True
+ComponentCreator.useLyonAAA = True
 
 import logging
 logging.shutdown()
@@ -25,12 +25,12 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 
 # production = True run on batch, production = False run locally
 test = getHeppyOption('test', True)
-syncntuple = getHeppyOption('syncntuple', True)
+syncntuple = getHeppyOption('syncntuple', False)
 data = getHeppyOption('data', False)
-embedded = getHeppyOption('embedded', True)
+embedded = getHeppyOption('embedded', False)
 if embedded:
     data = True
-tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
+add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 # For specific studies
 add_iso_info = getHeppyOption('add_iso_info', False)
@@ -87,11 +87,10 @@ for sample in data_list+embedded_list:
     if 'V32' in gt_data and era in ['D','E']:
         era = 'DE'
     sample.dataGT = gt_data.format(era)
+    sample.channel = 'mt'
 
 for sample in embedded_list:
     sample.triggerobjects = embed_triggerfilters
-
-for sample in embedded_list:
     sample.isEmbed = True
 
 selectedComponents = backgrounds + mssm_signals
@@ -103,15 +102,43 @@ if data:
 
 if test:
     cache = True
-    #comp = index.glob('HiggsVBF125')[0]
-    comp = eindex.glob('Embedded2017B_mt')[0]
+    comp = index.glob('HiggsVBF125')[0]
+    if data:
+        comp = dindex.glob('SingleMuon_Run2017B_31Mar2018')[0]
+    if embedded:
+        comp = eindex.glob('Embedded2017B_mt')[0]
     selectedComponents = [comp]
-    comp.files = comp.files[:1]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
-    # comp.files = ['/home/cms/torterotot/CMSSW-MET/CMSSW_9_4_11_cand1/src/JetMETCorrections/Type1MET/test/metv2.root']
+    # for comp in selectedComponents:
+    #    comp.files = comp.files[:1]
+    #    comp.splitFactor = 1
+    #    comp.fineSplitFactor = 1
+    #    comp.files = ['file1.root']
 
 events_to_pick = []
+
+#KIT's skimming function
+def skim_KIT(event):
+    flags = [
+        'Flag_goodVertices',
+        'Flag_globalTightHalo2016Filter',
+        'Flag_globalSuperTightHalo2016Filter',
+        'Flag_HBHENoiseFilter',
+        'Flag_HBHENoiseIsoFilter',
+        'Flag_EcalDeadCellTriggerPrimitiveFilter',
+        'Flag_BadPFMuonFilter',
+        'Flag_BadChargedCandidateFilter',
+        'Flag_eeBadScFilter',
+        'Flag_ecalBadCalibFilter']
+    if embedded or data:
+        flags = ['Flag_goodVertices','Flag_globalSuperTightHalo2016Filter','Flag_HBHENoiseFilter','Flag_HBHENoiseIsoFilter','Flag_EcalDeadCellTriggerPrimitiveFilter','Flag_BadPFMuonFilter','Flag_BadChargedCandidateFilter','Flag_eeBadScFilter','Flag_ecalBadCalibFilter']
+    ids = [
+        'againstElectronVLooseMVA6',
+        'againstMuonLoose3',
+        'byVLooseIsolationMVArun2017v2DBoldDMwLT2017']
+    return all([getattr(event,x)==1 for x in flags]) and\
+        event.veto_third_lepton_electrons_passed and\
+        event.veto_third_lepton_muons_passed and\
+        all([event.dileptons_sorted[0].leg2().tauID(x) for x in ids])
 
 from CMGTools.H2TauTau.heppy.sequence.common import debugger
 debugger.condition = None # lambda event : len(event.sel_taus)>2
@@ -258,6 +285,11 @@ embedded_ana = cfg.Analyzer(
 
 # ntuple ================================================================
 
+if syncntuple:
+    skim_func = lambda x: True
+else:
+    skim_func = lambda x: skim_KIT
+
 from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
 from CMGTools.H2TauTau.heppy.ntuple.ntuple_variables import mutau as event_content_mutau
 ntuple = cfg.Analyzer(
@@ -265,7 +297,8 @@ ntuple = cfg.Analyzer(
     name = 'NtupleProducer',
     outputfile = 'events.root',
     treename = 'events',
-    event_content = event_content_mutau
+    event_content = event_content_mutau,
+    skim_func = skim_func
 )
 
 from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match
@@ -281,7 +314,6 @@ sequence.append(ntuple)
 
 if embedded:
     sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
-    # trigger.triggerResultsHandle = ['TriggerResults','','SIMembedding']
 
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
@@ -299,3 +331,67 @@ config = cfg.Config(components=selectedComponents,
 
 printComps(config.components, True)
 
+### systematics
+
+nominal = config
+
+
+from CMGTools.H2TauTau.heppy.analyzers.Calibrator import Calibrator
+
+def config_TauEnergyScale(dm_name, gm_name, up_or_down):
+    tau_energyscale_ana_index = nominal.sequence.index(tauenergyscale)
+    new_config = copy.deepcopy(nominal)
+
+    tau_calibrator = cfg.Analyzer(
+        Calibrator,
+        src = 'taus',
+        calibrator_factor_func = lambda x: getattr(x,'TES_{}_{}_{}'.format(gm_name,dm_name,up_or_down),1.)
+    )
+
+    new_config.sequence.insert(tau_energyscale_ana_index+1, tau_calibrator)
+    return new_config
+
+def config_JetEnergyScale(group, up_or_down):
+    jets_ana_index = nominal.sequence.index(jets)
+    new_config = copy.deepcopy(nominal)
+
+    jet_calibrator = cfg.Analyzer(
+        Calibrator,
+        src = 'jets',
+        calibrator_factor_func = lambda x: getattr(x,"corr_{}_JEC_{}".format(group,up_or_down), 1./x.rawFactor()) * x.rawFactor()
+    )
+
+    new_config.sequence.insert(jets_ana_index+1, jet_calibrator)
+    return new_config
+
+# TODO harmonize energy scale among all susceptible objects
+from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale, jets
+import copy
+configs = {'nominal':nominal}
+
+### tau energy scale 
+TES = [['HadronicTau','1prong0pi0'],
+       ['HadronicTau','1prong1pi0'],
+       ['HadronicTau','3prong0pi0'],
+       ['HadronicTau','3prong1pi0'],
+       ['promptMuon','1prong0pi0'],
+       ['promptEle','1prong0pi0'],
+       ['promptEle','1prong1pi0']]
+
+for gm_name, dm_name in TES:
+    configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+    configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
+
+JES = ['CMS_scale_j_eta0to5_13Tev',
+       'CMS_scale_j_eta0to3_13TeV',
+       'CMS_scale_j_eta3to5_13TeV',
+       'CMS_scale_j_RelativeBal_13TeV',
+       'CMS_scale_j_RelativeSample_13TeV']
+
+for source in JES:
+    configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
+    configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
+
+print configs
+
+config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
