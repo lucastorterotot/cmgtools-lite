@@ -192,7 +192,6 @@ class METAnalyzer(Analyzer):
         else:
             getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
 
-
     def runFixEE2017(self, event):
         '''Run the raw met computation including the cleaning of the noisy ECAL endcap in 2017 data and MC.
         '''
