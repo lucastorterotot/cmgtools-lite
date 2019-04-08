@@ -338,11 +338,13 @@ printComps(config.components, True)
 
 ### systematics
 
-nominal = config
-
-
 from CMGTools.H2TauTau.heppy.analyzers.Calibrator import Calibrator
+import copy
+nominal = config
+configs = {'nominal':nominal}
+up_down = ['up','down']
 
+### DY and top pT reweighting
 def config_top_pT_reweighting(up_or_down):
     httgenana_index = nominal.sequence.index(httgenana)
     new_config = copy.deepcopy(nominal)
@@ -354,6 +356,46 @@ def config_DY_pT_reweighting(up_or_down):
     new_config = copy.deepcopy(nominal)
     new_config.sequence[httgenana_index].DY_systematic = up_or_down
     return new_config
+
+for up_or_down in up_down:
+    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
+    configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
+
+### MET recoil
+
+def config_METrecoil(response_or_resolution, up_or_down):
+    equivalency_dict = {'response':0,
+                        'resolution':1,
+                        'up':0,
+                        'down':1}
+    response_or_resolution = equivalency_dict[response_or_resolution]
+    up_or_down = equivalency_dict[up_or_down]
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'PFMetana':
+            cfg.METSys = [response_or_resolution, up_or_down]
+    return new_config
+
+response_or_resolution = ['response','resolution']
+
+for sys in response_or_resolution:
+    for up_or_down in up_down:
+        configs['METrecoil_{}_{}'.format(sys,up_or_down)] = config_METrecoil(sys, up_or_down)
+
+### MET unclustered uncertainty
+from CMGTools.H2TauTau.heppy.sequence.common import pfmetana
+def config_METunclustered(up_or_down):
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'PFMetana':
+            cfg.unclustered_sys = up_or_down
+    return new_config
+
+for up_or_down in up_down:
+    configs['METunclustered_{}'.format(up_or_down)] = config_METunclustered(up_or_down)
+
+### tau energy scale 
+from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale
 
 def config_TauEnergyScale(dm_name, gm_name, up_or_down):
     tau_energyscale_ana_index = nominal.sequence.index(tauenergyscale)
@@ -368,6 +410,21 @@ def config_TauEnergyScale(dm_name, gm_name, up_or_down):
     new_config.sequence.insert(tau_energyscale_ana_index+1, tau_calibrator)
     return new_config
 
+TES = [['HadronicTau','1prong0pi0'],
+       ['HadronicTau','1prong1pi0'],
+       ['HadronicTau','3prong0pi0'],
+       ['HadronicTau','3prong1pi0'],
+       ['promptMuon','1prong0pi0'],
+       ['promptEle','1prong0pi0'],
+       ['promptEle','1prong1pi0']]
+
+for gm_name, dm_name in TES:
+    configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+    configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
+
+
+### Jet energy scale
+from CMGTools.H2TauTau.heppy.sequence.common import jets
 def config_JetEnergyScale(group, up_or_down):
     jets_ana_index = nominal.sequence.index(jets)
     new_config = copy.deepcopy(nominal)
@@ -381,24 +438,6 @@ def config_JetEnergyScale(group, up_or_down):
     new_config.sequence.insert(jets_ana_index+1, jet_calibrator)
     return new_config
 
-# TODO harmonize energy scale among all susceptible objects
-from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale, jets
-import copy
-configs = {'nominal':nominal}
-
-### tau energy scale 
-TES = [['HadronicTau','1prong0pi0'],
-       ['HadronicTau','1prong1pi0'],
-       ['HadronicTau','3prong0pi0'],
-       ['HadronicTau','3prong1pi0'],
-       ['promptMuon','1prong0pi0'],
-       ['promptEle','1prong0pi0'],
-       ['promptEle','1prong1pi0']]
-
-for gm_name, dm_name in TES:
-    configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
-    configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
-
 JES = ['CMS_scale_j_eta0to5_13Tev',
        'CMS_scale_j_eta0to3_13TeV',
        'CMS_scale_j_eta3to5_13TeV',
@@ -408,12 +447,6 @@ JES = ['CMS_scale_j_eta0to5_13Tev',
 for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
-
-# DY and top pT reweighting
-for up_or_down in ['up', 'down']:
-    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
-for up_or_down in ['up', 'down']:
-    configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
 
 print configs
 
