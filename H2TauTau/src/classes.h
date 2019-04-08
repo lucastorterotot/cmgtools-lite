@@ -6,6 +6,7 @@
 #include "CMGTools/H2TauTau/interface/HTTRecoilCorrector.h"
 #include "CMGTools/H2TauTau/interface/DYReweighting.h"
 #include "CMGTools/H2TauTau/interface/HTTEfficiencies.h"
+#include "CMGTools/H2TauTau/interface/MEtSys.h"
 
 namespace {
   struct CMGTools_H2TauTau {
@@ -16,5 +17,6 @@ namespace {
     std::vector<cmg::METSignificance> metsigv_;
     edm::Wrapper<std::vector<cmg::METSignificance> > metsigve_;
     HTTRecoilCorrector reccorr_;
+    MEtSys metsys_;
   };
 }

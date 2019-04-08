@@ -15,6 +15,7 @@ useAAA = ""
 cfgfile=""
 _filestounpack=""
 filestounpack=[]
+cfgname = ""
 
 def XrootdRedirector():
     americas     = ["CO", "MX","US"]
@@ -42,6 +43,10 @@ for arg in sys.argv[2:]:
         cfgfile = arg.split("=")[1]
     elif arg.split("=")[0] == "filestounpack":
         _filestounpack = arg.split("=")[1]
+    elif arg.split("=")[0] == "cfgname":
+        cfgname = arg.split("=")[1]
+
+print 'here touck :', '\n', sys.argv[2:]
 
 if useAAA=="full": print 'Chosen free usage of AAA to access remote files'
 elif useAAA=="eos": print 'Forcing usage of AAA to access data from EOS'
@@ -62,7 +67,10 @@ for k,v in opts.iteritems():
 jfile.close()
 handle = open(cfgfile, 'r')
 cfo = imp.load_source(cfgfile.rstrip('py'), cfgfile, handle)
-config = cfo.config
+if hasattr(cfo,'configs'):
+    config = cfo.configs[cfgname]
+else:
+    config = cfo.config
 handle.close()
 
 from PhysicsTools.HeppyCore.framework.heppy_loop import split

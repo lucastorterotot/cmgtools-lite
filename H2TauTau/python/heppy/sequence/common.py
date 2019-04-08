@@ -92,17 +92,6 @@ from PhysicsTools.Heppy.physicsutils.EffectiveAreas import areas
 
 Electron.EffectiveArea03 = areas['Fall17']['electron']
 
-# Electron.EffectiveArea03 = { 
-#     '03' : 
-#     [ (1.000, 0.1440),
-#       (1.479, 0.1562),
-#       (2.000, 0.1032),
-#       (2.200, 0.0859),
-#       (2.300, 0.1116),
-#       (2.400, 0.1321),
-#       (2.500, 0.1654) ],
-#     'eta' : lambda x: x.superCluster().eta()
-#     }
 Electron.iso_htt = lambda x: x.relIso(0.3, "EA", 
                                       all_charged=False)
 
@@ -130,6 +119,7 @@ tauenergyscale = cfg.Analyzer(
     TauP4Scaler,
     'tauenergyscale',
     src = 'taus',
+    systematics = True
 )
 
 # third lepton veto =========================================================                  
@@ -223,8 +213,8 @@ gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
 gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
 gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
 
-def select_good_jets_FixEE2017(jet):
-    return jet.correctedJet("Uncorrected").pt() > 50. or \
+def select_good_jets_FixEE2017(jet):#return jet.correctedJet("Uncorrected").pt() >50. or \
+    return jet.pt() >50. or \
         abs(jet.eta()) < 2.65 or \
         abs(jet.eta()) > 3.139
 
@@ -243,7 +233,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
+    filter_func = lambda x : x.pt()>30 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
 )
 
 
@@ -357,7 +347,7 @@ from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
 njets_ana = cfg.Analyzer(
     NJetsAnalyzer,
     name='NJetsAnalyzer',
-    fillTree=True,
+    fillTree=False,
     verbose=False
 )
 
@@ -397,6 +387,5 @@ sequence_afterdil = cfg.Sequence([
 
 sequence_afterdil.extend(sequence_jets)
 sequence_afterdil.append(pfmetana)
-# sequence_afterdil.append(mvametana)
 sequence_afterdil.extend(sequence_third_lepton_veto)
 sequence_afterdil.append(debugger)

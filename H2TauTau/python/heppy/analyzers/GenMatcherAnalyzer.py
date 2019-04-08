@@ -19,19 +19,26 @@ class GenMatcherAnalyzer(Analyzer):
 
         #self.mchandles['genInfo'] = AutoHandle(('generator','',''), 'GenEventInfoProduct' )
         self.mchandles['genJets'] = AutoHandle('slimmedGenJets', 'std::vector<reco::GenJet>')
-        self.mchandles['genParticles'] = AutoHandle('prunedGenParticles', 'std::vector<reco::GenParticle')
+        if hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed:
+            self.handles['genParticles'] = AutoHandle('prunedGenParticles', 'std::vector<reco::GenParticle')
+        else:
+            self.mchandles['genParticles'] = AutoHandle('prunedGenParticles', 'std::vector<reco::GenParticle')
 
         self.handles['jets'] = AutoHandle(self.cfg_ana.jetCol, 'std::vector<pat::Jet>')
 
 
     def process(self, event):
-        if self.cfg_comp.isData:
+        if self.cfg_comp.isData and not (hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed):
             return True
 
         self.readCollections(event.input)
-        event.genJets = self.mchandles['genJets'].product()
+        if not (hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed):
+            event.genJets = self.mchandles['genJets'].product()
         event.jets = self.handles['jets'].product()
-        event.genParticles = self.mchandles['genParticles'].product()
+        if hasattr(self.cfg_comp,'isEmbed') and self.cfg_comp.isEmbed:
+            event.genParticles = self.handles['genParticles'].product()
+        else:
+            event.genParticles = self.mchandles['genParticles'].product()
 
         event.genleps = [p for p in event.genParticles if abs(p.pdgId()) in [11, 13] and p.statusFlags().isPrompt()]
         event.gentauleps = [p for p in event.genParticles if abs(p.pdgId()) in [11, 13] and p.statusFlags().isDirectPromptTauDecayProduct()]
@@ -203,6 +210,7 @@ class GenMatcherAnalyzer(Analyzer):
                 leg.genp = l1match
                 return
 
+            
             # Now this may be a pileup lepton, or one whose ancestor doesn't
             # appear in the gen summary because it's an unclear case in Pythia 8
             # To check the latter, match against jets as well...

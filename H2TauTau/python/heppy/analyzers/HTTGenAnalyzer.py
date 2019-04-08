@@ -77,11 +77,17 @@ class HTTGenAnalyzer(Analyzer):
         event.genmet_py = genmet.py()
         event.genmet_phi = genmet.phi()
 
-        if self.cfg_comp.name.find('TT') != -1 or self.cfg_comp.name.find('TTH') == -1:
-            self.getTopPtWeight(event)
+        if self.cfg_comp.name.find('TT') != -1 and self.cfg_comp.name.find('TTH') == -1:
+            if not hasattr(self.cfg_ana, 'top_systematic'):
+                self.applyTopPtWeight(event)
+            else:
+                self.applyTopPtWeight(event, up_or_down = self.cfg_ana.top_systematic)
 
         if self.cfg_comp.name.find('DY') != -1:
-            self.getDYMassPtWeight(event)
+            if not hasattr(self.cfg_ana, 'DY_systematic'):
+                self.applyDYMassPtWeight(event)
+            else:
+                self.applyDYMassPtWeight(event, up_or_down = self.cfg_ana.DY_systematic)
 
         return True
 
@@ -108,7 +114,10 @@ class HTTGenAnalyzer(Analyzer):
                 event.genTauJetConstituents.append(c_genjet)
 
     @staticmethod
-    def getTopPtWeight(event):
+    def applyTopPtWeight(event, up_or_down = None):
+        # Top pT re-weighting
+        # Uncertainty between no and twice the correction on the re-weighting applied to tt
+        # events in all channels. Fully correlated between 2016 and 2017 data-taking periods.
         ttbar = [p for p in event.genParticles if abs(p.pdgId()) == 6 and p.statusFlags().isLastCopy() and p.statusFlags().fromHardProcess()]
 
         if len(ttbar) == 2:
@@ -124,6 +133,16 @@ class HTTGenAnalyzer(Analyzer):
 
             event.top1_pt = top_1_pt
             event.top2_pt = top_2_pt
+
+            shift = topweight - 1
+            if up_or_down == 'up' :
+                factor = 2.
+            elif up_or_down == 'down' :
+                factor = 0.
+            else :
+                factor = 1.
+            topweight = 1 + shift * factor
+
             event.topweight = topweight
             event.eventWeight *= topweight
 
@@ -148,10 +167,25 @@ class HTTGenAnalyzer(Analyzer):
         return HTTGenAnalyzer.p4sum(all)
 
     @staticmethod 
-    def getDYMassPtWeight(event):
+    def applyDYMassPtWeight(event, up_or_down = None):
+        # DY pT re-weighting
+        # Uncertainty of 10% of the correction on the re-weighting applied to Z to ll events in
+        # all channels. Uncorrelated between 2016 and 2017 data-taking periods.
         if not hasattr(event, 'parentBoson'):
             event.parentBoson = HTTGenAnalyzer.getParentBoson(event)
-        event.dy_weight = getDYWeight(event.parentBoson.mass(), event.parentBoson.pt())
+        dy_weight = getDYWeight(event.parentBoson.mass(), event.parentBoson.pt())
+
+        shift = dy_weight - 1
+        if up_or_down == 'up' :
+            factor = 1.1
+        elif up_or_down == 'down' :
+            factor = 0.9
+        else :
+            factor = 1.0
+        dy_weight = 1 + shift * factor
+
+        event.dy_weight = dy_weight
+        event.eventWeight *= dy_weight
 
     @staticmethod
     def getSusySystem(event):
