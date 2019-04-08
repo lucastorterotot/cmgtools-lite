@@ -225,7 +225,7 @@ class METAnalyzer(Analyzer):
             else:
                 getattr(event, self.cfg_ana.met).setP4(recoil_correct(px_old,py_old))
         else:
-            getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_old, py_old, 0., math.sqrt(px_old*px_old + py_old*py_old)))
 
     def MET_unclustered_unc(self, event, up_or_down):
         #see http://cmslxr.fnal.gov/source/PhysicsTools/PatUtils/python/tools/runMETCorrectionsAndUncertainties.py?v=CMSSW_9_4_2#0850

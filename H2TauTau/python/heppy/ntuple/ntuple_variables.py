@@ -106,40 +106,64 @@ weights = Block(
 
 triggers = Block(
     'triggers', lambda x: [getattr(x.dileptons_sorted[0], 'matchedPaths', []),x.dileptons_sorted[0]],
-    trg_doubletau = v(lambda x : any('DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v' in name for name in x[0]) and x[1].leg1().pt()>45. and x[1].leg2().pt()>45.),
-    trg_doubletau_lowpt = v(lambda x : any('DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v' in name for name in x[0]) and x[1].leg1().pt()>40. and x[1].leg2().pt()>40.),
-    trg_doubletau_lowpt_mediso = v(lambda x : any('DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v' in name for name in x[0]) and x[1].leg1().pt()>40. and x[1].leg2().pt()>40.),
-    trg_doubletau_mediso = v(lambda x : any('DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v' in name for name in x[0]) and x[1].leg1().pt()>45. and x[1].leg2().pt()>45.),
-    trg_electrontau = v(lambda x : any('Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v' in name for name in x[0]) and x[1].leg1().pt()>25. and x[1].leg1().pt()<28. and x[1].leg2().pt()>35. and abs(x[1].leg2().eta())<2.1),
-    trg_muonelectron_lowpte = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0]) and x[1].leg1().pt()>13. and x[1].leg2().pt()>24.),
-    trg_muonelectron_lowptmu = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0]) and x[1].leg1().pt()>24. and x[1].leg2().pt()>10.),
-    trg_muontau_lowptmu = v(lambda x : any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in name for name in x[0]) and x[1].leg1().pt()>21. and x[1].leg1().pt()<25. and x[1].leg2().pt()>32. and abs(x[1].leg2().eta())<2.1),
-    trg_singleelectron = v(lambda x : any('Ele35_WPTight_Gsf_v' in name for name in x[0]) and x[1].leg1().pt()>36.),
-    trg_singleelectron_lowpt = v(lambda x : any('Ele32_WPTight_Gsf_v' in name for name in x[0]) and x[1].leg1().pt()>33.),
-    # missing single ele 27
-    trg_singlemuon = v(lambda x : any('IsoMu27_v' in name for name in x[0]) and x[1].leg1().pt()>28.),
-    trg_singlemuon_lowpt = v(lambda x : any('IsoMu24_v' in name for name in x[0]) and x[1].leg1().pt()>25.),
-    trg_singletau_leading = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x[0]) and x[1].leg1().pt()>45. and x[1].leg2().pt()>45.),
-    trg_singletau_trailing = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x[0]) and x[1].leg1().pt()>45. and x[1].leg2().pt()>45.)
+    trg_singletau1 = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x[0]) and x[1].leg1().pt()>45. and abs(x[1].leg1().eta())<2.1),
+    trg_singletau2 = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x[0]) and x[1].leg2().pt()>45. and abs(x[1].leg2().eta())<2.1),
+    trg_singletau  = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x[0]) and any([tau.pt()>45. and abs(tau.eta()<2.1) for tau in [x[1].leg1(), x[1].leg2()]])),
+    trg_singlemuon_24 = v(lambda x : any('IsoMu24_v' in name for name in x[0]) and x[1].leg1().pt()>25. and abs(x[1].leg1().eta())<2.1),
+    trg_singlemuon_27 = v(lambda x : any('IsoMu27_v' in name for name in x[0]) and x[1].leg1().pt()>28. and abs(x[1].leg1().eta())<2.1),
+    trg_singleelectron_27 = v(lambda x : any('Ele27_WPTight_Gsf_v' in name for name in x[0]) and x[1].leg1().pt()>28. and abs(x[1].leg1().eta())<2.1),
+    trg_singleelectron_32 = v(lambda x : any('Ele32_WPTight_Gsf_v' in name for name in x[0]) and x[1].leg1().pt()>33. and abs(x[1].leg1().eta())<2.1),
+    trg_singleelectron_35 = v(lambda x : any('Ele35_WPTight_Gsf_v' in name for name in x[0]) and x[1].leg1().pt()>36. and abs(x[1].leg1().eta())<2.1),
+    trg_doubletau_35_mediso = v(lambda x : any('DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v' in name for name in x[0]) and all([tau.pt()>40. and abs(tau.eta()<2.1) for tau in [x[1].leg1(), x[1].leg2()]])),
+    trg_doubletau_35_tightiso_tightid = v(lambda x : any('DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v' in name for name in x[0]) and all([tau.pt()>40. and abs(tau.eta()<2.1) for tau in [x[1].leg1(), x[1].leg2()]])),
+    trg_doubletau_40_mediso_tightid = v(lambda x : any('DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v' in name for name in x[0]) and all([tau.pt()>45. and abs(tau.eta()<2.1) for tau in [x[1].leg1(), x[1].leg2()]])),
+    trg_doubletau_40_tightiso = v(lambda x : any('DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v' in name for name in x[0]) and all([tau.pt()>45. and abs(tau.eta()<2.1) for tau in [x[1].leg1(), x[1].leg2()]])),
+    trg_crossmuon_mu24tau20 = v(lambda x : any('IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v' in name for name in x[0]) and x[1].leg1().pt()>25. and abs(x[1].leg1().eta())<2.1 and x[1].leg2().pt()>21. and abs(x[1].leg2().eta())<2.1),
+    trg_crossmuon_mu20tau27 = v(lambda x : any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in name for name in x[0]) and x[1].leg1().pt()>21. and abs(x[1].leg1().eta())<2.1 and x[1].leg2().pt()>32. and abs(x[1].leg2().eta())<2.1),
+    trg_crossele_ele24tau30 = v(lambda x : any('Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v' in name for name in x[0]) and x[1].leg1().pt()>25. and abs(x[1].leg1().eta())<2.1 and x[1].leg2().pt()>35. and abs(x[1].leg2().eta())<2.1),
+    trg_muonelectron_mu8ele23 = v(lambda x : any('Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0]) and x[1].leg1().pt()>24. and abs(x[1].leg1().eta())<2.5 and x[1].leg2().pt()>9. and abs(x[1].leg2().eta())<2.4),
+    trg_muonelectron_mu12ele23 = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0]) and x[1].leg1().pt()>24.  and abs(x[1].leg1().eta())<2.5 and x[1].leg2().pt()>13.and abs(x[1].leg2().eta())<2.4),
+    trg_muonelectron_mu23ele12 = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0]) and x[1].leg1().pt()>13.  and abs(x[1].leg1().eta())<2.5 and x[1].leg2().pt()>24.and abs(x[1].leg2().eta())<2.4)
+)
+
+triggers_matched = Block(
+    'triggers_matched', lambda x: [getattr(x.dileptons_sorted[0], 'matchedPaths', []),x.dileptons_sorted[0]],
+    trg_singletau_matched  = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in name for name in x[0])),
+    trg_singlemuon_24_matched = v(lambda x : any('IsoMu24_v' in name for name in x[0])),
+    trg_singlemuon_27_matched = v(lambda x : any('IsoMu27_v' in name for name in x[0])),
+    trg_singleelectron_27_matched = v(lambda x : any('Ele27_WPTight_Gsf_v' in name for name in x[0])),
+    trg_singleelectron_32_matched = v(lambda x : any('Ele32_WPTight_Gsf_v' in name for name in x[0])),
+    trg_singleelectron_35_matched = v(lambda x : any('Ele35_WPTight_Gsf_v' in name for name in x[0])),
+    trg_doubletau_35_mediso_matched = v(lambda x : any('DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v' in name for name in x[0])),
+    trg_doubletau_35_tightiso_tightid_matched = v(lambda x : any('DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v' in name for name in x[0])),
+    trg_doubletau_40_mediso_tightid_matched = v(lambda x : any('DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v' in name for name in x[0])),
+    trg_doubletau_40_tightiso_matched = v(lambda x : any('DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v' in name for name in x[0])),
+    trg_crossmuon_mu24tau20_matched = v(lambda x : any('IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v' in name for name in x[0])),
+    trg_crossmuon_mu20tau27_matched = v(lambda x : any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in name for name in x[0])),
+    trg_crossele_ele24tau30_matched = v(lambda x : any('Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v' in name for name in x[0])),
+    trg_muonelectron_mu8ele23_matched = v(lambda x : any('Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0])),
+    trg_muonelectron_mu12ele23_matched = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0])),
+    trg_muonelectron_mu23ele12_matched = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in name for name in x[0]))
 )
 
 triggers_fired = Block(
     'triggers_fired', lambda x: getattr(x, 'trigger_infos', []),
-    trg_doubletau_fired = v(lambda x : any('DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
-    trg_doubletau_lowpt_fired = v(lambda x : any('DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
-    trg_doubletau_lowpt_mediso_fired = v(lambda x : any('DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
-    trg_doubletau_mediso_fired = v(lambda x : any('DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
-    trg_electrontau_fired = v(lambda x : any('Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v' in trg.name for trg in x if trg.fired)),
-    trg_muonelectron_lowpte_fired = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
-    trg_muonelectron_lowptmu_fired = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
-    trg_muontau_lowptmu_fired = v(lambda x : any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg.name for trg in x if trg.fired)),
-    trg_muontau_lowpttau_fired = v(lambda x : any('IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v' in trg.name for trg in x if trg.fired)),
-    trg_singleelectron_fired = v(lambda x : any('Ele35_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
-    trg_singleelectron_lowpt_fired = v(lambda x : any('Ele32_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
-    trg_singlemuon_fired = v(lambda x : any('IsoMu27_v' in trg.name for trg in x if trg.fired)),
-    trg_singlemuon_lowpt_fired = v(lambda x : any('IsoMu24_v' in trg.name for trg in x if trg.fired)),
-    trg_singletau_leading_fired = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in trg.name for trg in x if trg.fired)),
-    trg_singletau_trailing_fired = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in trg.name for trg in x if trg.fired))
+    trg_singletau_fired  = v(lambda x : any('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v' in trg.name for trg in x if trg.fired)),
+    trg_singlemuon_24_fired = v(lambda x : any('IsoMu24_v' in trg.name for trg in x if trg.fired)),
+    trg_singlemuon_27_fired = v(lambda x : any('IsoMu27_v' in trg.name for trg in x if trg.fired)),
+    trg_singleelectron_27_fired = v(lambda x : any('Ele27_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
+    trg_singleelectron_32_fired = v(lambda x : any('Ele32_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
+    trg_singleelectron_35_fired = v(lambda x : any('Ele35_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
+    trg_doubletau_35_mediso_fired = v(lambda x : any('DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_doubletau_35_tightiso_tightid_fired = v(lambda x : any('DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_doubletau_40_mediso_tightid_fired = v(lambda x : any('DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_doubletau_40_tightiso_fired = v(lambda x : any('DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v' in trg.name for trg in x if trg.fired)),
+    trg_crossmuon_mu24tau20_fired = v(lambda x : any('IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v' in trg.name for trg in x if trg.fired)),
+    trg_crossmuon_mu20tau27_fired = v(lambda x : any('IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v' in trg.name for trg in x if trg.fired)),
+    trg_crossele_ele24tau30_fired = v(lambda x : any('Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v' in trg.name for trg in x if trg.fired)),
+    trg_muonelectron_mu8ele23_fired = v(lambda x : any('Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
+    trg_muonelectron_mu12ele23_fired = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
+    trg_muonelectron_mu23ele12_fired = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired))
 )
 
 lepton_vars = dict(
@@ -244,7 +268,7 @@ for tauid in tau_ids:
 
 common = EventContent(
     [event, generator, weights, event_flags, metvars,
-     triggers, triggers_fired, jets20, jets30, bjets, vetoes,
+     triggers, triggers_matched, triggers_fired, jets20, jets30, bjets, vetoes,
      dilepton_vars,
      to_leg('l1_generic', lepton_vars, 'l1', 
             lambda x: x.dileptons_sorted[0].leg1()), 
