@@ -273,6 +273,18 @@ tauidweighter = cfg.Analyzer(
 #     met = 'pfmet'
 # )
 
+# recoil correction =======================================================
+wpat = re.compile('W\d?Jet.*')
+for comp in selectedComponents:
+    if any(x in comp.name for x in ['ZZ','WZ','VV','WW','T_','TBar_']):
+        comp.recoil_correct = False
+    match = wpat.match(comp.name)
+    if any(x in comp.name for x in ['DY','Higgs']) or not (match is None):
+        comp.recoil_correct = True
+        comp.METSysFile = 'HTT-utilities/RecoilCorrections/data/PFMEtSys_2017.root'
+    if any(x in comp.name for x in ['TT']):
+        comp.recoil_correct = False
+
 # embedded ================================================================
 
 from CMGTools.H2TauTau.heppy.analyzers.EmbeddedAnalyzer import EmbeddedAnalyzer
