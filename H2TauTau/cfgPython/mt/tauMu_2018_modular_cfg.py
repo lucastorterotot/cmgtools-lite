@@ -301,7 +301,7 @@ ntuple = cfg.Analyzer(
     skim_func = skim_func
 )
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match, httgenana
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
@@ -337,6 +337,12 @@ nominal = config
 
 
 from CMGTools.H2TauTau.heppy.analyzers.Calibrator import Calibrator
+
+def config_top_pT_reweighting(up_or_down):
+    httgenana_index = nominal.sequence.index(httgenana)
+    new_config = copy.deepcopy(nominal)
+    new_config.sequence[httgenana_index].top_systematic = up_or_down
+    return new_config
 
 def config_TauEnergyScale(dm_name, gm_name, up_or_down):
     tau_energyscale_ana_index = nominal.sequence.index(tauenergyscale)
@@ -391,6 +397,10 @@ JES = ['CMS_scale_j_eta0to5_13Tev',
 for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
+
+# top_pT_reweighting
+for up_or_down in ['up', 'down']:
+    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
 
 print configs
 

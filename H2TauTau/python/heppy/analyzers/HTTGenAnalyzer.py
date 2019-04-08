@@ -77,8 +77,20 @@ class HTTGenAnalyzer(Analyzer):
         event.genmet_py = genmet.py()
         event.genmet_phi = genmet.phi()
 
+        # Top pT re-weighting
+        # Uncertainty between no and twice the correction on the re-weighting applied to tt
+        # events in all channels. Fully correlated between 2016 and 2017 data-taking periods.
         if self.cfg_comp.name.find('TT') != -1 or self.cfg_comp.name.find('TTH') == -1:
-            self.getTopPtWeight(event)
+            if not hasattr(self.cfg_ana, 'top_systematic'):
+                self.getTopPtWeight(event)
+            else:
+                if self.cfg_ana.top_systematic == 'down':
+                    pass
+                elif self.cfg_ana.top_systematic == 'up':
+                    self.getTopPtWeight(event)
+                    self.getTopPtWeight(event)
+                else:
+                    self.getTopPtWeight(event)
 
         if self.cfg_comp.name.find('DY') != -1:
             self.getDYMassPtWeight(event)
