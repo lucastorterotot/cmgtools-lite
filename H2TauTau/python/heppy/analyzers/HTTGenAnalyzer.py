@@ -115,9 +115,11 @@ class HTTGenAnalyzer(Analyzer):
 
     @staticmethod
     def applyTopPtWeight(event, up_or_down = None):
-        # Top pT re-weighting
-        # Uncertainty between no and twice the correction on the re-weighting applied to tt
-        # events in all channels. Fully correlated between 2016 and 2017 data-taking periods.
+        '''
+        Top pT re-weighting
+        Uncertainty between no and twice the correction on the
+        re-weighting applied to tt events in all channels.
+        '''
         ttbar = [p for p in event.genParticles if abs(p.pdgId()) == 6 and p.statusFlags().isLastCopy() and p.statusFlags().fromHardProcess()]
 
         if len(ttbar) == 2:
@@ -168,9 +170,11 @@ class HTTGenAnalyzer(Analyzer):
 
     @staticmethod 
     def applyDYMassPtWeight(event, up_or_down = None):
-        # DY pT re-weighting
-        # Uncertainty of 10% of the correction on the re-weighting applied to Z to ll events in
-        # all channels. Uncorrelated between 2016 and 2017 data-taking periods.
+        '''
+        DY pT re-weighting
+        Uncertainty of 10% of the correction on the
+        re-weighting applied to Z to ll events in all channels.
+        '''
         if not hasattr(event, 'parentBoson'):
             event.parentBoson = HTTGenAnalyzer.getParentBoson(event)
         dy_weight = getDYWeight(event.parentBoson.mass(), event.parentBoson.pt())
