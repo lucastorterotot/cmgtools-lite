@@ -52,7 +52,7 @@ class NJetsAnalyzer(Analyzer):
         self.averages.add('NUP', Average('NUP'))
         self.averages.add('NJets', Average('NJets'))
         self.averages.add('NJetWeight', Average('NJetWeight'))
-        if self.cfg_comp.isMC:
+        if self.cfg_comp.isMC and self.cfg_ana.fillTree:
             self.rootfile = TFile('/'.join([self.dirName,
                                             'NUP.root']),
                                   'recreate')
@@ -143,8 +143,9 @@ class NJetsAnalyzer(Analyzer):
         self.averages['NUP'].add(event.NUP)
         self.averages['NJets'].add(njets)
 
-        self.nup.Fill(event.NUP)
-        self.njets.Fill(njets)
+        if self.cfg_ana.fillTree:
+            self.nup.Fill(event.NUP)
+            self.njets.Fill(njets)
 
         return True
 
@@ -159,6 +160,6 @@ class NJetsAnalyzer(Analyzer):
 
     def write(self, setup):
         super(NJetsAnalyzer, self).write(setup)
-        if self.cfg_comp.isMC:
+        if self.cfg_comp.isMC and self.cfg_ana.fillTree:
             self.rootfile.Write()
             self.rootfile.Close()
