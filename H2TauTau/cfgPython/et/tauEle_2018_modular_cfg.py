@@ -359,9 +359,10 @@ up_down = ['up','down']
 ### top pT reweighting
 
 def config_top_pT_reweighting(up_or_down):
-    httgenana_index = nominal.sequence.index(httgenana)
     new_config = copy.deepcopy(nominal)
-    new_config.sequence[httgenana_index].top_systematic = up_or_down
+    for cfg in new_config.sequence:
+        if cfg.name == 'httgenana':
+            cfg.top_systematic = up_or_down
     return new_config
 
 for up_or_down in up_down:
@@ -370,9 +371,10 @@ for up_or_down in up_down:
 ### DY pT reweighting
 
 def config_DY_pT_reweighting(up_or_down):
-    httgenana_index = nominal.sequence.index(httgenana)
     new_config = copy.deepcopy(nominal)
-    new_config.sequence[httgenana_index].DY_systematic = up_or_down
+    for cfg in new_config.sequence:
+        if cfg.name == 'httgenana':
+            cfg.DY_systematic = up_or_down
     return new_config
 
 for up_or_down in up_down:
