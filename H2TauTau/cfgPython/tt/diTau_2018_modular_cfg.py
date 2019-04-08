@@ -1,4 +1,5 @@
 import os
+import re
 
 import ROOT
 
@@ -29,7 +30,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', False)
 data = getHeppyOption('data', False)
-embedded = getHeppyOption('embedded', True)
+embedded = getHeppyOption('embedded', False)
 if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
@@ -71,7 +72,9 @@ mc_list = backgrounds + sync_list + mssm_signals
 data_list = data_forindex.data_tau
 embedded_list = embedded_forindex.embedded_tt
 
-n_events_per_job = 1e4
+n_events_per_job = 5e4
+if test:
+    n_events_per_job = 1e5
 if embedded:
     n_events_per_job = 3e4
 
@@ -123,10 +126,10 @@ if test:
     if embedded:
         comp = eindex.glob('Embedded2017B_tt')[0]
     selectedComponents = [comp]
-    # for comp in selectedComponents:
-    #    comp.files = comp.files[:1]
-    #    comp.splitFactor = 1
-    #    comp.fineSplitFactor = 1
+    for comp in selectedComponents:
+       comp.files = comp.files[:1]
+       comp.splitFactor = 1
+       comp.fineSplitFactor = 1
     #comp.files = ['file1.root']
 
 events_to_pick = []
@@ -270,6 +273,18 @@ ntuple = cfg.Analyzer(
     skim_func = skim_func
 )
 
+# recoil correction =======================================================
+wpat = re.compile('W\d?Jet.*')
+for comp in selectedComponents:
+    if any(x in comp.name for x in ['ZZ','WZ','VV','WW','T_','TBar_']):
+        comp.recoil_correct = False
+    match = wpat.match(comp.name)
+    if any(x in comp.name for x in ['DY','Higgs']) or not (match is None):
+        comp.recoil_correct = True
+        comp.METSysFile = 'HTT-utilities/RecoilCorrections/data/PFMEtSys_2017.root'
+    if any(x in comp.name for x in ['TT']):
+        comp.recoil_correct = False
+
 # embedded ================================================================
 
 from CMGTools.H2TauTau.heppy.analyzers.EmbeddedAnalyzer import EmbeddedAnalyzer
@@ -312,11 +327,47 @@ printComps(config.components, True)
 
 ### systematics
 
-nominal = config
-
-
 from CMGTools.H2TauTau.heppy.analyzers.Calibrator import Calibrator
+import copy
+nominal = config
+configs = {'nominal':nominal}
+up_down = ['up','down']
 
+### MET recoil
+
+def config_METrecoil(response_or_resolution, up_or_down):
+    equivalency_dict = {'response':0,
+                        'resolution':1,
+                        'up':0,
+                        'down':1}
+    response_or_resolution = equivalency_dict[response_or_resolution]
+    up_or_down = equivalency_dict[up_or_down]
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'PFMetana':
+            cfg.METSys = [response_or_resolution, up_or_down]
+    return new_config
+
+response_or_resolution = ['response','resolution']
+
+for sys in response_or_resolution:
+    for up_or_down in up_down:
+        configs['METrecoil_{}_{}'.format(sys,up_or_down)] = config_METrecoil(sys, up_or_down)
+
+### MET unclustered uncertainty
+from CMGTools.H2TauTau.heppy.sequence.common import pfmetana
+def config_METunclustered(up_or_down):
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'PFMetana':
+            cfg.unclustered_sys = up_or_down
+    return new_config
+
+for up_or_down in up_down:
+    configs['METunclustered_{}'.format(up_or_down)] = config_METunclustered(up_or_down)
+
+### tau energy scale 
+from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale
 def config_TauEnergyScale(dm_name, gm_name, up_or_down):
     tau_energyscale_ana_index = nominal.sequence.index(tauenergyscale)
     new_config = copy.deepcopy(nominal)
@@ -330,25 +381,6 @@ def config_TauEnergyScale(dm_name, gm_name, up_or_down):
     new_config.sequence.insert(tau_energyscale_ana_index+1, tau_calibrator)
     return new_config
 
-def config_JetEnergyScale(group, up_or_down):
-    jets_ana_index = nominal.sequence.index(jets)
-    new_config = copy.deepcopy(nominal)
-
-    jet_calibrator = cfg.Analyzer(
-        Calibrator,
-        src = 'jets',
-        calibrator_factor_func = lambda x: getattr(x,"corr_{}_JECup".format(group)) * x.rawFactor()
-    )
-
-    new_config.sequence.insert(jets_ana_index+1, jet_calibrator)
-    return new_config
-
-# TODO harmonize energy scale among all susceptible objects
-from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale, jets
-import copy
-configs = {'nominal':nominal}
-
-### tau energy scale 
 TES = [['HadronicTau','1prong0pi0'],
        ['HadronicTau','1prong1pi0'],
        ['HadronicTau','3prong0pi0'],
@@ -361,6 +393,22 @@ for gm_name, dm_name in TES:
     configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
     configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
+
+### Jet energy scale
+from CMGTools.H2TauTau.heppy.sequence.common import jets
+def config_JetEnergyScale(group, up_or_down):
+    jets_ana_index = nominal.sequence.index(jets)
+    new_config = copy.deepcopy(nominal)
+
+    jet_calibrator = cfg.Analyzer(
+        Calibrator,
+        src = 'jets',
+        calibrator_factor_func = lambda x: getattr(x,"corr_{}_JEC_{}".format(group,up_or_down), 1./x.rawFactor()) * x.rawFactor()
+    )
+
+    new_config.sequence.insert(jets_ana_index+1, jet_calibrator)
+    return new_config
+
 JES = ['CMS_scale_j_eta0to5_13Tev',
        'CMS_scale_j_eta0to3_13TeV',
        'CMS_scale_j_eta3to5_13TeV',
@@ -371,6 +419,4 @@ for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
-print configs
-
-config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
+config = configs['METunclustered_up']

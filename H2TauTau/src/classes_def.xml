@@ -6,6 +6,7 @@
  <class name="std::vector<cmg::METSignificance>" />
  <class name="edm::Wrapper<std::vector<cmg::METSignificance> >" />
  <class name="HTTRecoilCorrector"/>
+ <class name="MEtSys"/>
  <function name="getDYWeight"/>  
  <function name="getDYWeightWS"/>  
  <function name="getTauIDWeightVLoose"/>  

@@ -213,8 +213,8 @@ gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
 gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
 gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
 
-def select_good_jets_FixEE2017(jet):
-    return jet.correctedJet("Uncorrected").pt() >50. or \
+def select_good_jets_FixEE2017(jet):#return jet.correctedJet("Uncorrected").pt() >50. or \
+    return jet.pt() >50. or \
         abs(jet.eta()) < 2.65 or \
         abs(jet.eta()) > 3.139
 
@@ -233,7 +233,7 @@ jets_20_unclean = cfg.Analyzer(
     'jets_20_unclean',
     output = 'jets_20_unclean',
     src = 'jets',
-    filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
+    filter_func = lambda x : x.pt()>30 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
 )
 
 
@@ -387,6 +387,5 @@ sequence_afterdil = cfg.Sequence([
 
 sequence_afterdil.extend(sequence_jets)
 sequence_afterdil.append(pfmetana)
-# sequence_afterdil.append(mvametana)
 sequence_afterdil.extend(sequence_third_lepton_veto)
 sequence_afterdil.append(debugger)

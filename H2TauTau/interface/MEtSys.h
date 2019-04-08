@@ -29,6 +29,22 @@ class MEtSys {
            float & metShiftPx,
            float & metShiftPy);
 
+  std::pair<float, float> ApplyMEtSys(float metPx,
+           float metPy,
+           float genVPx,
+           float genVPy,
+           float visVPx,
+           float visVPy,
+           int njets,
+           int bkgdType,
+           int sysType,
+	   int shiftType) {
+    float px = 0.;
+    float py = 0.;
+    ApplyMEtSys(metPx,metPy,genVPx,genVPy,visVPx,visVPy,njets,bkgdType,sysType,shiftType,px,py);
+    return std::make_pair(px, py);
+  }
+
   void ShiftMEt(float metPx,
         float metPy,
         float genVPx, 
