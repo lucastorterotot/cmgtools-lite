@@ -92,8 +92,16 @@ class HTTGenAnalyzer(Analyzer):
                 else:
                     self.getTopPtWeight(event)
 
+        # DY pT re-weighting
+        # Uncertainty of 10% of the correction on the re-weighting applied to Z to ll events in
+        # all channels. Uncorrelated between 2016 and 2017 data-taking periods.
         if self.cfg_comp.name.find('DY') != -1:
             self.getDYMassPtWeight(event)
+            if hasattr(self.cfg_ana, 'DY_systematic'):
+                if self.cfg_ana.DY_systematic == 'down':
+                    event.dy_weight *= .9
+                elif self.cfg_ana.DY_systematic == 'up':
+                    event.dy_weight *= 1.1
 
         return True
 

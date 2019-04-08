@@ -344,6 +344,12 @@ def config_top_pT_reweighting(up_or_down):
     new_config.sequence[httgenana_index].top_systematic = up_or_down
     return new_config
 
+def config_DY_pT_reweighting(up_or_down):
+    httgenana_index = nominal.sequence.index(httgenana)
+    new_config = copy.deepcopy(nominal)
+    new_config.sequence[httgenana_index].DY_systematic = up_or_down
+    return new_config
+
 def config_TauEnergyScale(dm_name, gm_name, up_or_down):
     tau_energyscale_ana_index = nominal.sequence.index(tauenergyscale)
     new_config = copy.deepcopy(nominal)
@@ -398,9 +404,11 @@ for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
-# top_pT_reweighting
+# DY and top pT reweighting
 for up_or_down in ['up', 'down']:
     configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
+for up_or_down in ['up', 'down']:
+    configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
 
 print configs
 
