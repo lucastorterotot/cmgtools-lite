@@ -327,12 +327,18 @@ nominal = config
 configs = {'nominal':nominal}
 up_down = ['up','down']
 
-### DY and top pT reweighting
+### top pT reweighting
+
 def config_top_pT_reweighting(up_or_down):
     httgenana_index = nominal.sequence.index(httgenana)
     new_config = copy.deepcopy(nominal)
     new_config.sequence[httgenana_index].top_systematic = up_or_down
     return new_config
+
+for up_or_down in up_down:
+    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
+
+### DY pT reweighting
 
 def config_DY_pT_reweighting(up_or_down):
     httgenana_index = nominal.sequence.index(httgenana)
@@ -341,7 +347,6 @@ def config_DY_pT_reweighting(up_or_down):
     return new_config
 
 for up_or_down in up_down:
-    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
     configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
 
 ### MET recoil
