@@ -16,7 +16,7 @@ def get_options():
                       default='*',
                       help='subdir pattern')
     parser.add_option("-S", "--skim", dest="skim", action='store_true',
-                      default=False,
+                      default=True,
                       help='whether or not to skim ntuples KIT style')
     parser.add_option("-u", "--user", dest = "username",
                       default=os.environ['USER'],
@@ -56,8 +56,7 @@ os.system('xrdfs lyogrid06.in2p3.fr ls /dpm/in2p3.fr/home/cms/data/store/user/{}
 # Select directories
 selected_fcompos = set()
 print ''
-print 'Selecting directories...'
-print '  '+os.popen('cat files.out | wc -l').readline()[:-1]+' directories to process.'
+print 'Selecting directories: '+os.popen('cat files.out | wc -l').readline()[:-1]+' directories to process.'
 Ndir = 0
 with open('files.out') as f:
     for line in f.readlines():
@@ -72,17 +71,17 @@ with open('files.out') as f:
             else :
                 matching_fcompo = [line for line in fcomponent.readlines() if options.select_date in line]
                 while len(matching_fcompo) > 1:
-                    print '  Warning, several matching crab jobs for component '+component
-                    print '  Here are the corresponding directories'
+                    print '    Warning, several matching directories for component '+component+':'
                     for compo in matching_fcompo :
-                        print '  ', compo
-                    cutstring = raw_input('  Please enter a cut string on these names to select only one or pass all to get them all:')
+                        print '     '+compo[:-1]
+                    cutstring = raw_input('    Please enter a cut string on these names to select only one or pass all to get them all:')
+                    print ''
                     if cutstring == 'all' :
                         for fcompo in matching_fcompo :
                             selected_fcompos.add(fcompo)
-                    matching_fcompo = []
-                else :
-                    matching_fcompo = [line for line in matching_fcompo if cutstring in line]
+                        matching_fcompo = []
+                    else :
+                        matching_fcompo = [line for line in matching_fcompo if cutstring in line]
             if cutstring is not 'all' :
                 if len(matching_fcompo) == 0 :
                     print '  Warning, no matching files for component '+component
@@ -107,8 +106,7 @@ while start_harvest not in ['y','n']:
     start_harvest = raw_input('Harvest this list? [y/n]')
 if start_harvest == 'y':
     print 'Starting to harvest.'
-    # to_harvest = to_harvest[-1:]
-    # multithreadmap(harvest, to_harvest, ncores=options.ncores, skim=True)
+    # multithreadmap(harvest, to_harvest, ncores=1+0*options.ncores, subdir_pattern=optionssubdir_pattern, tgz_pattern=options.tgz_pattern, skim=options.skim)
     # harvest(to_harvest[0])
 else:
     print 'Aborting.'
