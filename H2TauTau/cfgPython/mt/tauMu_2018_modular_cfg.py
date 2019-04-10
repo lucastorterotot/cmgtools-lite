@@ -1,4 +1,5 @@
 import os
+import re
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 
