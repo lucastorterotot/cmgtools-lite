@@ -249,7 +249,7 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', skim=False, apply_ff=False
             skimntuple(ogpath,newpath)
             os.system('rm -rf {}'.format(ds.dest))
         if apply_ff:
-            continue # to be done
+            pass # to be done
 
 
 if __name__ == '__main__':

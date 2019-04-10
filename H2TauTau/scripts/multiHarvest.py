@@ -109,7 +109,7 @@ while start_harvest not in ['y','n']:
     start_harvest = raw_input('Harvest this list? [y/n]')
 if start_harvest == 'y':
     print 'Starting to harvest.'
-    multithreadmap(harvest, to_harvest, ncores=1+0*options.ncores, subdir_pattern=optionssubdir_pattern, tgz_pattern=options.tgz_pattern, skim=options.skim, apply_ff=options.apply_ff)
+    multithreadmap(harvest, to_harvest, ncores=options.ncores, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, skim=options.skim, apply_ff=options.apply_ff)
 else:
     print 'Aborting.'
 
