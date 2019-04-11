@@ -103,12 +103,13 @@ if data:
 
 if test:
     cache = True
-    comp = index.glob('HiggsVBF125')[0]
-    #comp = eindex.glob('Embedded2017B_mt')[0]
+    # comp = index.glob('HiggsVBF125')[0]
+    # comp = eindex.glob('Embedded2017B_mt')[0]
+    comp = bindex.glob('TTSemi_pow')[0]
     selectedComponents = [comp]
-    # comp.files = comp.files[:1]
-    # comp.splitFactor = 1
-    # comp.fineSplitFactor = 1
+    comp.files = comp.files[:1]
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
     # comp.files = ['/home/cms/torterotot/CMSSW-MET/CMSSW_9_4_11_cand1/src/JetMETCorrections/Type1MET/test/metv2.root']
 
 events_to_pick = []
