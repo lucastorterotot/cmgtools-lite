@@ -82,12 +82,14 @@ optjsonfile.close()
 
 handle = open(heppy_config, 'r')
 cfo = imp.load_source(heppy_config.split('/')[-1].rstrip(".py"), heppy_config, handle)
-conf = cfo.config
+if hasattr(cfo,'configs'):
+    confs = cfo.configs
+else:
+    confs = {'nominal':cfo.config}
 handle.close()
 
 os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
 os.system("tar czf cmgdataset.tar.gz --directory $HOME .cmgdataset")
-os.system("tar czf cafpython.tar.gz --directory /afs/cern.ch/cms/caf/ python")
 
 os.environ["PROD_LABEL"]  = options.production_label
 os.environ["CMG_VERSION"] = options.cmg_version
@@ -102,15 +104,17 @@ if len(options.filesToShip)>0: os.environ["FILESTOSHIP"] = ','.join(options.file
 if options.maxevents>0: os.environ["MAXNUMEVENTS"] = str(options.maxevents)
 os.environ["ONLYUNPACKED"] = str(options.only_unpacked)
 
-for comp in conf.components:
-    if getattr(comp,"useAAA",False):
-        raise RuntimeError, 'Components should have useAAA disabled in the cfg when running on crab. \
+for confname, conf in confs.iteritems():
+    for comp in conf.components:
+        if getattr(comp,"useAAA",False):
+            raise RuntimeError, 'Components should have useAAA disabled in the cfg when running on crab. \
 Tune the behaviour of AAA in the crab submission instead!'
-    os.environ["DATASET"] = str(comp.name)
-    os.environ["NJOBS"] = str(len(split([comp])))
-    os.system("crab submit %s -c heppy_crab_config_env.py"%("--dryrun" if options.dryrun else ""))
+        os.environ["PROD_LABEL"]  = '{}_{}'.format(options.production_label, confname)
+        os.environ["DATASET"] = str(comp.name)
+        os.environ["CFG_NAME"] = confname
+        os.environ["NJOBS"] = str(len(split([comp])))
+        os.system("crab submit %s -c heppy_crab_config_env.py"%("--dryrun" if options.dryrun else ""))
 
 os.system("rm options.json")
 os.system("rm python.tar.gz")
 os.system("rm cmgdataset.tar.gz")
-os.system("rm cafpython.tar.gz")

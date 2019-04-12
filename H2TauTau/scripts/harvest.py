@@ -226,7 +226,7 @@ def skimntuple(ogpath, newpath):
     newtree = tree.CloneTree(0)
 
     for event in tree:
-        if event.Flag_goodVertices and event.Flag_globalTightHalo2016Filter and event.Flag_HBHENoiseFilter and event.Flag_HBHENoiseIsoFilter and event.Flag_EcalDeadCellTriggerPrimitiveFilter and event.Flag_BadPFMuonFilter and event.Flag_BadChargedCandidateFilter and event.Flag_ecalBadCalibFilter and (not event.veto_extra_elec) and (not event.veto_extra_muon) and event.l2_againstElectronVLooseMVA6 and event.l2_againstMuonLoose3 and event.l2_byVLooseIsolationMVArun2017v2DBoldDMwLT2017 and event.l1_byVLooseIsolationMVArun2017v2DBoldDMwLT2017:
+        if event.Flag_goodVertices and event.Flag_globalTightHalo2016Filter and event.Flag_HBHENoiseFilter and event.Flag_HBHENoiseIsoFilter and event.Flag_EcalDeadCellTriggerPrimitiveFilter and event.Flag_BadPFMuonFilter and event.Flag_BadChargedCandidateFilter and event.Flag_ecalBadCalibFilter and (not event.veto_extra_elec) and (not event.veto_extra_muon) and event.l2_againstElectronVLooseMVA6 and event.l2_againstMuonLoose3 and event.l1_againstElectronVLooseMVA6 and event.l1_againstMuonLoose3 and event.l2_byVLooseIsolationMVArun2017v2DBoldDMwLT2017 and event.l1_byVLooseIsolationMVArun2017v2DBoldDMwLT2017:
             newtree.Fill()
 
     newtree.Write()

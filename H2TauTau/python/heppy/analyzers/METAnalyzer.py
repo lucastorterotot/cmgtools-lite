@@ -1,5 +1,6 @@
 import math
 import re
+import copy
 
 import ROOT
 
@@ -14,6 +15,7 @@ from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection
 gSystem.Load("libCMGToolsH2TauTau")
 
 from ROOT import HTTRecoilCorrector as RC
+from ROOT import MEtSys
 
 LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
 
@@ -37,13 +39,20 @@ class METAnalyzer(Analyzer):
         self.isWJets = not (match is None)
 
         # Apply recoil correction to signal, DY, and W+jets samples
-        self.apply_recoil_correction = getattr(self.cfg_ana, 'apply_recoil_correction', False) and ('Higgs' in self.cfg_comp.name or 'DY' in self.cfg_comp.name or self.isWJets)
+        self.apply_recoil_correction = getattr(self.cfg_ana, 'apply_recoil_correction', False) and (hasattr(self.cfg_comp,'recoil_correct') and self.cfg_comp.recoil_correct)
 
         if self.apply_recoil_correction:
             try:
                 self.rcMET = RC(self.cfg_ana.recoil_correction_file)
             except AttributeError:
                 print 'No recoil correction file provided.'
+
+        if hasattr(self.cfg_comp, 'METSysFile'):
+            try:
+                self.MEtSys = MEtSys(self.cfg_comp.METSysFile)
+            except AttributeError:
+                print 'No MET systematics file provided.'
+                
 
     def declareHandles(self):
         super(METAnalyzer, self).declareHandles()
@@ -123,24 +132,23 @@ class METAnalyzer(Analyzer):
         setattr(event,self.cfg_ana.met, met)
 
         # Correct PF MET
-        pfmet_px_old = event.pfmet.px()
-        pfmet_py_old = event.pfmet.py()
+        met_px = met.px()
+        met_py = met.py()
 
         if hasattr(self.cfg_ana, 'runFixEE2017') and self.cfg_ana.runFixEE2017:
             rawMET = self.runFixEE2017(event)
-            pfmet_px_old = rawMET.px()
-            pfmet_py_old = rawMET.py()
+            met_px = rawMET.px()
+            met_py = rawMET.py()
             if event.type1METCorr :
-                pfmet_px_old += event.type1METCorr[0]
-                pfmet_py_old += event.type1METCorr[1]
+                met_px += event.type1METCorr[0]
+                met_py += event.type1METCorr[1]
         # JEC
         elif event.metShift :
-            pfmet_px_old += event.metShift[0]
-            pfmet_py_old += event.metShift[1]
+            met_px += event.metShift[0]
+            met_py += event.metShift[1]
 
-        # recoil corrections
-        if not self.cfg_comp.isMC:
-            getattr(event, self.cfg_ana.met).setP4(LorentzVector(pfmet_px_old, pfmet_py_old, 0., math.sqrt(pfmet_px_old*pfmet_px_old + pfmet_py_old*pfmet_py_old)))
+        if not self.cfg_comp.isMC and not (hasattr(self.cfg_comp, 'Embed') and self.cfg_comp.isEmbed):
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(met_px, met_py, 0., math.sqrt(met_px*met_px + met_py*met_py)))
             return
 
         # Calculate generator four-momenta even if not applying corrections
@@ -149,58 +157,109 @@ class METAnalyzer(Analyzer):
 
         dil = event.dileptons_sorted[0]
 
-        # Correct MET for tau energy scale
-        for leg in [dil.leg1(), dil.leg2()]:
-            if hasattr(leg,'unscaledP4') :
-                scaled_diff_for_leg = (leg.unscaledP4 - leg.p4())
-                pfmet_px_old += scaled_diff_for_leg.px()
-                pfmet_py_old += scaled_diff_for_leg.py()
-        
-        if not self.apply_recoil_correction:
-            return
-
         n_jets_30 = len(event.jets_30)
         
         if self.isWJets:
             n_jets_30 += 1
 
-        # Correct by mean and resolution as default (otherwise use .Correct(..))
-        new = self.rcMET.CorrectByMeanResolution(
-        # new = self.rcMET.Correct(    
-            pfmet_px_old, 
-            pfmet_py_old, 
-            gen_z_px,    
-            gen_z_py,    
-            gen_vis_z_px,    
-            gen_vis_z_py,    
-            n_jets_30,   
-        )
+        def recoil_correct(px, py, sys=False):
+            '''Applies recoil correction to met, and sets the 
+            new met to the attribute met_to_set if provided.
+            sys should be a list of two elements : 
+            first element : 0 if response, 1 if resolution
+            second element : 0 if up, 1 if down
+            '''
+            # Correct by mean and resolution as default (otherwise use .Correct(..))
+            new = self.rcMET.CorrectByMeanResolution(
+                # new = self.rcMET.Correct(    
+                px, 
+                py, 
+                gen_z_px,    
+                gen_z_py,    
+                gen_vis_z_px,    
+                gen_vis_z_py,    
+                n_jets_30,   
+                )
+            px_new, py_new = new.first, new.second
+            
+            if sys:
+                new = self.MEtSys.ApplyMEtSys(
+                    px_new, 
+                    py_new, 
+                    gen_z_px,    
+                    gen_z_py,    
+                    gen_vis_z_px,    
+                    gen_vis_z_py,    
+                    n_jets_30,  
+                    0, #2017 MC : only BOSON samples are recoil corrected
+                    sys[0],
+                    sys[1]
+                    )
+                px_new, py_new = new.first, new.second
 
-        px_new, py_new = new.first, new.second
+            return LorentzVector(px_new, py_new,0.,math.sqrt(px_new*px_new + py_new*py_new))
 
-        getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_new, py_new, 0., math.sqrt(px_new*px_new + py_new*py_new)))
+        def propagate_TES(tau, unscaledP4, met_px, met_py):
+            '''If tau has been scaled, changes the met accordingly.
+            '''
+            scaled_diff_for_tau = (unscaledP4 - tau.p4())
+            met_px += scaled_diff_for_tau.px()
+            met_py += scaled_diff_for_tau.py()
+            return met_px, met_py
 
+        # Correct MET for tau energy scale
+        for leg in [dil.leg1(), dil.leg2()]:
+            if hasattr(leg, 'unscaledP4'):
+                met_px, met_py = propagate_TES(leg, leg.unscaledP4, met_px, met_py)
+        
+        if hasattr(self.cfg_ana, 'unclustered_sys'):
+            MET_change = self.MET_unclustered_unc(event, self.cfg_ana.unclustered_sys)
+            met_px += MET_change.px()
+            met_py += MET_change.py()
 
-    def runFixEE2017(self, event):
-        '''Run the raw met computation including the cleaning of the noisy ECAL endcap in 2017 data and MC.
-        '''
-        pt_cut = 50.0
-        eta_min = 2.65
-        eta_max = 3.139
+        #recoil corrections
+        if self.apply_recoil_correction and hasattr(self.cfg_comp,'recoil_correct') and self.cfg_comp.recoil_correct:
+            if hasattr(self.cfg_ana,'METSys'):
+                getattr(event, self.cfg_ana.met).setP4(recoil_correct(met_px,met_py,self.cfg_ana.METSys))
+            else:
+                getattr(event, self.cfg_ana.met).setP4(recoil_correct(met_px,met_py))
+        else:
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(met_px, met_py, 0., math.sqrt(met_px*met_px + met_py*met_py)))
 
-        # BadPFCandidateJetsEEnoiseProducer
-        bad_jets = []
-        good_jets = []
-        jets = [Jet(jet) for jet in self.handles['jets'].product()]
-        for x in jets:
-            if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
-                good_jets.append(x)
-            else :
-                bad_jets.append(x)
+    def MET_unclustered_unc(self, event, up_or_down):
+        #see http://cmslxr.fnal.gov/source/PhysicsTools/PatUtils/python/tools/runMETCorrectionsAndUncertainties.py?v=CMSSW_9_4_2#0850
+        pfcandidateClustered_ptcs, pfcandidateForUnclusteredUnc = self.pfcand_clustered_unclustered(event)
+        MET_change = LorentzVector(0., 0., 0., 0.)
+        for ptc in pfcandidateForUnclusteredUnc:
+            if ptc.charge()!=0:
+                shift = math.sqrt(pow(0.00009*ptc.pt(),2)+pow(0.0085/math.sqrt(math.sin(2*math.atan(math.exp(-ptc.eta())))),2))
+            elif ptc.pdgId()==130:
+                if abs(ptc.eta())<1.3:
+                    shift = min(0.25,math.sqrt(0.64/ptc.energy()+0.0025))
+                else:
+                    shift = min(0.30,math.sqrt(1.0/ptc.energy()+0.0016))
+            elif ptc.pdgId()==22:
+                shift = math.sqrt(0.0009/ptc.energy()+0.000001)
+            elif ptc.pdgId() in [1,2]:
+                shift = math.sqrt(1./ptc.energy()+0.0025)
+            else:
+                shift = 0.
+            old_p4 = ptc.p4()
+            if up_or_down=='up':
+                new_p4 = old_p4*(1. + shift)
+            elif up_or_down=='down':
+                new_p4 = old_p4*(1. - shift)
+            else:
+                raise ValueError('MET unclustered systematics shift must be "up" or "down"')
+            MET_change += new_p4 - old_p4
+        return MET_change
 
+    def pfcand_clustered_unclustered(self, event):
         # CandViewMerger, pfcandidateClustered
         if not hasattr(event, 'photons'): # fast construction of photons list
             event.photons = [p for p in self.handles['photons'].product()]
+
+        jets = [Jet(jet) for jet in self.handles['jets'].product()]
 
         pfcandidateClustered = event.electrons + event.muons \
             + event.taus  + event.photons + jets
@@ -221,6 +280,28 @@ class METAnalyzer(Analyzer):
         # "packedPFCandidates"
         cands = [c for c in self.handles['packedPFCandidates'].product()]
         pfcandidateForUnclusteredUnc = [c for c in cands if c not in pfcandidateClustered_ptcs]
+
+        return pfcandidateClustered_ptcs, pfcandidateForUnclusteredUnc
+
+    def runFixEE2017(self, event):
+        '''Run the raw met computation including the cleaning of the noisy ECAL endcap in 2017 data and MC.
+        '''
+        pt_cut = 50.0
+        eta_min = 2.65
+        eta_max = 3.139
+
+        # BadPFCandidateJetsEEnoiseProducer
+        bad_jets = []
+        good_jets = []
+        jets = [Jet(jet) for jet in self.handles['jets'].product()]
+        for x in jets:
+            if ( x.correctedJet("Uncorrected").pt() > pt_cut or abs(x.eta()) < eta_min or abs(x.eta()) > eta_max ) :
+                good_jets.append(x)
+            else :
+                bad_jets.append(x)
+
+        pfcandidateClustered_ptcs, pfcandidateForUnclusteredUnc = self.pfcand_clustered_unclustered(event)
+
         badUnclustered = []
         for x in pfcandidateForUnclusteredUnc :
             if ( abs(x.eta()) > eta_min and abs(x.eta()) < eta_max ) :
@@ -230,9 +311,11 @@ class METAnalyzer(Analyzer):
         for jet in bad_jets:
             superbad += get_final_ptcs(jet)
 
+        # "packedPFCandidates"
+        cands = [c for c in self.handles['packedPFCandidates'].product()]
+
         pfCandidatesGoodEE2017 = [c for c in cands if c not in superbad]
 
-        LorentzVector = ROOT.Math.LorentzVector(ROOT.Math.PxPyPzE4D("double"))
         my_met = LorentzVector(0., 0., 0., 0.)
 
         # calc raw met no fix ee 2017
