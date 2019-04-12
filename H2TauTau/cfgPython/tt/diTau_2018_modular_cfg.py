@@ -61,7 +61,7 @@ from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
 from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
 import CMGTools.H2TauTau.proto.samples.fall17.backgrounds as backgrounds_forindex
 bindex = ComponentIndex( backgrounds_forindex)
-backgrounds = backgrounds_forindex.backgrounds
+from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import backgrounds
 import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
 eindex = ComponentIndex( embedded_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import mc_triggers, mc_triggerfilters
@@ -72,9 +72,9 @@ mc_list = backgrounds + sync_list + mssm_signals
 data_list = data_forindex.data_tau
 embedded_list = embedded_forindex.embedded_tt
 
-n_events_per_job = 5e4
+n_events_per_job = 1e6
 if test:
-    n_events_per_job = 1e5
+    n_events_per_job = 1e6
 if embedded:
     n_events_per_job = 3e4
 
@@ -97,7 +97,13 @@ for sample in data_list+embedded_list:
     sample.channel = 'tt'
 
 for sample in embedded_list:
-    sample.triggerobjects = embed_triggerfilters
+    sample.triggerobjects = embedded_triggerfilters
+    era = sample.name[sample.name.find('2017')+4]
+    if 'V32' in gt_embed and era in ['D','E']:
+        era = 'DE'
+    sample.dataGT = gt_embed.format(era)
+
+for sample in embedded_forindex.embedded_tt:
     sample.isEmbed = True
 
 selectedComponents = mssm_signals#[x for x in backgrounds if x.name not in ['DY2JetsToLL_M50_LO','DY3JetsToLL_M50_LO','DYJetsToLL_M50','TTLep_pow','TTSemi_pow']]
@@ -114,17 +120,17 @@ if test:
     # comp = bindex.glob('TTLep_pow')[0]
     # comp = bindex.glob('TTHad_pow')[0]
     # comp = bindex.glob('TTSemi_pow')[0]
-    comp = index.glob('HiggsVBF125')[0] 
+    comp = index.glob('HiggsVBF125')[0]
     if data:
         comp = dindex.glob('Tau_Run2017B_31Mar2018')[0]
     if embedded:
         comp = eindex.glob('Embedded2017B_tt')[0]
     selectedComponents = [comp]
-    # for comp in selectedComponents:
-    #    comp.files = comp.files[:1]
-    #    comp.splitFactor = 1
-    #    comp.fineSplitFactor = 1
-    #    comp.files = ['file1.root']
+    for comp in selectedComponents:
+       comp.files = comp.files[:1]
+       comp.splitFactor = 1
+       comp.fineSplitFactor = 1
+    #comp.files = ['file1.root']
 
 events_to_pick = []
 
@@ -289,7 +295,7 @@ embedded_ana = cfg.Analyzer(
 )
 
 
-from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match, httgenana
+from CMGTools.H2TauTau.heppy.sequence.common import sequence_beforedil, sequence_afterdil, trigger, met_filters, trigger_match
 sequence = sequence_beforedil
 sequence.extend( sequence_dilepton )
 sequence.extend( sequence_afterdil )
@@ -327,28 +333,6 @@ nominal = config
 configs = {'nominal':nominal}
 up_down = ['up','down']
 
-### top pT reweighting
-
-def config_top_pT_reweighting(up_or_down):
-    httgenana_index = nominal.sequence.index(httgenana)
-    new_config = copy.deepcopy(nominal)
-    new_config.sequence[httgenana_index].top_systematic = up_or_down
-    return new_config
-
-for up_or_down in up_down:
-    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
-
-### DY pT reweighting
-
-def config_DY_pT_reweighting(up_or_down):
-    httgenana_index = nominal.sequence.index(httgenana)
-    new_config = copy.deepcopy(nominal)
-    new_config.sequence[httgenana_index].DY_systematic = up_or_down
-    return new_config
-
-for up_or_down in up_down:
-    configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
-
 ### MET recoil
 
 def config_METrecoil(response_or_resolution, up_or_down):
@@ -384,7 +368,6 @@ for up_or_down in up_down:
 
 ### tau energy scale 
 from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale
-
 def config_TauEnergyScale(dm_name, gm_name, up_or_down):
     tau_energyscale_ana_index = nominal.sequence.index(tauenergyscale)
     new_config = copy.deepcopy(nominal)
@@ -436,6 +419,21 @@ for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
-print configs
+### BTagging
+from CMGTools.H2TauTau.heppy.sequence.common import btagger
+def config_Btagging(up_or_down):
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'btagger':
+            cfg.sys = up_or_down
+    return new_config
 
-config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
+for up_or_down in up_down:
+    configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
+
+
+
+config = configs['Btagging_up']
+# configs = {'METunclustered_up':configs['METunclustered_up']}
+# config = nominal
+# configs = {'nominal':nominal,'METunclustered_up':configs['METunclustered_up']}

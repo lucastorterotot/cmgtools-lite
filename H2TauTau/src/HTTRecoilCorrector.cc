@@ -27,8 +27,8 @@ HTTRecoilCorrector::HTTRecoilCorrector(TString fileName) {
     paralZStr = secondBinStr;
     perpZStr  = firstBinStr;
   }
-  std::cout << "Parallel component      (U1) : " << paralZStr << std::endl;
-  std::cout << "Perpendicular component (U2) : " << perpZStr << std::endl;
+  // std::cout << "Parallel component      (U1) : " << paralZStr << std::endl;
+  // std::cout << "Perpendicular component (U2) : " << perpZStr << std::endl;
 
   TH1D * ZPtBinsH = (TH1D*)file->Get("ZPtBinsH");
   if (ZPtBinsH==NULL) {
@@ -171,7 +171,7 @@ void HTTRecoilCorrector::InitMEtWeights(TFile * _fileMet,
 	
       }
 
-      std::cout << _ZPtStr[ZPtBin] << " : " << _nJetsStr[jetBin] << std::endl;
+      // std::cout << _ZPtStr[ZPtBin] << " : " << _nJetsStr[jetBin] << std::endl;
       
       double xminD,xmaxD;
 
