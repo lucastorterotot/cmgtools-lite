@@ -208,6 +208,9 @@ def get_options():
     parser.add_option("-S", "--skim", dest="skim", action='store_true',
                       default=False,
                       help='whether or not to skim ntuples KIT style')
+    parser.add_option("-F", "--ff", dest="apply_ff",
+                      default=False,
+                      help='whether or not to add fake factors to trees')
  
     
     (options,args) = parser.parse_args()
@@ -231,7 +234,7 @@ def skimntuple(ogpath, newpath):
 
     newtree.Write()
 
-def harvest(src, subdir_pattern='*', tgz_pattern='*', skim=False):
+def harvest(src, subdir_pattern='*', tgz_pattern='*', skim=False, apply_ff=False):
     print src, subdir_pattern, tgz_pattern
     ds = Dataset(src, 
                  subdirs=subdir_pattern, 
@@ -245,21 +248,12 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', skim=False):
             newpath = '{}/tree.root'.format(ds.dest[:ds.dest.find('/')])
             skimntuple(ogpath,newpath)
             os.system('rm -rf {}'.format(ds.dest))
+        if apply_ff:
+            pass # to be done
 
 
 if __name__ == '__main__':
 
     options, args = get_options()
     src = args[0]
-    print src, options.subdir_pattern, options.tgz_pattern
-    ds = Dataset(src, 
-                 subdirs=options.subdir_pattern, 
-                 tgzs=options.tgz_pattern)
-    if ds.fetch():
-        ds.unpack()
-        ds.hadd()
-        if options.skim:
-            ogpath = '{}/0000/{}/NtupleProducer/tree.root'.format(ds.dest,ds.dest[:ds.dest.find('/')])
-            newpath = '{}/tree.root'.format(ds.dest[:ds.dest.find('/')])
-            skimntuple(ogpath,newpath)
-            os.system('rm -rf {}'.format(ds.dest))
+    harvest(src, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, skim=options.skim, apply_ff=options.apply_ff)
