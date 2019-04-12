@@ -132,24 +132,23 @@ class METAnalyzer(Analyzer):
         setattr(event,self.cfg_ana.met, met)
 
         # Correct PF MET
-        px_old = met.px()
-        py_old = met.py()
+        met_px = met.px()
+        met_py = met.py()
 
         if hasattr(self.cfg_ana, 'runFixEE2017') and self.cfg_ana.runFixEE2017:
             rawMET = self.runFixEE2017(event)
-            px_old = rawMET.px()
-            py_old = rawMET.py()
+            met_px = rawMET.px()
+            met_py = rawMET.py()
             if event.type1METCorr :
-                px_old += event.type1METCorr[0]
-                py_old += event.type1METCorr[1]
+                met_px += event.type1METCorr[0]
+                met_py += event.type1METCorr[1]
         # JEC
         elif event.metShift :
-            px_old += event.metShift[0]
-            py_old += event.metShift[1]
+            met_px += event.metShift[0]
+            met_py += event.metShift[1]
 
-        # recoil corrections
         if not self.cfg_comp.isMC and not (hasattr(self.cfg_comp, 'Embed') and self.cfg_comp.isEmbed):
-            getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_old, py_old, 0., math.sqrt(px_old*px_old + py_old*py_old)))
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(met_px, met_py, 0., math.sqrt(met_px*met_px + met_py*met_py)))
             return
 
         # Calculate generator four-momenta even if not applying corrections
@@ -163,7 +162,7 @@ class METAnalyzer(Analyzer):
         if self.isWJets:
             n_jets_30 += 1
 
-        def recoil_correct(met_px, met_py, sys=False):
+        def recoil_correct(px, py, sys=False):
             '''Applies recoil correction to met, and sets the 
             new met to the attribute met_to_set if provided.
             sys should be a list of two elements : 
@@ -173,8 +172,8 @@ class METAnalyzer(Analyzer):
             # Correct by mean and resolution as default (otherwise use .Correct(..))
             new = self.rcMET.CorrectByMeanResolution(
                 # new = self.rcMET.Correct(    
-                px_old, 
-                py_old, 
+                px, 
+                py, 
                 gen_z_px,    
                 gen_z_py,    
                 gen_vis_z_px,    
@@ -211,21 +210,21 @@ class METAnalyzer(Analyzer):
         # Correct MET for tau energy scale
         for leg in [dil.leg1(), dil.leg2()]:
             if hasattr(leg, 'unscaledP4'):
-                px_old, py_old = propagate_TES(leg, leg.unscaledP4, px_old, py_old)
+                met_px, met_py = propagate_TES(leg, leg.unscaledP4, met_px, met_py)
         
         if hasattr(self.cfg_ana, 'unclustered_sys'):
             MET_change = self.MET_unclustered_unc(event, self.cfg_ana.unclustered_sys)
-            px_old += MET_change.px()
-            py_old += MET_change.py()
+            met_px += MET_change.px()
+            met_py += MET_change.py()
 
         #recoil corrections
         if self.apply_recoil_correction and hasattr(self.cfg_comp,'recoil_correct') and self.cfg_comp.recoil_correct:
             if hasattr(self.cfg_ana,'METSys'):
-                getattr(event, self.cfg_ana.met).setP4(recoil_correct(px_old,py_old,self.cfg_ana.METSys))
+                getattr(event, self.cfg_ana.met).setP4(recoil_correct(met_px,met_py,self.cfg_ana.METSys))
             else:
-                getattr(event, self.cfg_ana.met).setP4(recoil_correct(px_old,py_old))
+                getattr(event, self.cfg_ana.met).setP4(recoil_correct(met_px,met_py))
         else:
-            getattr(event, self.cfg_ana.met).setP4(LorentzVector(px_old, py_old, 0., math.sqrt(px_old*px_old + py_old*py_old)))
+            getattr(event, self.cfg_ana.met).setP4(LorentzVector(met_px, met_py, 0., math.sqrt(met_px*met_px + met_py*met_py)))
 
     def MET_unclustered_unc(self, event, up_or_down):
         #see http://cmslxr.fnal.gov/source/PhysicsTools/PatUtils/python/tools/runMETCorrectionsAndUncertainties.py?v=CMSSW_9_4_2#0850
@@ -242,7 +241,7 @@ class METAnalyzer(Analyzer):
             elif ptc.pdgId()==22:
                 shift = math.sqrt(0.0009/ptc.energy()+0.000001)
             elif ptc.pdgId() in [1,2]:
-                math.sqrt(1./ptc.energy()+0.0025)
+                shift = math.sqrt(1./ptc.energy()+0.0025)
             else:
                 shift = 0.
             old_p4 = ptc.p4()
