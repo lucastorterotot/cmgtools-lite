@@ -72,9 +72,9 @@ mc_list = backgrounds + sync_list + mssm_signals
 data_list = data_forindex.data_tau
 embedded_list = embedded_forindex.embedded_tt
 
-n_events_per_job = 5e4
+n_events_per_job = 1e6
 if test:
-    n_events_per_job = 1e5
+    n_events_per_job = 1e6
 if embedded:
     n_events_per_job = 3e4
 
@@ -120,7 +120,7 @@ if test:
     # comp = bindex.glob('TTLep_pow')[0]
     # comp = bindex.glob('TTHad_pow')[0]
     # comp = bindex.glob('TTSemi_pow')[0]
-    comp = index.glob('HiggsVBF125')[0] 
+    comp = index.glob('HiggsVBF125')[0]
     if data:
         comp = dindex.glob('Tau_Run2017B_31Mar2018')[0]
     if embedded:
@@ -419,4 +419,21 @@ for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
-config = configs['METunclustered_up']
+### BTagging
+from CMGTools.H2TauTau.heppy.sequence.common import btagger
+def config_Btagging(up_or_down):
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'btagger':
+            cfg.sys = up_or_down
+    return new_config
+
+for up_or_down in up_down:
+    configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
+
+
+
+config = configs['Btagging_up']
+# configs = {'METunclustered_up':configs['METunclustered_up']}
+# config = nominal
+# configs = {'nominal':nominal,'METunclustered_up':configs['METunclustered_up']}
