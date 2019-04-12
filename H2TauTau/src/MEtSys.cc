@@ -48,7 +48,7 @@ MEtSys::MEtSys(TString fileName) {
     for (int xBin=0; xBin<2; ++xBin) {
       for (int yBin=0; yBin<3; ++yBin) {
   sysUnc[i][xBin][yBin] = hist->GetBinContent(xBin+1,yBin+1);
-  std::cout << "Systematics : " << Bkgd[i] << "  " << uncType[xBin] << " " << JetBins[yBin] << " = " << sysUnc[i][xBin][yBin] << std::endl;
+  // std::cout << "Systematics : " << Bkgd[i] << "  " << uncType[xBin] << " " << JetBins[yBin] << " = " << sysUnc[i][xBin][yBin] << std::endl;
       }
     }
 
