@@ -468,6 +468,18 @@ for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
+### BTagging
+from CMGTools.H2TauTau.heppy.sequence.common import btagger
+def config_Btagging(up_or_down):
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'btagger':
+            cfg.sys = up_or_down
+    return new_config
+
+for up_or_down in up_down:
+    configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
+
 print configs
 
-config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
+# config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
