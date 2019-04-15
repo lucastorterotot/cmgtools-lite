@@ -74,7 +74,7 @@ embedded_list = embedded_forindex.embedded_tt
 
 n_events_per_job = 1e6
 if test:
-    n_events_per_job = 1e6
+    n_events_per_job = 1e5
 if embedded:
     n_events_per_job = 3e4
 
@@ -97,7 +97,7 @@ for sample in data_list+embedded_list:
     sample.channel = 'tt'
 
 for sample in embedded_list:
-    sample.triggerobjects = embed_triggerfilters
+    sample.triggerobjects = embedded_triggerfilters
     sample.isEmbed = True
 
 selectedComponents = mssm_signals#[x for x in backgrounds if x.name not in ['DY2JetsToLL_M50_LO','DY3JetsToLL_M50_LO','DYJetsToLL_M50','TTLep_pow','TTSemi_pow']]
@@ -451,8 +451,7 @@ for up_or_down in up_down:
     configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
 
 
-
 config = configs['Btagging_up']
-# configs = {'METunclustered_up':configs['METunclustered_up']}
+configs = {'TES_HadronicTau_1prong0pi0_up':configs['TES_HadronicTau_1prong0pi0_up']}
 # config = nominal
 # configs = {'nominal':nominal,'METunclustered_up':configs['METunclustered_up']}
