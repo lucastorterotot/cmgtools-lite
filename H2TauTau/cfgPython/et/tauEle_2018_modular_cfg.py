@@ -64,7 +64,7 @@ bindex = ComponentIndex( backgrounds_forindex)
 backgrounds = backgrounds_forindex.backgrounds
 import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
 eindex = ComponentIndex( embedded_forindex)
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, mc_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, mc_triggerfilters, embed_triggers, embed_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import data_triggers, data_triggerfilters
 from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
