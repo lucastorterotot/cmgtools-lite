@@ -131,7 +131,7 @@ class Dataset(object):
 
     def fetch(self, dest=None):
         if dest is None: 
-            dest = '/'.join(self.path.split('/')[-2:])
+            dest = '/'.join(self.path.split('/')[-3:-1])
         if os.path.isdir(dest):
             answer = None
             while answer not in ['y','n']:
@@ -205,9 +205,6 @@ def get_options():
     parser.add_option("-s", "--subdir-pattern", dest="subdir_pattern",
                       default='*',
                       help='subdir pattern')
-    parser.add_option("-S", "--skim", dest="skim", action='store_true',
-                      default=False,
-                      help='whether or not to skim ntuples KIT style')
     parser.add_option("-F", "--ff", dest="apply_ff",
                       default=False,
                       help='whether or not to add fake factors to trees')
@@ -219,22 +216,7 @@ def get_options():
         sys.exit(1)
     return options, args
 
-
-def skimntuple(ogpath, newpath):
-    f = TFile(ogpath)
-
-    tree = f.Get('events')
-    newfile = TFile(newpath,'recreate')
-
-    newtree = tree.CloneTree(0)
-
-    for event in tree:
-        if event.Flag_goodVertices and event.Flag_globalTightHalo2016Filter and event.Flag_HBHENoiseFilter and event.Flag_HBHENoiseIsoFilter and event.Flag_EcalDeadCellTriggerPrimitiveFilter and event.Flag_BadPFMuonFilter and event.Flag_BadChargedCandidateFilter and event.Flag_ecalBadCalibFilter and (not event.veto_extra_elec) and (not event.veto_extra_muon) and event.l2_againstElectronVLooseMVA6 and event.l2_againstMuonLoose3 and event.l1_againstElectronVLooseMVA6 and event.l1_againstMuonLoose3 and event.l2_byVLooseIsolationMVArun2017v2DBoldDMwLT2017 and event.l1_byVLooseIsolationMVArun2017v2DBoldDMwLT2017:
-            newtree.Fill()
-
-    newtree.Write()
-
-def harvest(src, subdir_pattern='*', tgz_pattern='*', skim=False, apply_ff=False):
+def harvest(src, subdir_pattern='*', tgz_pattern='*', apply_ff=False,):
     print src, subdir_pattern, tgz_pattern
     ds = Dataset(src, 
                  subdirs=subdir_pattern, 
@@ -243,11 +225,8 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', skim=False, apply_ff=False
         print ds.dest
         ds.unpack()
         ds.hadd()
-        if skim:
-            ogpath = '{}/0000/{}/NtupleProducer/tree.root'.format(ds.dest,ds.dest[:ds.dest.find('/')])
-            newpath = '{}/tree.root'.format(ds.dest[:ds.dest.find('/')])
-            skimntuple(ogpath,newpath)
-            os.system('rm -rf {}'.format(ds.dest))
+        os.system('cp {dirname}/0000/{compname}/NtupleProducer/tree.root {dirname}/tree.root'.format(dirname=ds.dest,compname=ds.dest[ds.dest.find('/'):]))
+        os.system('rm -rf {}/0000'.format(ds.dest))
         if apply_ff:
             pass # to be done
 
@@ -256,4 +235,4 @@ if __name__ == '__main__':
 
     options, args = get_options()
     src = args[0]
-    harvest(src, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, skim=options.skim, apply_ff=options.apply_ff)
+    harvest(src, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, apply_ff=options.apply_ff)
