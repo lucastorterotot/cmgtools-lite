@@ -90,7 +90,7 @@ handle.close()
 
 os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
 os.system("tar czf cmgdataset.tar.gz --directory $HOME .cmgdataset")
-os.system("tar czf cafpython.tar.gz --directory /afs/cern.ch/cms/caf/ python")
+os.system("cp /gridgroup/cms/touquet/cafpython.tar.gz .")
 
 os.environ["PROD_LABEL"]  = options.production_label
 os.environ["CMG_VERSION"] = options.cmg_version

@@ -1,5 +1,5 @@
 import PhysicsTools.HeppyCore.framework.config as cfg
-
+import os
 import ROOT 
 
 # import all analysers:
@@ -258,9 +258,17 @@ jets_30 = cfg.Analyzer(
 
 from CMGTools.H2TauTau.heppy.analyzers.BJetAnalyzer import BJetAnalyzer
 btagger = cfg.Analyzer(
-    BJetAnalyzer, 
-    'btagger', 
-    jets = 'jets_20'
+    BJetAnalyzer,
+    'btagger',
+    jets = 'jets_20',
+    tagger_name = 'DeepCSV',
+    discriminator = 'pfDeepCSVDiscriminatorsJetTags:BvsAll',
+    wp = 'medium',
+    csv_cut = 0.4941,
+    SF_file = os.path.expandvars("$CMSSW_BASE/src/CMGTools/H2TauTau/data/DeepCSV_94XSF_V3_B_F.csv"),
+    method = 'promote_demote',
+    efficiency_file = os.path.expandvars('$CMSSW_BASE/src/CMGTools/H2TauTau/data/tagging_efficiencies_Moriond2017.root'),
+    sys = 'central'
 )
 
 #always put after btagger
