@@ -17,7 +17,7 @@ config.JobType.inputFiles = [
     os.environ["CMSSW_BASE"]+'/src/CMGTools/H2TauTau/cfgPython/crab/heppy_crab_script.py',
     'cmgdataset.tar.gz',
     'python.tar.gz',
-    os.environ["CMSSW_BASE"]+'/src/CMGTools/H2TauTau/cfgPython/crab/cafpython.tar.gz', # this is temporary, need to make this file available by everyone
+    'cafpython.tar.gz',
     'options.json'
 ]
 config.JobType.outputFiles = []

@@ -90,6 +90,7 @@ handle.close()
 
 os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
 os.system("tar czf cmgdataset.tar.gz --directory $HOME .cmgdataset")
+os.system("cp /gridgroup/cms/touquet/cafpython.tar.gz .")
 
 os.environ["PROD_LABEL"]  = options.production_label
 os.environ["CMG_VERSION"] = options.cmg_version
@@ -118,3 +119,4 @@ Tune the behaviour of AAA in the crab submission instead!'
 os.system("rm options.json")
 os.system("rm python.tar.gz")
 os.system("rm cmgdataset.tar.gz")
+os.system("rm cafpython.tar.gz")
