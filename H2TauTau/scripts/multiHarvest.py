@@ -7,7 +7,7 @@ def get_options():
     import os
     import sys
     from optparse import OptionParser
-    usage = "usage: python multiHarvest.py [options] \n example: python multiHarvest.py -g HiggsVBF125 -l sysCheck0204_nominal -d R -u gtouquet"
+    usage = "usage: python multiHarvest.py [options] \n example: python multiHarvest.py -l CRABtest -d R -u gtouquet -C HiggsVBF125"
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--tgz-pattern", dest="tgz_pattern",
                       default='*',
@@ -29,7 +29,7 @@ def get_options():
                       help='Harvest only samples containing this string.')
     parser.add_option("-d", "--date", dest = "select_date",
                       default='',
-                      help='Harvest on2ly samples submitted on this date. If set to R, look for the most recent job.')
+                      help='Harvest only samples submitted on this date. If set to R, look for the most recent job.')
     parser.add_option("-c", "--cores", dest = "ncores",
                       default=20,
                       help='Number of cores on which to parralelise harvesting')
@@ -50,11 +50,8 @@ def multithreadmap(f,X,ncores=20, **kwargs):
     p.terminate()
     return(Xout)
 
-def find_dirs_in_dir(basepath, to_match=''):
-    if to_match == '':
-        os.system('xrdfs lyogrid06.in2p3.fr ls {} > tmp.out'.format(basepath))
-    else:
-        os.system('xrdfs lyogrid06.in2p3.fr ls {} | grep {} > tmp.out'.format(basepath, to_match))
+def find_dirs_in_dir(basepath, to_match="''"):
+    os.system('xrdfs lyogrid06.in2p3.fr ls {} | grep {} > tmp.out'.format(basepath, to_match))
     matched_dirs = []
     with open('tmp.out') as f:
         for line in f.readlines():
