@@ -64,7 +64,7 @@ bindex = ComponentIndex( backgrounds_forindex)
 backgrounds = backgrounds_forindex.backgrounds
 import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
 eindex = ComponentIndex( embedded_forindex)
-from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, mc_triggerfilters
+from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, mc_triggerfilters, embed_triggers, embed_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import data_triggers, data_triggerfilters
 from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
@@ -468,6 +468,18 @@ for source in JES:
     configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
     configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
+### BTagging
+from CMGTools.H2TauTau.heppy.sequence.common import btagger
+def config_Btagging(up_or_down):
+    new_config = copy.deepcopy(nominal)
+    for cfg in new_config.sequence:
+        if cfg.name == 'btagger':
+            cfg.sys = up_or_down
+    return new_config
+
+for up_or_down in up_down:
+    configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
+
 print configs
 
-config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
+# config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]

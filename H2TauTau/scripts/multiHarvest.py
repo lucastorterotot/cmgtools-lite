@@ -28,7 +28,7 @@ def get_options():
                       default="''",
                       help='Harvest only samples containing this string.')
     parser.add_option("-d", "--date", dest = "select_date",
-                      default='',
+                      default=None,
                       help='Harvest only samples submitted on this date. If set to R, look for the most recent job.')
     parser.add_option("-c", "--cores", dest = "ncores",
                       default=20,
@@ -58,6 +58,21 @@ def find_dirs_in_dir(basepath, to_match="''"):
             matched_dirs.append(line[:-1])
     return matched_dirs
 
+def ask_for_user_selection(items):
+    selection_done = (len(items) < 2)
+    while not selection_done:
+        print '    Warning, several matching directories:'
+        for item in items:
+            print '     ',item
+        cutstring = raw_input('    Please enter a cut string on these names to select only one or pass all to get them all: ')
+        print ''
+        if cutstring == 'all' :
+            selection_done = True
+        else:
+            items = [item for item in items if cutstring in item]
+            selection_done = (len(items) < 2)
+    return items
+
 options, args = get_options()
 
 matching_prod_label_dirs = find_dirs_in_dir('/dpm/in2p3.fr/home/cms/data/store/user/{}/heppyTrees/{}/'.format(options.username, options.cmssw_version), to_match=options.prod_label)
@@ -70,7 +85,8 @@ for prod_label_dir in matching_prod_label_dirs:
         if options.select_date == 'R' :
             matched_dirs = [matched_dirs[-1]]
         else :
-            matched_dirs = [dirname for dirname in matching_comp_dirs if options.select_date in line]
+            matched_dirs = [dirname for dirname in matched_dirs if (options.select_date in matched_dirs or options.select_date is None) ]
+            matched_dirs = ask_for_user_selection(matched_dirs)
         selected_dirs.extend(matched_dirs)
 
 ###formatting
