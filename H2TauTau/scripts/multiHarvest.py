@@ -28,7 +28,7 @@ def get_options():
                       default="''",
                       help='Harvest only samples containing this string.')
     parser.add_option("-d", "--date", dest = "select_date",
-                      default='',
+                      default=None,
                       help='Harvest only samples submitted on this date. If set to R, look for the most recent job.')
     parser.add_option("-c", "--cores", dest = "ncores",
                       default=20,
@@ -70,7 +70,7 @@ for prod_label_dir in matching_prod_label_dirs:
         if options.select_date == 'R' :
             matched_dirs = [matched_dirs[-1]]
         else :
-            matched_dirs = [dirname for dirname in matching_comp_dirs if options.select_date in line]
+            matched_dirs = [dirname for dirname in matched_dirs if (options.select_date in matched_dirs or options.select_date is None) ]
         selected_dirs.extend(matched_dirs)
 
 ###formatting
