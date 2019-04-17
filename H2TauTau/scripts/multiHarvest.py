@@ -7,7 +7,7 @@ def get_options():
     import os
     import sys
     from optparse import OptionParser
-    usage = "usage: %prog [options] <src_dir>"
+    usage = "usage: python multiHarvest.py [options] \n example: python multiHarvest.py -l CRABtest -d R -u gtouquet -C HiggsVBF125"
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--tgz-pattern", dest="tgz_pattern",
                       default='*',
@@ -15,9 +15,6 @@ def get_options():
     parser.add_option("-s", "--subdir-pattern", dest="subdir_pattern",
                       default='*',
                       help='subdir pattern')
-    parser.add_option("-S", "--skim", dest="skim", action='store_true',
-                      default=True,
-                      help='whether or not to skim ntuples KIT style')
     parser.add_option("-u", "--user", dest = "username",
                       default=os.environ['USER'],
                       help='the username to be used to look for files.')
@@ -26,8 +23,8 @@ def get_options():
                       help='Version of CMSSW used to produce the samples.')
     parser.add_option("-l", "--prod_label", dest = "prod_label",
                       default='diTau_2018_modular_cfg',
-                      help='Heppy cfg file used to produce the samples.')
-    parser.add_option("-g", "--grep", dest = "cut_on_sample_names",
+                      help='The prod label or part of prod labels to be selected.')
+    parser.add_option("-C", "--component", dest = "cut_on_sample_names",
                       default="''",
                       help='Harvest only samples containing this string.')
     parser.add_option("-d", "--date", dest = "select_date",
@@ -53,55 +50,35 @@ def multithreadmap(f,X,ncores=20, **kwargs):
     p.terminate()
     return(Xout)
 
+def find_dirs_in_dir(basepath, to_match="''"):
+    os.system('xrdfs lyogrid06.in2p3.fr ls {} | grep {} > tmp.out'.format(basepath, to_match))
+    matched_dirs = []
+    with open('tmp.out') as f:
+        for line in f.readlines():
+            matched_dirs.append(line[:-1])
+    return matched_dirs
+
 options, args = get_options()
-os.system('xrdfs lyogrid06.in2p3.fr ls /dpm/in2p3.fr/home/cms/data/store/user/{}/heppyTrees/{}/{}/ | grep {} > files.out'.format(options.username, options.cmssw_version, options.prod_label, options.cut_on_sample_names))
 
-# Select directories
-selected_fcompos = set()
-print ''
-print 'Selecting directories: '+os.popen('cat files.out | wc -l').readline()[:-1]+' directories to process.'
-Ndir = 0
-with open('files.out') as f:
-    for line in f.readlines():
-        Ndir += 1
-        print '  '+str(Ndir)+'/'+os.popen('cat files.out | wc -l').readline()[:-1]
-        component = line[line.rfind('/')+1:-1]
-        os.system('xrdfs lyogrid06.in2p3.fr ls /dpm/in2p3.fr/home/cms/data/store/user/gtouquet/heppyTrees/CMSSW_9_4_11_cand1/diTau_2018_modular_cfg/{}/ > {}.out'.format(component,component))
-        with open('{}.out'.format(component)) as fcomponent:
-            cutstring = None
-            if options.select_date == 'R' :
-                matching_fcompo = [fcomponent.readlines()[-1]]
-            else :
-                matching_fcompo = [line for line in fcomponent.readlines() if options.select_date in line]
-                while len(matching_fcompo) > 1:
-                    print '    Warning, several matching directories for component '+component+':'
-                    for compo in matching_fcompo :
-                        print '     '+compo[:-1]
-                    cutstring = raw_input('    Please enter a cut string on these names to select only one or pass all to get them all:')
-                    print ''
-                    if cutstring == 'all' :
-                        for fcompo in matching_fcompo :
-                            selected_fcompos.add(fcompo)
-                        matching_fcompo = []
-                    else :
-                        matching_fcompo = [line for line in matching_fcompo if cutstring in line]
-            if cutstring is not 'all' :
-                if len(matching_fcompo) == 0 :
-                    print '  Warning, no matching files for component '+component
-                else :
-                    selected_fcompos.add(matching_fcompo[0])
-            os.system('rm '+component+'.out')
-os.system('rm files.out')
+matching_prod_label_dirs = find_dirs_in_dir('/dpm/in2p3.fr/home/cms/data/store/user/{}/heppyTrees/{}/'.format(options.username, options.cmssw_version), to_match=options.prod_label)
 
-# Build list to harvest
-to_harvest = []
-print ''
-for fcompo in selected_fcompos :
-    to_harvest.append(fcompo[fcompo.find('store')-1:-1])
-to_harvest.sort()
+selected_dirs = []
+for prod_label_dir in matching_prod_label_dirs:
+    matching_comp_dirs = find_dirs_in_dir(prod_label_dir, to_match=options.cut_on_sample_names)
+    for comp_dir in matching_comp_dirs:
+        matched_dirs = find_dirs_in_dir(comp_dir)
+        if options.select_date == 'R' :
+            matched_dirs = [matched_dirs[-1]]
+        else :
+            matched_dirs = [dirname for dirname in matching_comp_dirs if options.select_date in line]
+        selected_dirs.extend(matched_dirs)
+
+###formatting
+selected_dirs = [dirname[dirname.find('store')-1:] for dirname in selected_dirs]
+
 print 'Selected directories to harvest:'
-for to_harvest_i in to_harvest:
-    print '  '+to_harvest_i
+for dirname in selected_dirs:
+    print dirname
 
 print ''
 start_harvest = None
@@ -109,7 +86,7 @@ while start_harvest not in ['y','n']:
     start_harvest = raw_input('Harvest this list? [y/n]')
 if start_harvest == 'y':
     print 'Starting to harvest.'
-    multithreadmap(harvest, to_harvest, ncores=options.ncores, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, skim=options.skim, apply_ff=options.apply_ff)
+    multithreadmap(harvest, selected_dirs, ncores=options.ncores, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, apply_ff=options.apply_ff)
 else:
     print 'Aborting.'
 
