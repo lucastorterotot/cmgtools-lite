@@ -225,18 +225,16 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', apply_ff=False,):
         print ds.dest
         ds.unpack()
         ds.hadd()
-        if len(ds.subdirs) == 1:
-            os.system('cp {dirname}/0000/{compname}/NtupleProducer/tree.root {dirname}/tree.root'.format(dirname=ds.dest,compname=ds.dest[ds.dest.find('/'):]))
-            os.system('rm -rf {}/0000'.format(ds.dest))
-        else:
-            paths_to_hadd = []
-            for subdir in ds.subdirs:
-                paths_to_hadd = '{dirname}/{subdir}/{compname}/NtupleProducer/tree.root {dirname}/tree.root'.format(dirname=ds.dest,compname=ds.dest[ds.dest.find('/'):], subdir=subdir)
-            command = 'hadd {dirname}/tree.root'
+        compname=ds.dest[ds.dest.find('/')+1:]
+        if len(ds.subdirs) > 1:
+            paths_to_hadd = [ds.dest+'/'+subdir+'/'+compname+'/NtupleProducer/tree.root' for subdir in ds.subdirs]
+            command = 'hadd '+ds.dest+'/tree.root'
             command = ' '.join([command]+paths_to_hadd)
             os.system(command)
-            for subdir in ds.subdirs:
-                os.system('rm -rf {}/{}'.format(ds.dest, subdir))
+        else:
+            os.system('mv '+ds.dest+'/'+ds.subdirs[0]+'/'+compname+'/NtupleProducer/tree.root '+ds.dest+'/tree.root')
+        for subdir in ds.subdirs:
+            os.system('rm -rf '+ds.dest+'/'+subdir+' &')
         if apply_ff:
             pass # to be done
 
