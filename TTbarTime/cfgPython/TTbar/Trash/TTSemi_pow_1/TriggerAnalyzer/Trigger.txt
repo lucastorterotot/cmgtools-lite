@@ -1,0 +1,10 @@
+Counter Trigger :
+	 All events                                       8 	 1.00 	 1.0000
+	 HLT                                              8 	 1.00 	 1.0000
+	 HLT_IsoMu24_v*                                   5 	 0.62 	 0.6250
+	 HLT_IsoMu24_v*prescaled                          0 	 0.00 	 0.0000
+	 HLT_IsoMu27_v*                                   5 	 -1.00 	 0.6250
+	 HLT_IsoMu27_v*prescaled                          0 	 0.00 	 0.0000
+	 HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v*         2 	 -1.00 	 0.2500
+	 HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v*prescaled         0 	 0.00 	 0.0000
+
