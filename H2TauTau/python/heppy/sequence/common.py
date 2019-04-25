@@ -228,11 +228,20 @@ jets = cfg.Analyzer(
     selection = select_good_jets_FixEE2017
 )
 
+from CMGTools.H2TauTau.heppy.analyzers.Sorter import Sorter
+jet_sorter = cfg.Analyzer(
+    Sorter,
+    output = 'jets_sorted',
+    src = 'jets',
+    metric = lambda jet: (jet.pt()),
+    reverse = True
+    )
+
 jets_20_unclean = cfg.Analyzer(
     Selector,
     'jets_20_unclean',
     output = 'jets_20_unclean',
-    src = 'jets',
+    src = 'jets_sorted',
     filter_func = lambda x : x.pt()>20 and abs(x.eta())<4.7 and x.jetID("POG_PFID_Tight")
 )
 
@@ -283,6 +292,7 @@ bjets_20 = cfg.Analyzer(
 
 sequence_jets = cfg.Sequence([
         jets,
+        jet_sorter,
         jets_20_unclean,
         jet_20,
         jets_30,
