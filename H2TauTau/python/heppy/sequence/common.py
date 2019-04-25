@@ -267,7 +267,7 @@ btagger = cfg.Analyzer(
     csv_cut = 0.4941,
     SF_file = os.path.expandvars("$CMSSW_BASE/src/CMGTools/H2TauTau/data/DeepCSV_94XSF_V3_B_F.csv"),
     method = 'promote_demote',
-    efficiency_file = os.path.expandvars('$CMSSW_BASE/src/CMGTools/H2TauTau/data/tagging_efficiencies_march2018_btageff-all_samp-inc-DeepCSV_medium.root'),
+    efficiency_file = os.path.expandvars('$CMSSW_BASE/src/CMGTools/H2TauTau/data/tagging_efficiencies_march2018.root'),
     sys = 'central'
 )
 
