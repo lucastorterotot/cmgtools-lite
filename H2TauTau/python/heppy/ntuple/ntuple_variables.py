@@ -83,6 +83,24 @@ for vname, variable in jets20.iteritems():
 jets30 = Block(
     'jets30', lambda x: x.jets_30,
     n_jets_pt30 = v(lambda x: len(x), int),
+    j1_pt_pt30 = v(lambda x: x[0].pt() if len(x)>0 else default),
+    j1_eta_pt30 = v(lambda x: x[0].eta() if len(x)>0 else default),
+    j1_phi_pt30 = v(lambda x: x[0].phi() if len(x)>0 else default),
+    # j1_bcsv = v(lambda x: x.bcsv()),
+    j1_pumva_pt30 = v(lambda x: x[0].puMva('pileupJetId:fullDiscriminant') if len(x)>0 else default),
+#    j1_puid = v(lambda x: x[0].pileUpJetId_htt() if len(x)>0 else default),
+    j1_flavour_parton_pt30 = v(lambda x: x[0].partonFlavour() if len(x)>0 else default),
+    j1_flavour_hadron_pt30 = v(lambda x: x[0].hadronFlavour() if len(x)>0 else default),
+    j1_rawf_pt30 = v(lambda x: x[0].rawFactor() if len(x)>0 else default),
+    j2_pt_pt30 = v(lambda x: x[1].pt() if len(x)>1 else default),
+    j2_eta_pt30 = v(lambda x: x[1].eta() if len(x)>1 else default),
+    j2_phi_pt30 = v(lambda x: x[1].phi() if len(x)>1 else default),
+    j2_pumva_pt30 = v(lambda x: x[1].puMva('pileupJetId:fullDiscriminant') if len(x)>1 else default ),
+#    j2_puid = v(lambda x: x[1].pileUpJetId_htt() if len(x)>1 else default ),
+    j2_flavour_parton_pt30 = v(lambda x: x[1].partonFlavour() if len(x)>1 else default),
+    j2_flavour_hadron_pt30 = v(lambda x: x[1].hadronFlavour() if len(x)>1 else default),
+    j2_rawf_pt30 = v(lambda x: x[1].rawFactor() if len(x)>1 else default),
+    dijet_m_pt30 = v(lambda x: (x[0].p4()+x[1].p4()).M() if len(x)>1 else default),
 )
 
 
