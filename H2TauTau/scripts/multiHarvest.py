@@ -30,12 +30,15 @@ def get_options():
     parser.add_option("-d", "--date", dest = "select_date",
                       default=None,
                       help='Harvest only samples submitted on this date. If set to R, look for the most recent job.')
-    parser.add_option("-c", "--cores", dest = "ncores",
+    parser.add_option("-n", "--ncores", dest = "ncores",
                       default=20,
                       help='Number of cores on which to parralelise harvesting')
     parser.add_option("-F", "--ff", dest="apply_ff",
                       default=True,
                       help='whether or not to add fake factors to trees')
+    parser.add_option("-c", "--convert", dest="convert_ntuple",
+                      default=True,
+                      help='whether or not to use convert_ntuple.py to convert the output tree')
     
     (options,args) = parser.parse_args()
     return options, args
@@ -102,7 +105,7 @@ while start_harvest not in ['y','n']:
     start_harvest = raw_input('Harvest this list? [y/n]')
 if start_harvest == 'y':
     print 'Starting to harvest.'
-    multithreadmap(harvest, selected_dirs, ncores=options.ncores, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, apply_ff=options.apply_ff)
+    multithreadmap(harvest, selected_dirs, ncores=options.ncores, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, apply_ff=options.apply_ff, convert_ntuple=options.convert_ntuple)
 else:
     print 'Aborting.'
 

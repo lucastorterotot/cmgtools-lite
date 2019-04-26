@@ -208,6 +208,9 @@ def get_options():
     parser.add_option("-F", "--ff", dest="apply_ff",
                       default=False,
                       help='whether or not to add fake factors to trees')
+    parser.add_option("-c", "--convert", dest="convert_ntuple",
+                      default=True,
+                      help='whether or not to use convert_ntuple.py to convert the output tree')
  
     
     (options,args) = parser.parse_args()
@@ -216,7 +219,7 @@ def get_options():
         sys.exit(1)
     return options, args
 
-def harvest(src, subdir_pattern='*', tgz_pattern='*', apply_ff=False,):
+def harvest(src, subdir_pattern='*', tgz_pattern='*', apply_ff=False, convert_ntuple=False):
     print src, subdir_pattern, tgz_pattern
     ds = Dataset(src, 
                  subdirs=subdir_pattern, 
@@ -237,10 +240,13 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', apply_ff=False,):
             os.system('rm -rf '+ds.dest+'/'+subdir+' &')
         if apply_ff:
             pass # to be done
+        if convert_ntuple:
+            os.system('convert_ntuple.py '+ds.dest+'/tree.root'+" 'b' -o "+ds.dest+'/tree_converted.root')
+            os.system('mv '+ds.dest+'/tree_converted.root '+ds.dest+'/tree.root')
 
 
 if __name__ == '__main__':
 
     options, args = get_options()
     src = args[0]
-    harvest(src, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, apply_ff=options.apply_ff)
+    harvest(src, subdir_pattern=options.subdir_pattern, tgz_pattern=options.tgz_pattern, apply_ff=options.apply_ff, convert_ntuple=options.convert_ntuple)
