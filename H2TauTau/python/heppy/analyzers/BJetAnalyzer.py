@@ -70,7 +70,7 @@ class BJetAnalyzer(Analyzer):
         eff_b = self.getMCBTagEff(pt, abs(eta), jetflavor)
 
         if self.cfg_ana.method == 'promote_demote':
-            self.promote_demote(eta, csv, csv_cut, SFb, eff_b)
+            return self.promote_demote(eta, csv, csv_cut, SFb, eff_b)
 
 
     def promote_demote(self, eta, csv, csv_cut, SF, eff):
