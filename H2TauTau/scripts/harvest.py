@@ -241,8 +241,11 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', apply_ff=False, convert_nt
         if apply_ff:
             pass # to be done
         if convert_ntuple:
-            os.system('convert_ntuple.py '+ds.dest+'/tree.root'+" 'b' -o "+ds.dest+'/tree_converted.root')
-            os.system('mv '+ds.dest+'/tree_converted.root '+ds.dest+'/tree.root')
+            convert_ntuple_cmd = "if [[ $PYTHONPATH == *HTT/sync* ]] ; then "
+            convert_ntuple_cmd+= 'convert_ntuple.py '+ds.dest+'/tree.root'+" 'b' -o "+ds.dest+'/tree_converted.root'
+            convert_ntuple_cmd+= ' && mv '+ds.dest+'/tree_converted.root '+ds.dest+'/tree.root '
+            convert_ntuple_cmd+= "; else echo 'Hey, please initialize HTT/sync! Ntuple not converted.' ; fi"
+            os.system(convert_ntuple_cmd)
 
 
 if __name__ == '__main__':
