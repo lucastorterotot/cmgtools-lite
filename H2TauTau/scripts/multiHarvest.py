@@ -34,10 +34,10 @@ def get_options():
                       default=20,
                       help='Number of cores on which to parralelise harvesting')
     parser.add_option("-F", "--ff", dest="apply_ff",
-                      default=True,
+                      action="store_true", default=False,
                       help='whether or not to add fake factors to trees')
     parser.add_option("-c", "--convert", dest="convert_ntuple",
-                      default=True,
+                      action="store_true", default=False,
                       help='whether or not to use convert_ntuple.py to convert the output tree')
     
     (options,args) = parser.parse_args()

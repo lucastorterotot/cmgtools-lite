@@ -206,10 +206,10 @@ def get_options():
                       default='*',
                       help='subdir pattern')
     parser.add_option("-F", "--ff", dest="apply_ff",
-                      default=False,
+                      action="store_true", default=False,
                       help='whether or not to add fake factors to trees')
     parser.add_option("-c", "--convert", dest="convert_ntuple",
-                      default=True,
+                      action="store_true", default=False,
                       help='whether or not to use convert_ntuple.py to convert the output tree')
  
     
