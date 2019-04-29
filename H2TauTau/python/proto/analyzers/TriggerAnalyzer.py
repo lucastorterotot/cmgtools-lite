@@ -6,7 +6,8 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 import PhysicsTools.HeppyCore.framework.config as cfg
 
 class TriggerFilterMatch(object):
-    def __init__(self, leg1_names, leg2_names, match_both_legs=True, triggers=None):
+    def __init__(self, trigtype, leg1_names, leg2_names, match_both_legs=True, triggers=None):
+        self.trigtype = trigtype
         self.leg1_names = leg1_names
         self.leg2_names = leg2_names
         # If true, requires both legs to be matched (if there are names)
@@ -208,6 +209,7 @@ class TriggerAnalyzer(Analyzer):
                         print match_info
 
                 for match_info in info.match_infos:
+                    info.trigtype = match_info.trigtype
                     if info.fired:
                         if match_info.leg1_names and not info.leg1_objs:
                             print 'Warning in TriggerAnalyzer, matching info associated but no leg1 objects set', info.name, match_info
