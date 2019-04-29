@@ -12,7 +12,7 @@ class EmbeddedAnalyzer(Analyzer):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(EmbeddedAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
-        self.wsfile = TFile('$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_v17_5.root')
+        self.wsfile = TFile('$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root')
         self.ws = self.wsfile.Get('w')
 
     def declareHandles(self):

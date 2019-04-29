@@ -6,7 +6,7 @@
 # the form (etamax, value)
 
 tauid_weights = {
-    'EToTau' : {
+    'EToTaufake' : {
         'VLoose' : [ (99, 1.19),
                      (1.5, 1.09) ],
         'Loose' : [ (99, 1.25),
@@ -18,7 +18,7 @@ tauid_weights = {
         'VTight' : [ (99, 1.66),
                      (1.5, 1.96) ],
         },
-    'MuToTau' : {
+    'MuToTaufake' : {
         'Loose' : [ (99, 1.),
                     (2.3, 1.94),
                     (1.7, 1.03),
