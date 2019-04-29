@@ -20,15 +20,18 @@ class TriggerWeighter(Analyzer):
             print 'did not define what legs are to be used for trigger weights!'
             raise
 
-        leg1 = legs[0]
-        for name, func in self.cfg_ana.leg1_vars_dict.iteritems():
-            self.ws.var(name).setVal(func(leg1))
-        val = self.ws.function(self.cfg_ana.leg1_func_name).getVal()
-        setattr(leg1, 'weight_trigger', val)
+        for index, leg in enumerate(legs):
+            weight_trigger = 1
+            num = index+1
+            if hasattr(leg, 'trigtypes'):
+                for triggertype in leg.trigtypes:
+                    leg_vars_dict = getattr(self.cfg_ana,'leg'+str(num)+'_vars_dict')
+                    leg_func_dict = getattr(self.cfg_ana,'leg'+str(num)+'_func_dict')
+                    if triggertype in leg_func_dict.keys():
+                        for name, func in leg_vars_dict.iteritems():
+                            self.ws.var(name).setVal(func(leg))
+                        val = self.ws.function(leg_func_dict[triggertype]).getVal()
+                        weight_trigger *= val
+                        setattr(leg, 'weight_trigger_'+str(triggertype), val)
 
-        if len(legs)==2:
-            leg2 = legs[1]
-            for name, func in self.cfg_ana.leg2_vars_dict.iteritems():
-                self.ws.var(name).setVal(func(leg2))
-            val = self.ws.function(self.cfg_ana.leg2_func_name).getVal()
-            setattr(leg2, 'weight_trigger', val)
+            setattr(leg, 'weight_trigger', weight_trigger)
