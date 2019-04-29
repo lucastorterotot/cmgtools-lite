@@ -258,11 +258,43 @@ sequence_dilepton = cfg.Sequence([
 
 # weights ================================================================
 
+# id weights
 from CMGTools.H2TauTau.heppy.analyzers.TauIDWeighter import TauIDWeighter
+tauidweighter_general = cfg.Analyzer(
+    TauIDWeighter,
+    'TauIDWeighter_general',
+    taus = lambda event: [event.dileptons_sorted[0].leg2()]
+)
+
 tauidweighter = cfg.Analyzer(
     TauIDWeighter,
     'TauIDWeighter',
-    taus = lambda event: [event.dileptons_sorted[0].leg2()]
+    taus = lambda event: [event.dileptons_sorted[0].leg2()],
+    WPs = {'JetToTau':'Tight', # dummy, no weights for jet fakes
+           'TauID':'Tight',
+           'MuToTaufake':'Loose',
+           'EToTaufake':'VLoose'}
+)
+
+# trigger weights
+ws_mu_vars_dict = {'m_pt':lambda muon:muon.pt(),
+                    'm_eta':lambda muon:muon.eta()}
+ws_tau_vars_dict = {'t_pt':lambda tau:tau.pt(),
+                    't_eta':lambda tau:tau.eta(),
+                    't_phi':lambda tau:tau.phi()}
+ws_mu_func_dict = {'m':'m_trg24_27_kit_ratio',
+                    'mt':'m_trg20_ratio'}
+ws_tau_func_dict = {'mt':'m_trg20_ratio'}
+from CMGTools.H2TauTau.heppy.analyzers.TriggerWeighter import TriggerWeighter
+triggerweighter = cfg.Analyzer(
+    TriggerWeighter,
+    'TriggerWeighter',
+    workspace_path = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root',
+    legs = lambda event: [event.dileptons_sorted[0].leg1()],
+    leg1_vars_dict = ws_mu_vars_dict,
+    leg2_vars_dict = ws_tau_vars_dict,
+    leg1_func_dict = ws_mu_func_dict,
+    leg2_func_dict = ws_tau_func_dict
 )
 
 # from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
@@ -322,7 +354,9 @@ if embedded:
     sequence.append(embedded_ana)
 # if data:
 #     sequence.append(fakefactor)
+sequence.append(tauidweighter_general)
 sequence.append(tauidweighter)
+sequence.append(triggerweighter)
 sequence.append(ntuple)
 
 if embedded:

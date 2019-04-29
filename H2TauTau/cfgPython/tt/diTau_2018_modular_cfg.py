@@ -258,6 +258,7 @@ tauidweighter = cfg.Analyzer(
 ws_tau_vars_dict = {'t_pt':lambda tau:tau.pt(),
                     't_eta':lambda tau:tau.eta(),
                     't_phi':lambda tau:tau.phi()}
+ws_tau_func_dict = {'tt':'t_trg_tight_tt_ratio'}
 from CMGTools.H2TauTau.heppy.analyzers.TriggerWeighter import TriggerWeighter
 triggerweighter = cfg.Analyzer(
     TriggerWeighter,
@@ -266,8 +267,8 @@ triggerweighter = cfg.Analyzer(
     legs = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()],
     leg1_vars_dict = ws_tau_vars_dict,
     leg2_vars_dict = ws_tau_vars_dict,
-    leg1_func_name = 't_trg_tight_tt_ratio',
-    leg2_func_name = 't_trg_tight_tt_ratio'
+    leg1_func_dict = ws_tau_func_dict,
+    leg2_func_dict = ws_tau_func_dict
 )
 
 
