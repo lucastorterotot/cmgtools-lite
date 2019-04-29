@@ -22,10 +22,10 @@ class TauIDWeighter(Analyzer):
 
     gen_match_dict = {6:'JetToTau',
                       5:'TauID',
-                      2:'MuToTau',
-                      4:'MuToTau',
-                      1:'EToTau',
-                      3:'EToTau'}
+                      2:'MuToTaufake',
+                      4:'MuToTaufake',
+                      1:'EToTaufake',
+                      3:'EToTaufake'}
 
     def getTauWeight(self, gen_match, pt, eta, decaymode, working_point):
 
@@ -62,11 +62,10 @@ class TauIDWeighter(Analyzer):
                                            tau.pt(),
                                            tau.eta(),
                                            tau.decayMode(),
-                                           self.cfg_ana.WPs[tau.gen_match])
+                                           self.cfg_ana.WPs[self.gen_match_dict[tau.gen_match]])
                 event.eventWeight *= weight
                 setattr(tau,
-                        'weight_{}fake_{}'.format(self.gen_match_dict[tau.gen_match],
-                                            self.cfg_ana.WP),
+                        'weight_idiso',
                         weight)
             else:
                 for WP in ['VLoose','Loose','Medium','Tight','VTight']:
@@ -76,7 +75,7 @@ class TauIDWeighter(Analyzer):
                                                tau.decayMode(),
                                                WP)
                     setattr(tau,
-                            'weight_{}fake_{}'.format(self.gen_match_dict[tau.gen_match],
+                            'weight_{}_{}'.format(self.gen_match_dict[tau.gen_match],
                                                 WP),
                             weight)
                 

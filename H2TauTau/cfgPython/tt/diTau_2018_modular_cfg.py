@@ -75,8 +75,8 @@ embedded_list = embedded_forindex.embedded_tt
 n_events_per_job = 1e6
 if test:
     n_events_per_job = 1e5
-if embedded:
-    n_events_per_job = 3e4
+    if embedded:
+        n_events_per_job = 3e4
 
 for sample in mc_list:
     sample.triggers = mc_triggers
@@ -109,21 +109,22 @@ if data:
 
 if test:
     cache = True
-    # comp = bindex.glob('DYJetsToLL_M50_ext')[0]
+    # comp = bindex.glob('DYJetsToLL_M50')[0]
     # comp = bindex.glob('WJetsToLNu_LO')[0]
     # comp = bindex.glob('TTLep_pow')[0]
     # comp = bindex.glob('TTHad_pow')[0]
     # comp = bindex.glob('TTSemi_pow')[0]
     comp = index.glob('HiggsVBF125')[0]
+    
     if data:
         comp = dindex.glob('Tau_Run2017B_31Mar2018')[0]
     if embedded:
         comp = eindex.glob('Embedded2017B_tt')[0]
     selectedComponents = [comp]
-    # for comp in selectedComponents:
-    #    comp.files = comp.files[:1]
-    #    comp.splitFactor = 1
-    #    comp.fineSplitFactor = 1
+    for comp in selectedComponents:
+       comp.files = comp.files[:1]
+       comp.splitFactor = 1
+       comp.fineSplitFactor = 1
     #    comp.files = ['file1.root']
 
 events_to_pick = []
@@ -234,12 +235,41 @@ sequence_dilepton = cfg.Sequence([
 
 # weights ================================================================
 
+# id weights
 from CMGTools.H2TauTau.heppy.analyzers.TauIDWeighter import TauIDWeighter
+tauidweighter_general = cfg.Analyzer(
+    TauIDWeighter,
+    'TauIDWeighter_general',
+    taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()]
+)
+
 tauidweighter = cfg.Analyzer(
     TauIDWeighter,
     'TauIDWeighter',
-    taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()]
+    taus = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()],
+    WPs = {'JetToTau':'Tight', # dummy, no weights for jet fakes
+           'TauID':'Tight',
+           'MuToTaufake':'Loose',
+           'EToTaufake':'VLoose'}
 )
+
+
+# trigger weights
+ws_tau_vars_dict = {'t_pt':lambda tau:tau.pt(),
+                    't_eta':lambda tau:tau.eta(),
+                    't_phi':lambda tau:tau.phi()}
+from CMGTools.H2TauTau.heppy.analyzers.TriggerWeighter import TriggerWeighter
+triggerweighter = cfg.Analyzer(
+    TriggerWeighter,
+    'TriggerWeighter',
+    workspace_path = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root',
+    legs = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()],
+    leg1_vars_dict = ws_tau_vars_dict,
+    leg2_vars_dict = ws_tau_vars_dict,
+    leg1_func_name = 't_trg_tight_tt_ratio',
+    leg2_func_name = 't_trg_tight_tt_ratio'
+)
+
 
 # from CMGTools.H2TauTau.heppy.analyzers.FakeFactorAnalyzer import FakeFactorAnalyzer
 # fakefactor = cfg.Analyzer(
@@ -297,7 +327,9 @@ if embedded:
     sequence.append(embedded_ana)
 # if data:
 #     sequence.append(fakefactor)
+sequence.append(tauidweighter_general)
 sequence.append(tauidweighter)
+sequence.append(triggerweighter)
 sequence.append(ntuple)
 
 if embedded:
@@ -450,8 +482,8 @@ def config_Btagging(up_or_down):
 for up_or_down in up_down:
     configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
 
+# config = configs['Btagging_up']
+# configs = {'Btagging_up':configs['Btagging_up'],'Btagging_down':configs['Btagging_down'],'nominal':nominal}
 
-config = configs['Btagging_up']
-configs = {'TES_HadronicTau_1prong0pi0_up':configs['TES_HadronicTau_1prong0pi0_up']}
-# config = nominal
-# configs = {'nominal':nominal,'METunclustered_up':configs['METunclustered_up']}
+# config = configs['DY_pT_reweighting_up']
+# configs = {'DY_pT_reweighting_up':configs['DY_pT_reweighting_up'],'DY_pT_reweighting_down':configs['DY_pT_reweighting_down'],'nominal':nominal}
