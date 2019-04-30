@@ -197,8 +197,9 @@ class TriggerAnalyzer(Analyzer):
                                 info.match_infos.add(match_info)
             # import pdb;pdb.set_trace()
             for info in trigger_infos:
+                
                 if not info.fired: 
-                    break
+                    continue
 
                 if len(info.match_infos) == 0:
                     print 'Warning in TriggerAnalyzer, did not find trigger matching information for trigger path', info.name
@@ -218,7 +219,6 @@ class TriggerAnalyzer(Analyzer):
 
                                                 
         event.trigger_infos = trigger_infos
-
         if self.cfg_ana.verbose:
             print 'run %d, lumi %d,event %d' %(event.run, event.lumi, event.eventId) , 'Triggers_fired: ', triggers_fired  
         if hasattr(self.cfg_ana, 'saveFlag'):
