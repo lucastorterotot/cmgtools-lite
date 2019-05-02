@@ -284,7 +284,8 @@ tauidweighter = cfg.Analyzer(
 ws_ele_idiso_vars_dict = {'e_pt':lambda ele:ele.pt(),
                           'e_eta':lambda ele:ele.eta()}
 ws_ele_idiso_func_dict = {'id':'e_id90_kit_ratio',
-                          'iso':'e_iso_kit_ratio'}
+                          'iso':'e_iso_kit_ratio',
+                          'trk':'e_trk_ratio'}
 from CMGTools.H2TauTau.heppy.analyzers.LeptonsWeighter import LeptonsWeighter
 eleidisoweighter = cfg.Analyzer(
     LeptonsWeighter,
