@@ -193,13 +193,6 @@ lepton_vars = dict(
     weight_id = v(lambda x: getattr(x, 'weight_id', 1.)),
     weight_iso = v(lambda x: getattr(x, 'weight_iso', 1.)),
     weight_idiso = v(lambda x: getattr(x, 'weight_idiso', 1.)),
-    weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
-    weight_trig_e = v(lambda x: getattr(x, 'weight_trigger_e', 1.)),
-    weight_trig_m = v(lambda x: getattr(x, 'weight_trigger_m', 1.)),
-    weight_trig_t = v(lambda x: getattr(x, 'weight_trigger_t', 1.)),
-    weight_trig_et = v(lambda x: getattr(x, 'weight_trigger_et', 1.)),
-    weight_trig_mt = v(lambda x: getattr(x, 'weight_trigger_mt', 1.)),
-    weight_trig_tt = v(lambda x: getattr(x, 'weight_trigger_tt', 1.)),
     gen_match = v(lambda x: getattr(x, 'gen_match', 0), int),
 )
 
@@ -224,6 +217,8 @@ electron_vars = dict(
     iso = v(lambda x: x.iso_htt()),
     d0 = v(lambda x: x.dxy()),
     dz = v(lambda x: x.dz()),
+    weight_trig_e = v(lambda x: getattr(x, 'weight_trigger_e', 1.)),
+    weight_trig_et = v(lambda x: getattr(x, 'weight_trigger_et', 1.)),
 )
 
 muon_vars = dict(
@@ -231,6 +226,8 @@ muon_vars = dict(
     iso = v(lambda x: x.iso_htt()), 
     d0 = v(lambda x: x.dxy()),
     dz = v(lambda x: x.dz()),  
+    weight_trig_m = v(lambda x: getattr(x, 'weight_trigger_m', 1.)),
+    weight_trig_mt = v(lambda x: getattr(x, 'weight_trigger_mt', 1.)),
 )
 
 tau_ids = [
@@ -283,6 +280,10 @@ tau_vars = dict(
     weight_fakefactor_nobtag = v(lambda x : getattr(x, 'weight_fakefactor_nobtag', 1.)),
     weight_fakefactor_nobtag_up = v(lambda x : getattr(x, 'weight_fakefactor_nobtag_up', 1.)),
     weight_fakefactor_nobtag_down = v(lambda x : getattr(x, 'weight_fakefactor_nobtag_down', 1.)),
+    weight_trig_t = v(lambda x: getattr(x, 'weight_trigger_t', 1.)),
+    weight_trig_tt = v(lambda x: getattr(x, 'weight_trigger_tt', 1.)),
+    weight_trig_et = v(lambda x: getattr(x, 'weight_trigger_et', 1.)),
+    weight_trig_mt = v(lambda x: getattr(x, 'weight_trigger_mt', 1.)),
 )
 
 # necessary, or all lambdas will be the same! 
