@@ -290,7 +290,7 @@ triggerweighter = cfg.Analyzer(
     TriggerWeighter,
     'TriggerWeighter',
     workspace_path = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root',
-    legs = lambda event: [event.dileptons_sorted[0].leg1()],
+    legs = lambda event: [event.dileptons_sorted[0].leg1(),event.dileptons_sorted[0].leg2()],
     leg1_vars_dict = ws_mu_vars_dict,
     leg2_vars_dict = ws_tau_vars_dict,
     leg1_func_dict = ws_mu_func_dict,

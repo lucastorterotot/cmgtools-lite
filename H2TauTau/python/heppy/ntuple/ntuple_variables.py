@@ -191,7 +191,6 @@ lepton_vars = dict(
     m = v(lambda x: x.mass()),
     q = v(lambda x: x.charge()),
     weight_idso = v(lambda x: getattr(x, 'weight_idiso', 1.)),
-    weight_trig = v(lambda x: getattr(x, 'weight_trigger', 1.)),
     weight_trig_e = v(lambda x: getattr(x, 'weight_trigger_e', 1.)),
     weight_trig_m = v(lambda x: getattr(x, 'weight_trigger_m', 1.)),
     weight_trig_t = v(lambda x: getattr(x, 'weight_trigger_t', 1.)),
