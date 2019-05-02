@@ -102,6 +102,11 @@ class TrigMatcher(Analyzer):
                     l1_matched = True
                     if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel=='tt' and not self.matchL1TriggerObject(to):
                         l1_matched = False
+            if l1_matched:
+                if hasattr(diL.leg1(), 'trigtype'):
+                    diL.leg1().trigtypes.update(info.trigtype)
+                else :
+                    diL.leg1().trigtypes = set([info.trigtype])
             if require_all_matched and l1_matched :
                 required_triggernames = set()
                 for match_info in info.match_infos :
@@ -119,6 +124,11 @@ class TrigMatcher(Analyzer):
                     l2_matched = True
                     if self.cfg_comp.isMC and hasattr(self.cfg_comp, 'channel') and self.cfg_comp.channel in ['tt', 'mt', 'et'] and not self.matchL1TriggerObject(to):
                         l2_matched = False
+            if l2_matched:
+                if hasattr(diL.leg2(), 'trigtype'):
+                    diL.leg2().trigtypes.update(info.trigtype)
+                else :
+                    diL.leg2().trigtypes = set([info.trigtype])
             if require_all_matched and l2_matched :
                 required_triggernames = set()
                 for match_info in info.match_infos :
@@ -137,7 +147,6 @@ class TrigMatcher(Analyzer):
             if path_matched:
                 matched = True
                 diL.matchedPaths.add(info.name)
-        # import pdb;pdb.set_trace()
         return matched
 
 

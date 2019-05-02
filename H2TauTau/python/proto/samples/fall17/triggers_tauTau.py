@@ -18,25 +18,31 @@ data_triggers = [
     ]
 
 data_triggerfilters = [
-    TriggerFilterMatch(leg1_names=['hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg'],
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg'],
                        leg2_names=['hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg'],
                        triggers=['HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*']),
-    TriggerFilterMatch(leg1_names=['hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg'],
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg'],
                        leg2_names=['hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg'],
                        triggers=['HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*']),
-    TriggerFilterMatch(leg1_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'],
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'],
                        leg2_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'],
                        triggers=['HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*']),
 ]
 
 embedded_triggerfilters = [
-    TriggerFilterMatch(leg1_names=['hltDoubleL2IsoTau26eta2p2'],
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoubleL2IsoTau26eta2p2'],
                        leg2_names=['hltDoubleL2IsoTau26eta2p2'],
                        triggers=['HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*']),
-    TriggerFilterMatch(leg1_names=['hltDoubleL2IsoTau26eta2p2'],
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoubleL2IsoTau26eta2p2'],
                        leg2_names=['hltDoubleL2IsoTau26eta2p2'],
                        triggers=['HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*']),
-    TriggerFilterMatch(leg1_names=['hltDoubleL2IsoTau26eta2p2'],
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoubleL2IsoTau26eta2p2'],
                        leg2_names=['hltDoubleL2IsoTau26eta2p2'],
                        triggers=['HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*']),
 ]
@@ -54,13 +60,16 @@ mc_triggers = [
     ]
 
 mc_triggerfilters = [
-    TriggerFilterMatch(leg1_names=['hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg'], 
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg'], 
                        leg2_names=['hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg'],
                        triggers=['HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*']),
-    TriggerFilterMatch(leg1_names=['hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg'], 
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg'], 
                        leg2_names=['hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg'],
                        triggers=['HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*']),
-    TriggerFilterMatch(leg1_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'], 
+    TriggerFilterMatch(trigtype='tt',
+                       leg1_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'], 
                        leg2_names=['hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg'],
                        triggers=['HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*']),
 ]

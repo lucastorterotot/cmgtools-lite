@@ -9,19 +9,23 @@ data_triggers = [
 
 data_triggerfilters = [
     # Ele27
-    TFM(leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele27_WPTight_Gsf_v*']),
     # Ele32
-    TFM(leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele32_WPTight_Gsf_v*']),
     # Ele35
-    TFM(leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele35_WPTight_Gsf_v*']),
     # CrossTrigger
-    TFM(leg1_names=['hltEle24erWPTightGsfTrackIsoFilterForTau','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
+    TFM(trigtype='et',
+        leg1_names=['hltEle24erWPTightGsfTrackIsoFilterForTau','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
         leg2_names=['hltSelectedPFTau30LooseChargedIsolationL1HLTMatched','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
         triggers=['HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*'])
 ]
@@ -35,19 +39,23 @@ mc_triggers = [
 
 mc_triggerfilters = [
     # Ele27
-    TFM(leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele27_WPTight_Gsf_v*']),
     # Ele32
-    TFM(leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele32_WPTight_Gsf_v*']),
     # Ele35
-    TFM(leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele35_WPTight_Gsf_v*']),
     # CrossTrigger
-    TFM(leg1_names=['hltEle24erWPTightGsfTrackIsoFilterForTau','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
+    TFM(trigtype='et',
+        leg1_names=['hltEle24erWPTightGsfTrackIsoFilterForTau','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
         leg2_names=['hltSelectedPFTau30LooseChargedIsolationL1HLTMatched','hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30'], 
         triggers=['HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*'])
 ]
@@ -56,19 +64,23 @@ embed_triggers = data_triggers
 
 embed_triggerfilters = [
     # Ele27
-    TFM(leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle27WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele27_WPTight_Gsf_v*']),
     # Ele32
-    TFM(leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle32WPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele32_WPTight_Gsf_v*']),
     # Ele35
-    TFM(leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
+    TFM(trigtype='e',
+        leg1_names=['hltEle35noerWPTightGsfTrackIsoFilter'], 
         leg2_names=[], 
         triggers=['HLT_Ele35_WPTight_Gsf_v*']),
     # CrossTrigger
-    TFM(leg1_names=['hltL1sBigORLooseIsoEGXXerIsoTauYYerdRMin0p3'], 
+    TFM(trigtype='et',
+        leg1_names=['hltL1sBigORLooseIsoEGXXerIsoTauYYerdRMin0p3'], 
         leg2_names=['hltL1sBigORLooseIsoEGXXerIsoTauYYerdRMin0p3'], 
         triggers=['HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v*'])
 ]
