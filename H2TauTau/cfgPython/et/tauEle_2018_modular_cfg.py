@@ -281,6 +281,20 @@ tauidweighter = cfg.Analyzer(
            'EToTaufake':'VLoose'}
 )
 
+ws_ele_idiso_vars_dict = {'e_pt':lambda ele:ele.pt(),
+                          'e_eta':lambda ele:ele.eta()}
+ws_ele_idiso_func_dict = {'id':'e_id90_kit_ratio',
+                          'iso':'e_iso_kit_ratio'}
+from CMGTools.H2TauTau.heppy.analyzers.LeptonsWeighter import LeptonsWeighter
+eleidisoweighter = cfg.Analyzer(
+    LeptonsWeighter,
+    'EleIDisoWeighter',
+    workspace_path = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root',
+    legs = lambda event: [event.dileptons_sorted[0].leg1()],
+    leg1_vars_dict = ws_ele_idiso_vars_dict,
+    leg1_func_dict = ws_ele_idiso_func_dict
+)
+
 # trigger weights
 ws_ele_vars_dict = {'e_pt':lambda ele:ele.pt(),
                     'e_eta':lambda ele:ele.eta()}
@@ -361,6 +375,7 @@ if embedded:
 #     sequence.append(fakefactor)
 sequence.append(tauidweighter_general)
 sequence.append(tauidweighter)
+sequence.append(eleidisoweighter)
 sequence.append(triggerweighter)
 sequence.append(ntuple)
 
