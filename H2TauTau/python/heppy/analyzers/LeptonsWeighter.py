@@ -9,18 +9,31 @@ class LeptonsWeighter(Analyzer):
     - Muon ID
 
     Example:
-       leptonsweighter = cfg.Analyzer(
-          LeptonsWeighter,
-          'LeptonsWeighter',
-          workspace_path = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root',
-          leptons = lambda event: return [event.dileptons_sorted[0].leg1()],
-          leg1_vars_dict = ws_ele_vars_dict,
-          leg1_func_dict = ws_ele_func_dict,
-       )
+    ws_ele_idiso_vars_dict = {'e_pt':lambda ele:ele.pt(),
+                          'e_eta':lambda ele:ele.eta()}
+    ws_ele_idiso_func_dict = {'id':'e_id90_kit_ratio',
+                          'iso':'e_iso_kit_ratio'}
+    from CMGTools.H2TauTau.heppy.analyzers.LeptonsWeighter import LeptonsWeighter
+    eleidisoweighter = cfg.Analyzer(
+        LeptonsWeighter,
+        'EleIDisoWeighter',
+        workspace_path = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root',
+        legs = lambda event: [event.dileptons_sorted[0].leg1()],
+        leg1_vars_dict = ws_ele_idiso_vars_dict,
+        leg1_func_dict = ws_ele_idiso_func_dict
+    )
+
+    @param legs: function to be called on event to retrieve the list of the legs (leptons of the event) from which the weights are derived.
 
     @param workspace_path: the rootfile containing the workspace
 
-    @param lepton: function to be called on event to retrieve the list of leptons from which the weights are derived.
+    @param legX_vars_dict: the variables used in the workspace function
+
+    @param legX_func_dict: the function for each weight type to be used to
+    compute the weight
+
+    the trigger types matched by the leg are important as one weight is applied
+    for each trigger type.
     """
     
     pdgID_to_str = {11 : 'e', 13 : 'm'}
