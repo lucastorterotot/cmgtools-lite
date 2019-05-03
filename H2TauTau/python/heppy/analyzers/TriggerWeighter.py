@@ -62,5 +62,3 @@ class TriggerWeighter(Analyzer):
                         val = self.ws.function(leg_func_dict[triggertype]).getVal()
                         weight_trigger *= val
                         setattr(leg, 'weight_trigger_'+str(triggertype), val)
-
-            setattr(leg, 'weight_trigger', weight_trigger)

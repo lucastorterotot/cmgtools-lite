@@ -375,7 +375,8 @@ httgenana = cfg.Analyzer(
     'httgenana',
     jetCol='slimmedJets',
     genmatching=True,
-    genPtCut=8.
+    genPtCut=8.,
+    workspace_path='$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root'
 )
 
 # Definition of the main sequences =======================================
