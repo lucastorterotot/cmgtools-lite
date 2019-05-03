@@ -180,3 +180,20 @@ backgrounds = [DY1JetsToLL_M50_LO,
                ZZTo2L2Nu,
                ZZTo2L2Q
                ]
+
+DY = [DY1JetsToLL_M50_LO,
+      DY1JetsToLL_M50_LO_ext,
+      DY2JetsToLL_M50_LO,
+      DY2JetsToLL_M50_LO_ext,
+      DY3JetsToLL_M50_LO,
+      DY3JetsToLL_M50_LO_ext,
+      DY4JetsToLL_M50_LO,
+      DYJetsToLL_M50,
+      DYJetsToLL_M50_ext,
+      DYJetsToLL_M10to50_LO]
+
+TTbar = [TTLep_pow,
+         TTHad_pow,
+         TTSemi_pow]
+
+generic_backgrounds = [comp for comp in backgrounds if comp not in DY+TTbar]

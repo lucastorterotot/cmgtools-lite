@@ -35,42 +35,27 @@ if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-# For specific studies
-add_iso_info = getHeppyOption('add_iso_info', False)
-add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
+samples_name = getHeppyOption('samples_name', 'sm_higgs')
 
-###############
-# global tags
-###############
-
-from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data, gt_embed
+if 'data' in samples_name:
+    data = True
+elif 'embedded' in samples_name:
+    data=True
+    embedded=True
+else:
+    data=False
+    embedded=False
 
 ###############
 # Components
 ###############
 
+from CMGTools.H2TauTau.heppy.sequence.common import samples_lists
 from CMGTools.RootTools.utils.splitFactor import splitFactor
-from CMGTools.H2TauTau.proto.samples.component_index import ComponentIndex
-import CMGTools.H2TauTau.proto.samples.fall17.higgs as higgs
-index=ComponentIndex(higgs)
-
-import CMGTools.H2TauTau.proto.samples.fall17.data as data_forindex
-dindex = ComponentIndex(data_forindex)
-
-from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
-from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
-import CMGTools.H2TauTau.proto.samples.fall17.backgrounds as backgrounds_forindex
-bindex = ComponentIndex( backgrounds_forindex)
-backgrounds = backgrounds_forindex.backgrounds
-import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
-eindex = ComponentIndex( embedded_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import mc_triggers, mc_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauTau import data_triggers, data_triggerfilters, embedded_triggerfilters
-from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
-mc_list = backgrounds + sync_list + mssm_signals
-data_list = data_forindex.data_tau
-embedded_list = embedded_forindex.embedded_tt
+selectedComponents = samples_lists[samples_name]
 
 n_events_per_job = 1e6
 if test:
@@ -78,54 +63,25 @@ if test:
     if embedded:
         n_events_per_job = 3e4
 
-for sample in mc_list:
-    sample.triggers = mc_triggers
-    sample.triggerobjects = mc_triggerfilters
+for sample in selectedComponents:
+    if data:
+        sample.triggers = data_triggers
+        sample.triggerobjects = data_triggerfilters
+        if embedded:
+            sample.triggerobjects = embedded_triggerfilters
+    else:
+        sample.triggers = mc_triggers
+        sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
-    sample.puFileData = puFileData
-    sample.puFileMC = puFileMC
     sample.channel = 'tt'
-
-for sample in data_list+embedded_list:
-    sample.triggers = data_triggers
-    sample.triggerobjects = data_triggerfilters
-    sample.splitFactor = splitFactor(sample, n_events_per_job)
-    era = sample.name[sample.name.find('2017')+4]
-    if 'V32' in gt_data and era in ['D','E']:
-        era = 'DE'
-    sample.dataGT = gt_data.format(era)
-    sample.channel = 'tt'
-
-for sample in embedded_list:
-    sample.triggerobjects = embedded_triggerfilters
-    sample.isEmbed = True
-
-selectedComponents = mssm_signals#[x for x in backgrounds if x.name not in ['DY2JetsToLL_M50_LO','DY3JetsToLL_M50_LO','DYJetsToLL_M50','TTLep_pow','TTSemi_pow']]
-if data:
-    selectedComponents = data_list
-    if embedded:
-        selectedComponents = embedded_list
-
-
+        
 if test:
     cache = True
-    # comp = bindex.glob('DYJetsToLL_M50')[0]
-    # comp = bindex.glob('WJetsToLNu_LO')[0]
-    # comp = bindex.glob('TTLep_pow')[0]
-    # comp = bindex.glob('TTHad_pow')[0]
-    # comp = bindex.glob('TTSemi_pow')[0]
-    comp = index.glob('HiggsVBF125')[0]
-    
-    if data:
-        comp = dindex.glob('Tau_Run2017B_31Mar2018')[0]
-    if embedded:
-        comp = eindex.glob('Embedded2017B_tt')[0]
-    selectedComponents = [comp]
+    selectedComponents = [selectedComponents[0]]
     for comp in selectedComponents:
        comp.files = comp.files[:1]
        comp.splitFactor = 1
        comp.fineSplitFactor = 1
-    #    comp.files = ['file1.root']
 
 events_to_pick = []
 

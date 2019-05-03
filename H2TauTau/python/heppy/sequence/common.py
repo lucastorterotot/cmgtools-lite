@@ -2,7 +2,57 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 import os
 import ROOT 
 
-# import all analysers:
+#########################
+### pu files & global tags
+#########################
+
+puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_13Nov.root'
+puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
+
+gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
+gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
+gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
+
+#########################
+### samples #############
+#########################
+
+from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import DY, TTbar, generic_backgrounds
+from CMGTools.H2TauTau.proto.samples.fall17.data import data_tau, data_single_muon, data_single_electron
+from CMGTools.H2TauTau.proto.samples.fall17.higgs import mc_higgs
+from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
+from CMGTools.H2TauTau.proto.samples.fall17.embedded import embedded_tt, embedded_mt, embedded_et
+
+for sample in embedded_tt+embedded_mt+embedded_et:
+    sample.isEmbed = True
+
+for sample in DY+TTbar+generic_backgrounds+sm_higgs+mssm_signals:
+    sample.puFileData = puFileData
+    sample.puFileMC = puFileMC
+
+for sample in data_tau+data_single_muon+data_single_electron+embedded_tt+embedded_mt+embedded_et:
+    era = sample.name[sample.name.find('2017')+4]
+    if 'V32' in gt_data and era in ['D','E']:
+        era = 'DE'
+    sample.dataGT = gt_data.format(era)
+
+
+samples_lists = {'DY': DY,
+                 'TTbar': TTbar,
+                 'generic_background': generic_backgrounds,
+                 'data_tau': data_tau,
+                 'data_single_muon': data_single_muon,
+                 'data_single_electron': data_single_electron,
+                 'embedded_tt': embedded_tt,
+                 'embedded_mt': embedded_mt,
+                 'embedded_et': embedded_et,
+                 'sm_higgs': mc_higgs,
+                 'mssm_signals': mssm_signals}
+
+#########################
+### analyzers ###########
+#########################
+
 # Heppy analyzers
 from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer import JSONAnalyzer
 from PhysicsTools.Heppy.analyzers.core.SkimAnalyzerCount import SkimAnalyzerCount
@@ -15,11 +65,6 @@ from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer import TriggerAnalyzer
 from CMGTools.H2TauTau.heppy.analyzers.Cleaner import Cleaner
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
-
-
-
-puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_13Nov.root'
-puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
 
 json = cfg.Analyzer(
@@ -209,9 +254,6 @@ trigger_match = cfg.Analyzer(
 
 # Jet sequence ===========================================================
 
-gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
-gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
 
 def select_good_jets_FixEE2017(jet):
         return jet.correctedJet("Uncorrected").pt() >50. or \
@@ -379,7 +421,9 @@ httgenana = cfg.Analyzer(
     workspace_path='$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root'
 )
 
-# Definition of the main sequences =======================================
+#########################
+### sequences ###########
+#########################
 
 sequence_beforedil = cfg.Sequence([
         mcweighter,
