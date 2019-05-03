@@ -77,7 +77,7 @@ class HTTGenAnalyzer(Analyzer):
         event.genmet_py = genmet.py()
         event.genmet_phi = genmet.phi()
 
-        if self.cfg_comp.name.find('TT') != -1 and self.cfg_comp.name.find('TTH') == -1:
+        if self.cfg_comp.name.find('TT') != -1 and self.cfg_comp.name.find('Higgs') == -1:
             if not hasattr(self.cfg_ana, 'top_systematic'):
                 self.applyTopPtWeight(event)
             else:
