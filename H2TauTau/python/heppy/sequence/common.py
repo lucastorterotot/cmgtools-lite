@@ -26,7 +26,7 @@ from CMGTools.H2TauTau.proto.samples.fall17.embedded import embedded_tt, embedde
 for sample in embedded_tt+embedded_mt+embedded_et:
     sample.isEmbed = True
 
-for sample in DY+TTbar+generic_backgrounds+sm_higgs+mssm_signals:
+for sample in DY+TTbar+generic_backgrounds+mc_higgs+mssm_signals:
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
 

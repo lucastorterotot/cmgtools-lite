@@ -8,8 +8,6 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
-from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-ComponentCreator.useLyonAAA = True
 
 import logging
 logging.shutdown()
@@ -35,7 +33,14 @@ if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'sm_higgs')
+samples_name = getHeppyOption('samples_name', 'sm_higgs') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
+AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
+
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
+if AAA == 'Lyon':
+    ComponentCreator.useLyonAAA = True
+else:
+    ComponentCreator.useAAA = True
 
 if 'data' in samples_name:
     data = True
@@ -325,8 +330,9 @@ def config_top_pT_reweighting(up_or_down):
             cfg.top_systematic = up_or_down
     return new_config
 
-for up_or_down in up_down:
-    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
+if samples_name=='TTbar':
+    for up_or_down in up_down:
+        configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
 
 ### DY pT reweighting
 
@@ -337,8 +343,9 @@ def config_DY_pT_reweighting(up_or_down):
             cfg.DY_systematic = up_or_down
     return new_config
 
-for up_or_down in up_down:
-    configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
+if samples_name=='DY':
+    for up_or_down in up_down:
+        configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
 
 ### MET recoil
 
@@ -357,9 +364,10 @@ def config_METrecoil(response_or_resolution, up_or_down):
 
 response_or_resolution = ['response','resolution']
 
-for sys in response_or_resolution:
-    for up_or_down in up_down:
-        configs['METrecoil_{}_{}'.format(sys,up_or_down)] = config_METrecoil(sys, up_or_down)
+if not data:
+    for sys in response_or_resolution:
+        for up_or_down in up_down:
+            configs['METrecoil_{}_{}'.format(sys,up_or_down)] = config_METrecoil(sys, up_or_down)
 
 ### MET unclustered uncertainty
 from CMGTools.H2TauTau.heppy.sequence.common import pfmetana
@@ -370,8 +378,9 @@ def config_METunclustered(up_or_down):
             cfg.unclustered_sys = up_or_down
     return new_config
 
-for up_or_down in up_down:
-    configs['METunclustered_{}'.format(up_or_down)] = config_METunclustered(up_or_down)
+if not data:
+    for up_or_down in up_down:
+        configs['METunclustered_{}'.format(up_or_down)] = config_METunclustered(up_or_down)
 
 ### tau energy scale 
 from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale
@@ -397,9 +406,10 @@ TES = [['HadronicTau','1prong0pi0'],
        ['promptEle','1prong0pi0'],
        ['promptEle','1prong1pi0']]
 
-for gm_name, dm_name in TES:
-    configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
-    configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
+if (not data) or (data and embedded):
+    for gm_name, dm_name in TES:
+        configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+        configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
 
 ### Jet energy scale
@@ -423,9 +433,10 @@ JES = ['CMS_scale_j_eta0to5_13Tev',
        'CMS_scale_j_RelativeBal_13TeV',
        'CMS_scale_j_RelativeSample_13TeV']
 
-for source in JES:
-    configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
-    configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
+if not data:
+    for source in JES:
+        configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
+        configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
 ### BTagging
 from CMGTools.H2TauTau.heppy.sequence.common import btagger
@@ -436,8 +447,9 @@ def config_Btagging(up_or_down):
             cfg.sys = up_or_down
     return new_config
 
-for up_or_down in up_down:
-    configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
+if not data:
+    for up_or_down in up_down:
+        configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
 
 # config = configs['Btagging_up']
 # configs = {'Btagging_up':configs['Btagging_up'],'Btagging_down':configs['Btagging_down'],'nominal':nominal}
