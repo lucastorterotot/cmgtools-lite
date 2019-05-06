@@ -8,9 +8,6 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
-from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-ComponentCreator.useLyonAAA = True
-
 import logging
 logging.shutdown()
 # reload(logging)
@@ -35,82 +32,52 @@ if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-# For specific studies
-add_iso_info = getHeppyOption('add_iso_info', False)
-add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
+samples_name = getHeppyOption('samples_name', 'sm_higgs') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
+AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
 
-###############
-# global tags
-###############
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
+if AAA == 'Lyon':
+    ComponentCreator.useLyonAAA = True
+else:
+    ComponentCreator.useAAA = True
 
-from CMGTools.H2TauTau.heppy.sequence.common import gt_mc, gt_data, gt_embed
+if 'data' in samples_name:
+    data = True
+elif 'embedded' in samples_name:
+    data=True
+    embedded=True
+else:
+    data=False
+    embedded=False
 
 ###############
 # Components
 ###############
 
+from CMGTools.H2TauTau.heppy.sequence.common import samples_lists
 from CMGTools.RootTools.utils.splitFactor import splitFactor
-from CMGTools.H2TauTau.proto.samples.component_index import ComponentIndex
-import CMGTools.H2TauTau.proto.samples.fall17.higgs as higgs
-index=ComponentIndex(higgs)
-
-import CMGTools.H2TauTau.proto.samples.fall17.data as data_forindex
-dindex = ComponentIndex(data_forindex)
-
-from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
-from CMGTools.H2TauTau.proto.samples.fall17.higgs import sync_list
-import CMGTools.H2TauTau.proto.samples.fall17.backgrounds as backgrounds_forindex
-bindex = ComponentIndex( backgrounds_forindex)
-backgrounds = backgrounds_forindex.backgrounds
-import CMGTools.H2TauTau.proto.samples.fall17.embedded as embedded_forindex
-eindex = ComponentIndex( embedded_forindex)
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, mc_triggerfilters, embed_triggers, embed_triggerfilters
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import data_triggers, data_triggerfilters
-from CMGTools.H2TauTau.heppy.sequence.common import puFileData, puFileMC
 
-mc_list = backgrounds + sync_list + mssm_signals
-data_list = data_forindex.data_single_electron
-embedded_list = embedded_forindex.embedded_et
+selectedComponents = samples_lists[samples_name]
 
 n_events_per_job = 1e5
 
-for sample in mc_list:
-    sample.triggers = mc_triggers
-    sample.triggerobjects = mc_triggerfilters
+for sample in selectedComponents:
+    if data:
+        sample.triggers = data_triggers
+        sample.triggerobjects = data_triggerfilters
+        if embedded:
+            sample.triggerobjects = embedded_triggerfilters
+    else:
+        sample.triggers = mc_triggers
+        sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
-    sample.puFileData = puFileData
-    sample.puFileMC = puFileMC
     sample.channel = 'et'
-
-for sample in data_list+embedded_list:
-    sample.triggers = data_triggers
-    sample.triggerobjects = data_triggerfilters
-    sample.splitFactor = splitFactor(sample, n_events_per_job)
-    era = sample.name[sample.name.find('2017')+4]
-    if 'V32' in gt_data and era in ['D','E']:
-        era = 'DE'
-    sample.dataGT = gt_data.format(era)
-    sample.channel = 'et'
-
-for sample in embedded_list:
-    sample.triggerobjects = embed_triggerfilters
-    sample.isEmbed = True
-
-selectedComponents = backgrounds + mssm_signals
-if data:
-    selectedComponents = data_list
-    if embedded:
-        selectedComponents = embedded_list
-
 
 if test:
     cache = True
-    comp = index.glob('HiggsVBF125')[0]
-    if data:
-        comp = dindex.glob('SingleElectron_Run2017B_31Mar2018')[0]
-    if embedded:
-        comp = eindex.glob('Embedded2017B_mt')[0]
-    selectedComponents = [comp]
+    selectedComponents = [selectedComponents[0]]
     # for comp in selectedComponents:
     #    comp.files = comp.files[:1]
     #    comp.splitFactor = 1
@@ -416,8 +383,9 @@ def config_top_pT_reweighting(up_or_down):
             cfg.top_systematic = up_or_down
     return new_config
 
-for up_or_down in up_down:
-    configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
+if samples_name=='TTbar':
+    for up_or_down in up_down:
+        configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
 
 ### DY pT reweighting
 
@@ -428,8 +396,9 @@ def config_DY_pT_reweighting(up_or_down):
             cfg.DY_systematic = up_or_down
     return new_config
 
-for up_or_down in up_down:
-    configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
+if samples_name=='DY':
+    for up_or_down in up_down:
+        configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
 
 ### MET recoil
 
@@ -448,9 +417,10 @@ def config_METrecoil(response_or_resolution, up_or_down):
 
 response_or_resolution = ['response','resolution']
 
-for sys in response_or_resolution:
-    for up_or_down in up_down:
-        configs['METrecoil_{}_{}'.format(sys,up_or_down)] = config_METrecoil(sys, up_or_down)
+if not data:
+    for sys in response_or_resolution:
+        for up_or_down in up_down:
+            configs['METrecoil_{}_{}'.format(sys,up_or_down)] = config_METrecoil(sys, up_or_down)
 
 ### MET unclustered uncertainty
 from CMGTools.H2TauTau.heppy.sequence.common import pfmetana
@@ -461,10 +431,11 @@ def config_METunclustered(up_or_down):
             cfg.unclustered_sys = up_or_down
     return new_config
 
-for up_or_down in up_down:
-    configs['METunclustered_{}'.format(up_or_down)] = config_METunclustered(up_or_down)
+if not data:
+    for up_or_down in up_down:
+        configs['METunclustered_{}'.format(up_or_down)] = config_METunclustered(up_or_down)
 
-### tau energy scale 
+### tau energy scale
 from CMGTools.H2TauTau.heppy.sequence.common import tauenergyscale
 
 def config_TauEnergyScale(dm_name, gm_name, up_or_down):
@@ -488,9 +459,10 @@ TES = [['HadronicTau','1prong0pi0'],
        ['promptEle','1prong0pi0'],
        ['promptEle','1prong1pi0']]
 
-for gm_name, dm_name in TES:
-    configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
-    configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
+if (not data) or (data and embedded):
+    for gm_name, dm_name in TES:
+        configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+        configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
 
 ### Jet energy scale
@@ -514,9 +486,10 @@ JES = ['CMS_scale_j_eta0to5_13Tev',
        'CMS_scale_j_RelativeBal_13TeV',
        'CMS_scale_j_RelativeSample_13TeV']
 
-for source in JES:
-    configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
-    configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
+if not data:
+    for source in JES:
+        configs['{}_up'.format(source)] = config_JetEnergyScale(source,'up')
+        configs['{}_down'.format(source)] = config_JetEnergyScale(source,'down')
 
 ### BTagging
 from CMGTools.H2TauTau.heppy.sequence.common import btagger
