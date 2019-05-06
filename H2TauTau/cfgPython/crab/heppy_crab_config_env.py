@@ -21,7 +21,7 @@ print "Will send dataset", os.environ["DATASET"], "with", os.environ["NJOBS"], "
 
 
 config.General.requestName = os.environ["DATASET"] + "_" + os.environ["CMG_VERSION"] + "_" + os.environ["PROD_LABEL"] + "_" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') # task name
-config.General.workArea = 'crab_' + os.environ["DATASET"] + "_" + os.environ["PROD_LABEL"] # crab dir name
+config.General.workArea = '/gridgroup/cms/touquet/crab_submission_dirs/'+'crab_' + os.environ["DATASET"] + "_" + os.environ["PROD_LABEL"] # crab dir name
 
 # this will divide task in *exactly* NJOBS jobs (for this we need JobType.pluginName = 'PrivateMC' and Data.splitting = 'EventBased')
 config.Data.unitsPerJob = 10
