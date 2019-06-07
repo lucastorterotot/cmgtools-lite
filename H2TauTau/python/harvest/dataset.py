@@ -74,7 +74,7 @@ class Dataset(object):
         '''
         subdirs = self.fhandler.ls(self.path)
         pattern = re.compile('\d{4}$')
-        subdirs = [subd for subd in subdirs if pattern.search(subd)
+        subdirs = [os.path.basename(subd) for subd in subdirs if pattern.search(subd)
                    and fnmatch.fnmatch(subd, self.subdir_pattern)]
         return subdirs
 
@@ -82,7 +82,7 @@ class Dataset(object):
         '''Find compressed archives in a subdir'''
         subd = self.abspath(subd)
         files = self.fhandler.ls(subd)
-        files = [f for f in files if f.endswith('.tgz')
+        files = [os.path.basename(f) for f in files if f.endswith('.tgz')
                  and fnmatch.fnmatch(f, self.tgz_pattern)]
         return files
 

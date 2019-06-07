@@ -58,40 +58,52 @@ gfal = GFAL()
 class XRD(object):
     '''xrootd backend, currently in use'''
 
-    def __init__(self, run=True, host='lyogrid06.in2p3.fr', prefix='/dpm/in2p3.fr/home/cms/data'):
+    def __init__(self, run=True, host='lyogrid06.in2p3.fr', 
+                 prefix='/dpm/in2p3.fr/home/cms/data'):
+        '''Create xrootd backend'''
         self.host = host
         self.prefix = prefix
         self.lprefix = ''
         self.run = run
 
     def _file(self, path):
+        '''returns file path, given an LFN or a local directory'''
         if path.startswith('/store'):
-            return 'root://{}/{}/{}'.format(self.host,self.prefix, path)
+            return False, ''.join([self.prefix, path])
         else:
-            return ''.join([self.lprefix, path])
+            return True, ''.join([self.lprefix, path])
 
     def _run(self, cmd):
+        '''run a command'''
         pipe = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE)
         return pipe.communicate()[0]
 
     def ls(self, path, opt=''):
-        cmd = 'xrdfs {host} ls {opt} {prefix}/{path}'.format(
-            opt=opt, 
-            host=self.host,
-            prefix=self.prefix,
-            path=path)
+        local, path = self._file(path)
+        if not local: 
+            cmd = 'xrdfs {host} ls {opt} {path}'.format(
+                opt=opt, 
+                host=self.host,
+                path=path)
+        else: 
+            cmd = 'ls {path}'.format(path=path)
         if self.run: 
             paths = self._run(cmd).splitlines()
-            files = [os.path.basename(path) for path in paths]
-            return files
+            # files = [os.path.basename(path) for path in paths]
+            return paths
         else:
             return cmd
 
-    def cp(self, src, dest, opt=''):
-        cmd = 'xrdcp {opt} {src} {dest}'.format( 
-            opt=opt, 
-            src=self._file(src),
-            dest=self._file(dest)
+    def cp(self, src, dest):
+        local, src = self._file(src)
+        if not local: 
+            src = 'root://{}/{}'.format(self.host, src)
+        local, dest = self._file(dest)
+        if not local: 
+            dest = 'root://{}/{}'.format(self.host, dest)
+        cmd = 'xrdcp {src} {dest}'.format( 
+            src=src,
+            dest=dest
             )
         if self.run: 
             return self._run(cmd).splitlines() 

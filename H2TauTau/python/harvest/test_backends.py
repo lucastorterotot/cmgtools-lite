@@ -1,4 +1,7 @@
-from backends import GFAL
+import unittest
+import tempfile 
+
+from backends import GFAL, XRD
 
 @unittest.skip("GFAL does not work at the moment... if not needed remove unittest")
 class TestGFAL(unittest.TestCase):
@@ -30,3 +33,58 @@ class TestGFAL(unittest.TestCase):
         tgzs = [fname for fname in result if fname.endswith('.tgz')]
         self.assertEqual(len(tgzs),9)
 
+
+class TestXRD(unittest.TestCase): 
+    
+    def setUp(self): 
+        self.path = '/store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304/0000'
+
+    def test_rfile(self):
+        xrd = XRD()
+        local, path = xrd._file(self.path)
+        self.assertEqual(local, False)
+        self.assertEqual(
+            path,
+            '/dpm/in2p3.fr/home/cms/data'+self.path)
+        local, path = xrd._file('test')
+        self.assertEqual(local, True)
+        self.assertEqual(path, 'test')
+
+    def test_ls(self):
+        xrd = XRD(False)
+        self.assertEqual(
+            xrd.ls('test'), 
+            'ls test'
+            )
+        self.assertEqual(
+            xrd.ls('/store/user/cbernet/heppyTrees'),
+            'xrdfs lyogrid06.in2p3.fr ls  /dpm/in2p3.fr/home/cms/data/store/user/cbernet/heppyTrees'
+            )
+
+    def test_run(self):
+        xrd = XRD(True)
+        with tempfile.NamedTemporaryFile() as tfile:
+            self.assertEqual(
+                xrd.ls(tfile.name)[0],
+                tfile.name
+            )
+
+    def test_ls_real(self):
+        xrd = XRD(True)
+        path = self.path
+        result = xrd.ls(path)
+        tgzs = [fname for fname in result if fname.endswith('.tgz')]
+        self.assertEqual(len(tgzs),7)
+
+    def test_cp(self): 
+        '''COLIN: copy certainly does not work towards the SE!'''
+        xrd = XRD(False)
+        path = '/store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304/0000/heppyOutput_10.tgz'
+        self.assertEqual(
+            xrd.cp(path, '.'),
+            'xrdcp root://lyogrid06.in2p3.fr//dpm/in2p3.fr/home/cms/data/store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304/0000/heppyOutput_10.tgz .'
+            )
+        
+
+if __name__ == '__main__':
+    unittest.main()
