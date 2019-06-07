@@ -3,6 +3,7 @@ import tempfile
 
 from harvest import *
 
+@unittest.skip("GFAL does not work at the moment... if not needed remove unittest")
 class TestGFAL(unittest.TestCase):
     
     def test_rfile(self):
@@ -44,12 +45,10 @@ class TestDataset(unittest.TestCase):
         self.assertEqual(len(self.ds.tgzs['0000']), 2)
 
     def test_fetch(self):
-        # ds = Dataset(self.basepath)
         ds = self.ds
         ds.fetch()
 
     def test_unpack(self):
-        # ds = Dataset(self.basepath)
         ds = self.ds
         ds.unpack()
 

@@ -100,7 +100,7 @@ lyonXRD = XRD()
 
 class Dataset(object):
     
-    def __init__(self,path,subdirs='*',tgzs='*',fhandler=lyonXRD):
+    def __init__(self, path, subdirs='*',tgzs='*',fhandler=lyonXRD):
         self.path = path
         self.name = self.path.split('/')[-2]
         self.fhandler=fhandler
@@ -115,7 +115,7 @@ class Dataset(object):
     def abspath(self, path):
         return '/'.join([self.path, path])
 
-    def find_subdirs(self,path):
+    def find_subdirs(self, path):
         subdirs = self.fhandler.ls(self.path)
         pattern = re.compile('\d{4}$')
         subdirs = [subd for subd in subdirs if pattern.search(subd)
@@ -182,7 +182,7 @@ class Dataset(object):
         os.chdir(self.dest)
         destpath = os.getcwd()
         for subd, files in self.tgzs.iteritems():
-            print 'upackging subdir', subd
+            print 'unpacking subdir', subd
             os.chdir(subd)
             for i, f in enumerate(files): 
                 print 'unpacking', f
@@ -225,7 +225,8 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', convert_ntuple=False):
                  subdirs=subdir_pattern, 
                  tgzs=tgz_pattern)
     if ds.fetch():
-        print ds.dest
+        print(ds.dest)
+        import pdb; pdb.set_trace()
         ds.unpack()
         ds.hadd()
         compname=ds.dest[ds.dest.find('/')+1:]
