@@ -101,6 +101,14 @@ lyonXRD = XRD()
 class Dataset(object):
     
     def __init__(self, path, subdirs='*',tgzs='*',fhandler=lyonXRD):
+        '''Create a dataset. 
+
+        path: LFN, e.g. 
+            /store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304
+        subdirs: wildcard pattern for the subdirs to consider
+            a subdir is e.g. 0000
+        fhandler: filesystem backend. for now, only xrootd is working, don't use GFAL
+        '''
         self.path = path
         self.name = self.path.split('/')[-2]
         self.fhandler=fhandler
@@ -111,11 +119,32 @@ class Dataset(object):
         for subd in self.subdirs:
             self.tgzs[subd] = self.find_tgzs(subd)
         self.dest = None
+        # will be filled at unpacking:
+        self.chunks = None
+
+    def __str__(self): 
+        lines = ['name: {}\npath: {}'.format(self.name,
+                                             self.path)]
+        lines.append('subdirs:')
+        for subd in self.subdirs: 
+            lines.append(subd)
+            lines.extend(self.tgzs[subd])
+        if self.chunks == None:
+            lines.append('unpacking not done')
+        else: 
+            lines.append('chunks:')
+            lines.extend(self.chunks)
+        return '\n'.join(lines)
 
     def abspath(self, path):
+        '''return absolute path from a relative path within the dataset'''
         return '/'.join([self.path, path])
 
     def find_subdirs(self, path):
+        '''Look for subdirs within the dataset. 
+        Subdirs are subdirectories with a name composed of 4 digits, most often
+        0000
+        '''
         subdirs = self.fhandler.ls(self.path)
         pattern = re.compile('\d{4}$')
         subdirs = [subd for subd in subdirs if pattern.search(subd)
@@ -123,6 +152,7 @@ class Dataset(object):
         return subdirs
 
     def find_tgzs(self, subd):
+        '''Find compressed archives in a subdir'''
         subd = self.abspath(subd)
         files = self.fhandler.ls(subd)
         files = [f for f in files if f.endswith('.tgz')
@@ -130,7 +160,20 @@ class Dataset(object):
         return files
 
     def fetch(self, dest=None):
+        '''fetch the dataset and put it into a destination path.
+        
+        if dest exists, its contents are deleted
+        if dest does not exist, it is set e.g. to 
+        tt_DY_nominal/DYJetsToLL_M50/0000/
+        if the dataset path is 
+        /store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304/0000
+        I have no idea why (colin)
+        '''
         if dest is None: 
+            #COLIN : Why? What happens if we have more directories
+            # like 180625_123805? 
+            # it seems to me that this tries to solve a problem that 
+            # should have been solved downstream
             dest = '/'.join(self.path.split('/')[-3:-1])
         if os.path.isdir(dest):
             answer = None
@@ -175,20 +218,27 @@ class Dataset(object):
             os.system('rm -rf {path}/*Chunk*'.format(path=path))
 
     def unpack(self):
+        '''unpacks the dataset after fetching. 
+        fetches if fetching not yet done. 
+        each tgz file is unpacked into an heppy chunk, 
+        for later heppy_hadd
+        '''
         if self.dest is None:
             print 'dataset was not fetched, fetching now'
             self.fetch()
         basepath=os.getcwd()
         os.chdir(self.dest)
         destpath = os.getcwd()
+        self.chunks = []
         for subd, files in self.tgzs.iteritems():
             print 'unpacking subdir', subd
             os.chdir(subd)
             for i, f in enumerate(files): 
                 print 'unpacking', f
                 os.system('tar -zxf ' + f)
-                os.rename('Output', 
-                          '{}_Chunk{}'.format(self.name, str(i)))
+                chunkname = '{}_Chunk{}'.format(self.name, str(i))
+                self.chunks.append(chunkname)
+                os.rename('Output', chunkname)
                 os.remove(f)
             os.chdir(destpath)
         os.chdir(basepath)
