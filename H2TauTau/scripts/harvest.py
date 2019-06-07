@@ -8,6 +8,7 @@ import fnmatch
 from ROOT import TFile
 
 class GFAL(object):
+    '''GFAL backend. Should we remove it?'''
 
     def __init__(self, run=True):
         self.rprefix = 'srm://lyogrid06.in2p3.fr:8446/srm/managerv2?SFN=/dpm/in2p3.fr/home/cms/data'
@@ -55,6 +56,7 @@ class GFAL(object):
 gfal = GFAL()
 
 class XRD(object):
+    '''xrootd backend, currently in use'''
 
     def __init__(self, run=True, host='lyogrid06.in2p3.fr', prefix='/dpm/in2p3.fr/home/cms/data'):
         self.host = host
@@ -100,14 +102,25 @@ lyonXRD = XRD()
 
 class Dataset(object):
     
-    def __init__(self, path, subdirs='*',tgzs='*',fhandler=lyonXRD):
+    def __init__(self, path, subdirs='*', tgzs='*',
+                 fhandler=lyonXRD):
         '''Create a dataset. 
+
+        parameters: 
 
         path: LFN, e.g. 
             /store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304
         subdirs: wildcard pattern for the subdirs to consider
             a subdir is e.g. 0000
         fhandler: filesystem backend. for now, only xrootd is working, don't use GFAL
+
+        attributes: 
+
+        path: e.g. /store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304
+        name: e.g. /DYJetsToLL_M50
+        subdirs: list of subdirectories, e.g. 0000
+        tgzs: dictionary of tar files per subdirectory
+        chunks: dictionary of chunks per subdirectory
         '''
         self.path = path
         self.name = self.path.split('/')[-2]
@@ -118,6 +131,8 @@ class Dataset(object):
         self.tgzs = dict()
         for subd in self.subdirs:
             self.tgzs[subd] = self.find_tgzs(subd)
+        # destination directory on local machine,
+        # will be set at fetching
         self.dest = None
         # will be filled at unpacking:
         self.chunks = None
@@ -129,11 +144,11 @@ class Dataset(object):
         for subd in self.subdirs: 
             lines.append(subd)
             lines.extend(self.tgzs[subd])
-        if self.chunks == None:
-            lines.append('unpacking not done')
-        else: 
-            lines.append('chunks:')
-            lines.extend(self.chunks)
+            if self.chunks == None:
+                lines.append('unpacking not done')
+            else: 
+                lines.append('chunks:')
+                lines.extend(self.chunks[subd])
         return '\n'.join(lines)
 
     def abspath(self, path):
@@ -201,7 +216,7 @@ class Dataset(object):
         return True
 
     def check(self, pattern='*'):
-        '''Not used do far, need to find a way to check output
+        '''Not used yet, need to find a way to check output
         '''
         for subdir in self.tgzs:
             path = '{dest}/{subd}/'.format(dest=self.dest,
@@ -229,17 +244,21 @@ class Dataset(object):
         basepath=os.getcwd()
         os.chdir(self.dest)
         destpath = os.getcwd()
-        self.chunks = []
-        for subd, files in self.tgzs.iteritems():
+        self.chunks = dict()
+        for subd, tgzs in self.tgzs.iteritems():
             print 'unpacking subdir', subd
             os.chdir(subd)
-            for i, f in enumerate(files): 
-                print 'unpacking', f
-                os.system('tar -zxf ' + f)
-                chunkname = '{}_Chunk{}'.format(self.name, str(i))
-                self.chunks.append(chunkname)
+            self.chunks[subd] = []
+            for tgz in tgzs: 
+                print 'unpacking', tgz
+                os.system('tar -zxf {}'.format(tgz))
+                # tgz is e.g. heppyOutput_43.tgz
+                # so index is 43
+                index = os.path.splitext(tgz)[0].split('_')[1]
+                chunkname = '{}_Chunk{}'.format(self.name, index)
+                self.chunks[subd].append(chunkname)
                 os.rename('Output', chunkname)
-                os.remove(f)
+                os.remove(tgz)
             os.chdir(destpath)
         os.chdir(basepath)
 
