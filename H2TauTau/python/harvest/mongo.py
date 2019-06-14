@@ -17,5 +17,6 @@ cursor = coll.find()
 records = list(cursor)
 print(records)
 
-coll.insert({'a':1})
+if user == 'writer':
+    coll.insert({'a':1})
 
