@@ -10,6 +10,7 @@ from ROOT import TFile
 from CMGTools.H2TauTau.harvest.dataset import Dataset
 
 def get_options():
+    '''process command line options and return options, args'''
     import os
     import sys
     from optparse import OptionParser

@@ -74,7 +74,8 @@ class Dataset(object):
         '''
         subdirs = self.fhandler.ls(self.path)
         pattern = re.compile('\d{4}$')
-        subdirs = [os.path.basename(subd) for subd in subdirs if pattern.search(subd)
+        subdirs = [os.path.basename(subd) for subd in subdirs 
+                   if pattern.search(subd)
                    and fnmatch.fnmatch(subd, self.subdir_pattern)]
         return subdirs
 
@@ -236,4 +237,5 @@ if __name__ == '__main__':
             subdir_pattern=options.subdir_pattern, 
             tgz_pattern=options.tgz_pattern, 
             apply_ff=options.apply_ff, 
-            convert_ntuple=options.convert_ntuple)
+            convert_ntuple=options.convert_ntuple
+            )
