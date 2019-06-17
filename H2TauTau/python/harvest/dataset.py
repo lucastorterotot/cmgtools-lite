@@ -46,6 +46,19 @@ class Dataset(object):
         # will be filled at unpacking:
         self.chunks = None
 
+    def info(self):
+        '''return dataset information as a dictionary, 
+        for storage into the db
+        '''
+        return dict(
+            path = self.path,
+            name = self.name, 
+            subdir_pattern = self.subdir_pattern,
+            tgz_pattern = self.tgz_pattern,
+            subdirs = self.subdirs,
+            tgzs = self.tgzs
+            )
+
     def __str__(self): 
         lines = ['name: {}\npath: {}'.format(self.name,
                                              self.path)]
@@ -59,6 +72,9 @@ class Dataset(object):
                 lines.append('chunks:')
                 lines.extend(self.chunks[subd])
         return '\n'.join(lines)
+
+    def __repr__(self): 
+        return 'dataset: {}'.format(self.path)
 
     def abspath(self, path):
         '''return absolute path from a relative path within the dataset'''

@@ -84,7 +84,13 @@ class TestXRD(unittest.TestCase):
             xrd.cp(path, '.'),
             'xrdcp root://lyogrid06.in2p3.fr//dpm/in2p3.fr/home/cms/data/store/user/gtouquet/heppyTrees/190503/tt_DY_nominal/DYJetsToLL_M50/190505_112304/0000/heppyOutput_10.tgz .'
             )
-        
+
+    def test_lfn(self):
+        xrd = XRD()
+        self.assertEqual( xrd.lfn('/blah/store/foo'), '/store/foo' )
+        self.assertEqual( xrd.lfn('/store/foo'), '/store/foo' )
+        with self.assertRaises(ValueError):
+            xrd.lfn('/tmp/foobar')
 
 if __name__ == '__main__':
     unittest.main()

@@ -2,21 +2,18 @@ import pymongo
 import urllib
 import sys 
 
-user, passwd, db, coll = sys.argv[1:]
-passwd = urllib.pathname2url(passwd)
+class DatasetDB(object): 
 
-print(user, passwd, db, coll)
-
-client = pymongo.MongoClient(
-    'mongodb://{}:{}@localhost/?authSource={}&authMechanism=MONGODB-CR'.format(user, passwd, db),
-    27017
-    )
-coll = client[db][coll]
-
-cursor = coll.find()
-records = list(cursor)
-print(records)
-
-if user == 'writer':
-    coll.insert({'a':1})
+    def __init__(self, mode='reader', db='datasets', coll='se'):
+        if mode not in ['reader', 'writer']: 
+            throw ValueError('mode must be either "reader" or "writer"')
+        pwd = raw_input('{} password:'.format(mode))
+        self.client = pymongo.MongoClient(
+            'mongodb://{}:{}@localhost/?authSource={}&authMechanism=MONGODB-CR'.format(
+                mode, pwd, self.db
+                ),
+            27017
+            )
+        self.coll = client[db][coll]
+        
 

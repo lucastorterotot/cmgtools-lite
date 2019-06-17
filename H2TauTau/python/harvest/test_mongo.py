@@ -38,7 +38,6 @@ class TestMongo(unittest.TestCase):
         with self.assertRaises(pymongo.errors.OperationFailure):
             coll.insert({'willfail': 2})
 
-
 if __name__ == '__main__':
     rpwd = raw_input('reader password:')
     wpwd = raw_input('writer password:')

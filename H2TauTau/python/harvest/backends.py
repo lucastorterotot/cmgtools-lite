@@ -78,6 +78,16 @@ class XRD(object):
         pipe = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE)
         return pipe.communicate()[0]
 
+    def lfn(self, path): 
+        '''returns logical file name (LFN)'''
+        if path.startswith('/store'): 
+            return path
+        pos = path.find('/store')
+        if pos < 0: 
+            raise( ValueError('{} is not on the SE!'.format(path) ) )
+        lfn = path[pos:] 
+        return lfn
+
     def ls(self, path, opt=''):
         local, path = self._file(path)
         if not local: 
