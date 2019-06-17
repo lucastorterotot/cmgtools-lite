@@ -8,7 +8,7 @@ import re
 class Scanner(object): 
     '''Dataset scanner'''
 
-    def __init__(self, path ,pattern='*'):
+    def __init__(self, path, pattern='*', writedb_asap=False):
         '''create scanner
         
         path: base directory
@@ -16,14 +16,17 @@ class Scanner(object):
         '''
         self.path = path
         self.pattern = pattern
-        self.datasets = self._start_scan()
+        self.writedb_asap = writedb_asap
         self.database = None
+        self.datasets = self._start_scan()
 
-    def writedb(self):
+    def writedb(self, datasets=None):
         '''write datasets to the db'''
         if not self.database :
             self.database = DatasetDB('writer')
-        for ds in self.datasets: 
+        if datasets is None: 
+            datasets = self.datasets
+        for ds in datasets: 
             self.database.insert(ds.info())
             
 
@@ -50,8 +53,11 @@ class Scanner(object):
         for subdir in subdirs:
             basename = os.path.basename(subdir)
             if pattern.match(basename):
-                # print('found', path, basename)
-                results.append(Dataset(path))
+                print(path)
+                dataset = Dataset(path)
+                results.append(dataset)
+                if self.writedb_asap: 
+                    self.writedb([dataset])
                 break
             else: 
                 results.extend( self._scan(subdir, level+1))
