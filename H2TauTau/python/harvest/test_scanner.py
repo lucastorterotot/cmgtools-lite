@@ -1,5 +1,5 @@
 import unittest
-from scanner import Scanner
+from se_scanner import SEScanner
 import pprint
 
 class TestScanner(unittest.TestCase): 
@@ -7,7 +7,7 @@ class TestScanner(unittest.TestCase):
     def test_1(self):
         '''test that we can scan'''
         path = '/store/user/gtouquet/heppyTrees/190503'
-        scanner = Scanner(path, '*tt_DY_Btagging*')
+        scanner = SEScanner(path, '*tt_DY_Btagging*')
         # check that we can find at least one dataset
         self.assertTrue(len(scanner.datasets)>0)
         for ds in scanner.datasets: 

@@ -3,6 +3,7 @@ import re
 import subprocess
 
 class SubdirScanner(object):
+    '''Scan submission directories to find datasets'''
 
     def scan(self, basedir): 
         self.dirs = self._find_dirs(basedir)
