@@ -9,6 +9,8 @@ class TestMongo(unittest.TestCase):
         
     def test_1_writer(self):
         # test readWrite
+        rpwd = raw_input('reader password:')
+        wpwd = raw_input('writer password:')
         client = pymongo.MongoClient(
             'mongodb://{}:{}@localhost/?authSource={}&authMechanism=MONGODB-CR'.format(
                 'writer', wpwd, self.db
@@ -39,8 +41,6 @@ class TestMongo(unittest.TestCase):
             coll.insert({'willfail': 2})
 
 if __name__ == '__main__':
-    rpwd = raw_input('reader password:')
-    wpwd = raw_input('writer password:')
         
     unittest.main()
 

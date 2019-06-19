@@ -6,7 +6,17 @@ import os
 import re
 
 class Scanner(object): 
-    '''Base scanner'''
+    '''Base scanner
+
+    handles connection to database and defines user interface. 
+    Child classes must implement: 
+
+    _scan : scan the directory and return the dataset infos, 
+            as a list of dictionaries 
+
+    Important attributes: 
+    - datasets : list of info dicts for all datasets. 
+    '''
 
     def __init__(self, path, pattern='*', writedb_asap=False):
         '''create scanner
@@ -28,5 +38,9 @@ class Scanner(object):
             datasets = self.datasets
         for ds in datasets: 
             self.database.insert(ds.info())
-            
-        
+
+    def scan(self):
+        '''initiate recursive scan'''
+        print('scanning {} ({}) please be patient...'.format(self.path, 
+                                                             self.pattern))
+        self.datasets = self._scan(self.path)

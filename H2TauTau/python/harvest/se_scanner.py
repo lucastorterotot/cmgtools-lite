@@ -15,19 +15,15 @@ class SEScanner(Scanner):
         pattern: dataset pattern on full path
         '''
         super(SEScanner, self).__init__(path, pattern, writedb_asap)
-        self.datasets = self._start_scan()
 
-    def _start_scan(self):
-        '''initiate recursive scan'''
-        print('scanning {} ({}) please be patient...'.format(self.path, 
-                                                             self.pattern))
-        return self._scan(self.path)
 
     def _scan(self, path, level=0):
         '''recursive scan to find datasets.
 
         directories containing a subirectory with 4 digits, eg. 0000,
         are considered a dataset
+
+        returns the list of dataset info dicts
         '''
         # print('entering', path)
         if level>0 and not fnmatch.fnmatch(path, self.pattern):
@@ -42,9 +38,10 @@ class SEScanner(Scanner):
             if pattern.match(basename):
                 print(path)
                 dataset = Dataset(path)
-                results.append(dataset)
+                info = dataset.info()
+                results.append(info)
                 if self.writedb_asap: 
-                    self.writedb([dataset])
+                    self.writedb([info])
                 break
             else: 
                 results.extend( self._scan(subdir, level+1))

@@ -1,15 +1,28 @@
 import os
 import re
 import subprocess
+from scanner import Scanner 
 
-class SubdirScanner(object):
-    '''Scan submission directories to find datasets'''
+class SubdirScanner(Scanner):
+    '''Scan submission directory to find datasets'''
 
-    def scan(self, basedir): 
-        self.dirs = self._find_dirs(basedir)
+    def __init__(self, path):
+        super(SubdirScanner, self).__init__(path)
+
+    def _scan(self, path): 
+        '''Scan path to find datasets. 
+
+        returns the list of dataset info dicts
+        '''
+        self.dirs = self._find_dirs(path)
         self.infos = self._extract_info(self.dirs)
+        return self.infos
 
     def _extract_info(self, dirs):
+        '''extract dataset information for a list of directories
+
+        returns the list of dataset info dicts
+        '''
         pattern = re.compile(r'.*crab_.*/crab_(.*)_(\d+)_(.*)_(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})$')
         infos = []
         filtered_dirs = []
@@ -30,11 +43,11 @@ class SubdirScanner(object):
         return infos
 
 
-    def _find_dirs(self, basedir, pattern=None):
+    def _find_dirs(self, path, pattern=None):
         if pattern: 
-            cmd = 'find {} -type d -iname {}'.format(basedir, pattern)
+            cmd = 'find {} -type d -iname {}'.format(path, pattern)
         else: 
-            cmd = 'find {} -type d'.format(basedir)        
+            cmd = 'find {} -type d'.format(path)        
         result = subprocess.check_output(cmd.split())
         dirs = result.splitlines()
         dirs = [path for path in dirs if 
