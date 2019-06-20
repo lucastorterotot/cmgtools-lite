@@ -17,6 +17,9 @@ class DatasetDB(object):
         self.coll = self.client[db][coll]
         
     def insert(self,info): 
-        self.coll.update({'path':info['path']}, 
+        self.coll.update({'name':info['name']}, 
                          info, 
                          upsert=True)
+
+    def remove(self, query): 
+        self.coll.remove(query)

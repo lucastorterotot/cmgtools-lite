@@ -29,12 +29,15 @@ class SubdirScanner(Scanner):
         for path in dirs: 
             m = pattern.match(path)
             if m: 
-                base_sample, prod_date, sample, sub_date = m.groups()
+                sample, prod_date, sample_version, sub_date = m.groups()
                 info = dict(
+                    name = '{}%{}%{}'.format(
+                        prod_date, sample, sample_version
+                        ),
                     sub_dir = path,
-                    base_sample = base_sample,
+                    sample = sample,
                     prod_date = prod_date, 
-                    prod_name = sample, 
+                    sample_version = sample_version, 
                     sub_date = sub_date
                     )
                 infos.append(info)

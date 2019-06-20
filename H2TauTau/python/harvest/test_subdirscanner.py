@@ -27,18 +27,31 @@ class TestSubdirScanner(unittest.TestCase):
         infos = scanner._extract_info(dirs)        
         self.assertEqual(len(infos),2)
         self.assertListEqual(infos, 
-                             [{'base_sample': 'HiggsSUSYGG3200',
+                             [{'name':'190503%HiggsSUSYGG3200%tt_mssm_signals_METrecoil_resolution_up',
+                               'sample': 'HiggsSUSYGG3200',
                                'prod_date': '190503',
-                               'prod_name': 'tt_mssm_signals_METrecoil_resolution_up',
+                               'sample_version': 'tt_mssm_signals_METrecoil_resolution_up',
                                'sub_date': '2019-05-17_07-51-36',
                                'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_METrecoil_resolution_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_METrecoil_resolution_up_2019-05-17_07-51-36'},
-                              {'base_sample': 'HiggsSUSYGG3200',
+                              {'name':'190503%HiggsSUSYGG3200%tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up', 
+                               'sample': 'HiggsSUSYGG3200',
                                'prod_date': '190503',
-                               'prod_name': 'tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up',
+                               'sample_version': 'tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up',
                                'sub_date': '2019-05-17_10-29-52',
                                'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up_2019-05-17_10-29-52'}]
                              )
-        
+    def test_writedb(self):
+        scanner = SubdirScanner('dummy')
+        dirs = [
+            '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_METrecoil_resolution_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_METrecoil_resolution_up_2019-05-17_07-51-36',
+            '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up_2019-05-17_10-29-52',
+            ]
+        infos = scanner._extract_info(dirs)
+        for info in infos: 
+            info['name']='test'
+        scanner.writedb(infos)
+        scanner.database.remove({'name':'test'}) 
+
     def test_scan(self):
         '''test the full scan'''
         scanner = SubdirScanner(basedir)

@@ -37,7 +37,7 @@ class Scanner(object):
         if datasets is None: 
             datasets = self.datasets
         for ds in datasets: 
-            self.database.insert(ds.info())
+            self.database.insert(ds)
 
     def scan(self):
         '''initiate recursive scan'''
