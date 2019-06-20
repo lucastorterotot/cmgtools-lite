@@ -23,7 +23,7 @@ class TestDatasetDB(unittest.TestCase):
                           "subdirs" : [ 0, 1 ], "tgz_pattern" : "*", "tgzs" : [ 2, 3 ]})
         data = list(dsdb.coll.find({'path':'aa'}))
         self.assertEqual(len(data),1)
-        dsdb.coll.remove({'path':'aa'})
+        dsdb.remove({'name':'bb'})
         with self.assertRaises(ValueError): 
             DatasetDB('foo')
 
@@ -31,23 +31,23 @@ class TestDatasetDB(unittest.TestCase):
         '''test writing a real dataset to the db'''
         dataset = Dataset(dspath)
         info = dataset.info()
-        writedb.coll.remove({'path':info['path']})
+        writedb.remove({'name':info['name']})
         writedb.insert(info)
         # test that the information has been inserted. 
         # there was no such dataset before
-        rinfos = list(writedb.coll.find({'path':info['path']}))
+        rinfos = list(writedb.coll.find({'name':info['name']}))
         self.assertEqual(len(rinfos), 1)
         rinfo = rinfos[0]
-        self.assertEqual(rinfo['path'], info['path'] )
+        self.assertEqual(rinfo['name'], info['name'] )
         # now test update
         tgzs = copy.deepcopy(info['tgzs'])
         info['tgzs']['0000'].append('heppyOutput_666.tgz')
         writedb.insert(info)
-        rinfos = list(writedb.coll.find({'path':info['path']}))
+        rinfos = list(writedb.coll.find({'name':info['name']}))
         self.assertEqual(len(rinfos), 1)
         rinfo = rinfos[0]
         self.assertEqual(len(rinfo['tgzs']['0000']), len(tgzs['0000'])+1)
-        writedb.coll.remove({'path':info['path']})
+        writedb.remove({'name':info['name']})
                 
 
 if __name__ == '__main__': 

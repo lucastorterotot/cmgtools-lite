@@ -11,6 +11,8 @@ from backends import lyonXRD
 
 class Dataset(object):
     
+    info_pattern = re.compile(r'.*(\d{6})/(.*)/(.*)/(.*)$')
+
     def __init__(self, path, subdirs='*', tgzs='*',
                  fhandler=lyonXRD):
         '''Create a dataset. 
@@ -42,6 +44,21 @@ class Dataset(object):
             self.tgzs[subd] = self.find_tgzs(subd)
         # destination directory on local machine,
         # will be set at fetching
+        m = self.__class__.info_pattern.match(self.path)
+        prod_date, sample_version, sample, write_date = m.groups()    
+        self._info = dict(
+            name = '{}%{}%{}'.format(
+                prod_date, sample, sample_version
+                ),
+            sample = sample,
+            prod_date = prod_date,
+            sample_version = sample_version,
+            se_path = self.path,
+            subdir_pattern = self.subdir_pattern,
+            tgz_pattern = self.tgz_pattern,
+            subdirs = self.subdirs,
+            tgzs = self.tgzs
+            )        
         self.dest = None
         # will be filled at unpacking:
         self.chunks = None
@@ -50,14 +67,7 @@ class Dataset(object):
         '''return dataset information as a dictionary, 
         for storage into the db
         '''
-        return dict(
-            path = self.path,
-            name = self.name, 
-            subdir_pattern = self.subdir_pattern,
-            tgz_pattern = self.tgz_pattern,
-            subdirs = self.subdirs,
-            tgzs = self.tgzs
-            )
+        return self._info
 
     def __str__(self): 
         lines = ['name: {}\npath: {}'.format(self.name,
