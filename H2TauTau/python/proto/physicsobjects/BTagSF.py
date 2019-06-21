@@ -69,7 +69,7 @@ class BTagSF(object):
 
         return self.reader_light.eval_auto_bounds('central', self.getBTVJetFlav(flavor), eta, pt)
 
-    def isBTagged(self, pt, eta, csv, jetflavor, is_data, csv_cut=0.8484):
+    def isBTagged(self, pt, eta, csv, jetflavor, is_data, csv_cut=0.8484): #0.8484
         jetflavor = abs(jetflavor)
 
         if is_data or pt < 20. or abs(eta) > 2.5:

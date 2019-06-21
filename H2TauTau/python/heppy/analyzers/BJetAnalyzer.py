@@ -20,4 +20,3 @@ class BJetAnalyzer(Analyzer):
                                                    jetflavor=abs(jet.hadronFlavour()),
                                                    is_data=not self.cfg_comp.isMC,
                                                    csv_cut=0.4941)
-                    
