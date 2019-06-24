@@ -12,9 +12,8 @@ class TestDatasetDB(unittest.TestCase):
     
     def test_1_read(self): 
         '''test that a test entry can be read, in reader mode'''
-        readdb
-        data = list(readdb.coll.find({'path':'a'}))
-        self.assertEqual(len(data),1)
+        data = list(readdb.coll.find())
+        self.assertEqual(len(data),0)
 
     def test_2_writedummy(self):
         '''test writer mode'''

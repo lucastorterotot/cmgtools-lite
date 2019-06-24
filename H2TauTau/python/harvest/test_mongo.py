@@ -40,6 +40,7 @@ class TestMongo(unittest.TestCase):
         with self.assertRaises(pymongo.errors.OperationFailure):
             coll.insert({'willfail': 2})
 
+
 if __name__ == '__main__':
         
     unittest.main()
