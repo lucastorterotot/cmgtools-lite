@@ -40,17 +40,18 @@ class TestSubdirScanner(unittest.TestCase):
                                'sub_date': '2019-05-17_10-29-52',
                                'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up_2019-05-17_10-29-52'}]
                              )
-    def test_writedb(self):
-        scanner = SubdirScanner('dummy')
-        dirs = [
-            '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_METrecoil_resolution_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_METrecoil_resolution_up_2019-05-17_07-51-36',
-            '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up_2019-05-17_10-29-52',
-            ]
-        infos = scanner._extract_info(dirs)
-        for info in infos: 
-            info['name']='test'
-        scanner.writedb(infos)
-        scanner.database.remove({'name':'test'}) 
+
+    # def test_writedb(self):
+    #     scanner = SubdirScanner('dummy')
+    #     dirs = [
+    #         '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_METrecoil_resolution_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_METrecoil_resolution_up_2019-05-17_07-51-36',
+    #         '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up_2019-05-17_10-29-52',
+    #         ]
+    #     infos = scanner._extract_info(dirs)
+    #     for info in infos: 
+    #         info['name']='test'
+    #     scanner.writedb(infos)
+    #     scanner.database.remove({'name':'test'}) 
 
     def test_scan(self):
         '''test the full scan'''

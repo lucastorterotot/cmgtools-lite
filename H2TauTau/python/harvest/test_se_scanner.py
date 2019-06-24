@@ -11,12 +11,6 @@ class TestSEScanner(unittest.TestCase):
         scanner.scan()
         # check that we can find at least one dataset
         self.assertTrue(len(scanner.datasets)>0)
-        pprint.pprint(scanner.datasets)
-        # uncommented not to pollute db: 
-        # check writing to db
-        # scanner.writedb()
-        
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,7 @@
 import unittest
 import pymongo
 
+@unittest.skip('mongo already tested in test_datasetdb')
 class TestMongo(unittest.TestCase): 
 
     def setUp(self):
