@@ -53,6 +53,42 @@ class TestSubdirScanner(unittest.TestCase):
     #     scanner.writedb(infos)
     #     scanner.database.remove({'name':'test'}) 
 
+    def test_duplicates(self): 
+        dirs = [
+            '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY3JetsToLL_M50_LO_tt_DY_TES_HadronicTau_3prong0pi0_down/crab_DY3JetsToLL_M50_LO_190503_tt_DY_TES_HadronicTau_3prong0pi0_down_2019-05-05_00-50-24',
+            '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY3JetsToLL_M50_LO_tt_DY_TES_HadronicTau_3prong0pi0_down/crab_DY3JetsToLL_M50_LO_190503_tt_DY_TES_HadronicTau_3prong0pi0_down_2019-05-05_22-45-56',
+            '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY4JetsToLL_M50_LO_tt_DY_CMS_scale_j_eta0to3_13TeV_up/crab_DY4JetsToLL_M50_LO_190503_tt_DY_CMS_scale_j_eta0to3_13TeV_up_2019-05-05_00-42-16',
+            '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY4JetsToLL_M50_LO_tt_DY_CMS_scale_j_eta0to3_13TeV_up/crab_DY4JetsToLL_M50_LO_190503_tt_DY_CMS_scale_j_eta0to3_13TeV_up_2019-05-05_14-10-23',
+            '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG400_tt_mssm_signals_nominal/crab_HiggsSUSYGG400_190503_tt_mssm_signals_nominal_2019-05-16_11-58-44'
+            ] 
+        scanner = SubdirScanner('dummy')
+        infos = scanner._extract_info(dirs)
+        no_dupes = scanner._remove_duplicates(infos)
+        # pprint.pprint(infos)
+        # print('no dupes')
+        # pprint.pprint(no_dupes)
+        self.assertListEqual(
+            no_dupes, 
+            [{'name': '190503%DY3JetsToLL_M50_LO%tt_DY_TES_HadronicTau_3prong0pi0_down',
+              'prod_date': '190503',
+              'sample': 'DY3JetsToLL_M50_LO',
+              'sample_version': 'tt_DY_TES_HadronicTau_3prong0pi0_down',
+              'sub_date': '2019-05-05_22-45-56',
+              'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY3JetsToLL_M50_LO_tt_DY_TES_HadronicTau_3prong0pi0_down/crab_DY3JetsToLL_M50_LO_190503_tt_DY_TES_HadronicTau_3prong0pi0_down_2019-05-05_22-45-56'},
+             {'name': '190503%DY4JetsToLL_M50_LO%tt_DY_CMS_scale_j_eta0to3_13TeV_up',
+              'prod_date': '190503',
+              'sample': 'DY4JetsToLL_M50_LO',
+              'sample_version': 'tt_DY_CMS_scale_j_eta0to3_13TeV_up',
+              'sub_date': '2019-05-05_14-10-23',
+              'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY4JetsToLL_M50_LO_tt_DY_CMS_scale_j_eta0to3_13TeV_up/crab_DY4JetsToLL_M50_LO_190503_tt_DY_CMS_scale_j_eta0to3_13TeV_up_2019-05-05_14-10-23'},
+             {'name': '190503%HiggsSUSYGG400%tt_mssm_signals_nominal',
+              'prod_date': '190503',
+              'sample': 'HiggsSUSYGG400',
+              'sample_version': 'tt_mssm_signals_nominal',
+              'sub_date': '2019-05-16_11-58-44',
+              'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG400_tt_mssm_signals_nominal/crab_HiggsSUSYGG400_190503_tt_mssm_signals_nominal_2019-05-16_11-58-44'}]
+            ) 
+
     def test_scan(self):
         '''test the full scan'''
         scanner = SubdirScanner(basedir)

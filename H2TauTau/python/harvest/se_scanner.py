@@ -8,13 +8,13 @@ import re
 class SEScanner(Scanner): 
     '''Scan the storage element to find datasets'''
 
-    def __init__(self, path, pattern='*', writedb_asap=False):
+    def __init__(self, *args, **kwargs):
         '''create scanner
         
         path: base directory
         pattern: dataset pattern on full path
         '''
-        super(SEScanner, self).__init__(path, pattern, writedb_asap)
+        super(SEScanner, self).__init__(*args, **kwargs)
 
 
     def _scan(self, path, level=0):

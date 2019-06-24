@@ -3,7 +3,8 @@ import pprint
 
 if __name__ == '__main__':
      basedir = '/gridgroup/cms/touquet/crab_submission_dirs'
-     scanner = SubdirScanner(basedir)
+     db = 'datasets'
+     scanner = SubdirScanner(basedir, db=db)
      scanner.scan()
      scanner.writedb()
      print('{} datasets written to database'.format(len(scanner.datasets)))

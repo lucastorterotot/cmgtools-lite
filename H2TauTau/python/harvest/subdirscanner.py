@@ -1,13 +1,16 @@
 import os
 import re
 import subprocess
+import pprint
+import copy
+from collections import Counter
 from scanner import Scanner 
 
 class SubdirScanner(Scanner):
     '''Scan submission directory to find datasets'''
 
-    def __init__(self, path):
-        super(SubdirScanner, self).__init__(path)
+    def __init__(self, *args, **kwargs):
+        super(SubdirScanner, self).__init__(*args, **kwargs)
 
     def _scan(self, path): 
         '''Scan path to find datasets. 
@@ -15,8 +18,36 @@ class SubdirScanner(Scanner):
         returns the list of dataset info dicts
         '''
         self.dirs = self._find_dirs(path)
-        self.infos = self._extract_info(self.dirs)
+        infos = self._extract_info(self.dirs)
+        self.infos = self._remove_duplicates(infos)
         return self.infos
+
+
+    def _remove_duplicates(self, infos):
+        '''removes duplicate infos. 
+
+        if several infos have the same name, the one with the latest sub_date is kept.
+        the ordering of the input list is preserved.
+        '''
+        by_name = dict()
+        for info in infos:
+            by_name.setdefault(info['name'], []).append(info)
+        no_dupes = []
+        for info in infos: 
+            infos_with_this_name = by_name.get(info['name'], None)
+            if infos_with_this_name is None: 
+                continue
+            ninfos = len(infos_with_this_name)
+            if ninfos==1: 
+                no_dupes.append(infos_with_this_name[0])
+            else: 
+                latest = max(infos_with_this_name, key=lambda x: x['sub_date'])
+                no_dupes.append(latest)
+            # remove this name from the dictionary, 
+            # so that the latest info is not added several times
+            del by_name[info['name']]
+        return no_dupes
+
 
     def _extract_info(self, dirs):
         '''extract dataset information for a list of directories

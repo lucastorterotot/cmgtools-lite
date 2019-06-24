@@ -18,7 +18,7 @@ class Scanner(object):
     - datasets : list of info dicts for all datasets. 
     '''
 
-    def __init__(self, path, pattern='*', writedb_asap=False):
+    def __init__(self, path, pattern='*', db='datasets_unittests', writedb_asap=False):
         '''create scanner
         
         path: base directory
@@ -26,6 +26,7 @@ class Scanner(object):
         '''
         self.path = path
         self.pattern = pattern
+        self.db = db
         self.writedb_asap = writedb_asap
         self.database = None
         self.datasets = None
@@ -33,7 +34,8 @@ class Scanner(object):
     def writedb(self, datasets=None):
         '''write datasets to the db'''
         if not self.database :
-            self.database = DatasetDB('writer')
+            self.database = DatasetDB('writer', 
+                                      db=self.db)
         if datasets is None: 
             datasets = self.datasets
         for ds in datasets: 
