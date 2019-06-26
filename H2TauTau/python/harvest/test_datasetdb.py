@@ -12,15 +12,15 @@ class TestDatasetDB(unittest.TestCase):
     
     def test_1_read(self): 
         '''test that a test entry can be read, in reader mode'''
-        data = list(readdb.coll.find())
+        data = list(readdb.find())
         self.assertEqual(len(data),0)
 
     def test_2_writedummy(self):
         '''test writer mode'''
         dsdb = writedb
-        dsdb.coll.insert({"path" : "aa", "name" : "bb", "subdir_pattern" : "*", 
-                          "subdirs" : [ 0, 1 ], "tgz_pattern" : "*", "tgzs" : [ 2, 3 ]})
-        data = list(dsdb.coll.find({'path':'aa'}))
+        dsdb.insert({"path" : "aa", "name" : "bb", "subdir_pattern" : "*", 
+                     "subdirs" : [ 0, 1 ], "tgz_pattern" : "*", "tgzs" : [ 2, 3 ]})
+        data = list(dsdb.find({'path':'aa'}))
         self.assertEqual(len(data),1)
         dsdb.remove({'name':'bb'})
         with self.assertRaises(ValueError): 
@@ -34,7 +34,7 @@ class TestDatasetDB(unittest.TestCase):
         writedb.insert(info)
         # test that the information has been inserted. 
         # there was no such dataset before
-        rinfos = list(writedb.coll.find({'name':info['name']}))
+        rinfos = list(writedb.find({'name':info['name']}))
         self.assertEqual(len(rinfos), 1)
         rinfo = rinfos[0]
         self.assertEqual(rinfo['name'], info['name'] )
@@ -42,7 +42,7 @@ class TestDatasetDB(unittest.TestCase):
         tgzs = copy.deepcopy(info['tgzs'])
         info['tgzs']['0000'].append('heppyOutput_666.tgz')
         writedb.insert(info)
-        rinfos = list(writedb.coll.find({'name':info['name']}))
+        rinfos = list(writedb.find({'name':info['name']}))
         self.assertEqual(len(rinfos), 1)
         rinfo = rinfos[0]
         self.assertEqual(len(rinfo['tgzs']['0000']), len(tgzs['0000'])+1)
