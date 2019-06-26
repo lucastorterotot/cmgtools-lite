@@ -12,17 +12,20 @@ class TestDatasetDB(unittest.TestCase):
     
     def test_1_read(self): 
         '''test that a test entry can be read, in reader mode'''
-        data = list(readdb.find())
+        data = list(readdb.find('se'))
         self.assertEqual(len(data),0)
 
     def test_2_writedummy(self):
         '''test writer mode'''
         dsdb = writedb
-        dsdb.insert({"path" : "aa", "name" : "bb", "subdir_pattern" : "*", 
+        dsdb.insert('se',
+                    {"path" : "aa", "name" : "bb", "subdir_pattern" : "*", 
                      "subdirs" : [ 0, 1 ], "tgz_pattern" : "*", "tgzs" : [ 2, 3 ]})
-        data = list(dsdb.find({'path':'aa'}))
+        data = list(dsdb.find('se',
+                              {'path':'aa'}))
         self.assertEqual(len(data),1)
-        dsdb.remove({'name':'bb'})
+        dsdb.remove('se', 
+                    {'name':'bb'})
         with self.assertRaises(ValueError): 
             DatasetDB('foo')
 
@@ -30,23 +33,23 @@ class TestDatasetDB(unittest.TestCase):
         '''test writing a real dataset to the db'''
         dataset = Dataset(dspath)
         info = dataset.info()
-        writedb.remove({'name':info['name']})
-        writedb.insert(info)
+        writedb.remove('se', {'name':info['name']})
+        writedb.insert('se', info)
         # test that the information has been inserted. 
         # there was no such dataset before
-        rinfos = list(writedb.find({'name':info['name']}))
+        rinfos = list(writedb.find('se', {'name':info['name']}))
         self.assertEqual(len(rinfos), 1)
         rinfo = rinfos[0]
         self.assertEqual(rinfo['name'], info['name'] )
         # now test update
         tgzs = copy.deepcopy(info['tgzs'])
         info['tgzs']['0000'].append('heppyOutput_666.tgz')
-        writedb.insert(info)
-        rinfos = list(writedb.find({'name':info['name']}))
+        writedb.insert('se', info)
+        rinfos = list(writedb.find('se', {'name':info['name']}))
         self.assertEqual(len(rinfos), 1)
         rinfo = rinfos[0]
         self.assertEqual(len(rinfo['tgzs']['0000']), len(tgzs['0000'])+1)
-        writedb.remove({'name':info['name']})
+        writedb.remove('se', {'name':info['name']})
                 
 
 if __name__ == '__main__': 
