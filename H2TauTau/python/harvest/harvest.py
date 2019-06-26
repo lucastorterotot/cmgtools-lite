@@ -30,5 +30,5 @@ class Harvester(object):
           '''
           self.dsdb = dataset_db
 
-     def get_ds_info(self, pattern): 
-          pass 
+     def get_ds_infos(self, pattern='*'): 
+          return list(self.dsdb.find())

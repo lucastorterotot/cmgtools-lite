@@ -35,10 +35,15 @@ class DatasetDB(object):
         '''find entries matching query in collection coll'''
         if query is None: 
             query = {}
-        return self.db[coll].find(query)
+        return list(self.db[coll].find(query))
+
+    def find_by_name(self, coll, regex): 
+        '''find entries with a name matching the regex in coll'''
+        query = {'name': {'$regex':regex}}
+        return list(self.db[coll].find(query))
 
     def count(self, coll, query=None): 
         '''count entries matching query in collection coll'''
         if query is None: 
             query = {}
-        return self.db[coll].count(query)
+        return list(self.db[coll].count(query))
