@@ -13,14 +13,13 @@ class TestDataset(unittest.TestCase):
 
     def test_read(self):
         '''test that a dataset can be read. does not fetch or unpack'''
-        print(dataset)
         self.assertEqual(dataset.abspath('toto'), '/'.join([dspath,'toto']))
-        self.assertEqual(len(dataset.subdirs),1)
-        self.assertEqual(dataset.subdirs[0],'0000')
-        self.assertTrue(len(dataset.tgzs[dataset.subdirs[0]])>1)
+        info = dataset.info()
+        self.assertEqual(len(info['subdirs']),1)
+        self.assertEqual(info['subdirs'][0],'0000')
+        self.assertTrue(len(info['tgzs'][info['subdirs'][0]])>1)
         # check the first tgz of the first subdir
-        self.assertTrue(dataset.tgzs[dataset.subdirs[0]][0].endswith('.tgz'))
-        pprint.pprint(dataset.info())
+        self.assertTrue(info['tgzs'][info['subdirs'][0]][0].endswith('.tgz'))
         self.assertDictEqual(dataset.info(),
                              {'name': '190503%DYJetsToLL_M50%tt_DY_nominal',
                               'prod_date': '190503',
@@ -34,12 +33,12 @@ class TestDataset(unittest.TestCase):
                              )
          
 
-    def test_unpack(self):
-        dest = 'tt_DY_nominal/DYJetsToLL_M50'
-        if os.path.isdir(dest): 
-            shutil.rmtree(dest)
-        dataset.unpack()
-        print(dataset)
+    # def test_unpack(self):
+    #     dest = 'tt_DY_nominal/DYJetsToLL_M50'
+    #     if os.path.isdir(dest): 
+    #         shutil.rmtree(dest)
+    #     dataset.unpack()
+    #     print(dataset)
         
 
 if __name__ == '__main__':

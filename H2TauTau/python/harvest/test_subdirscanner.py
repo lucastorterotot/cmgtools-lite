@@ -93,7 +93,8 @@ class TestSubdirScanner(unittest.TestCase):
         '''test the full scan'''
         scanner = SubdirScanner(basedir)
         scanner.scan()
-        self.assertEqual(len(scanner.dirs), len(scanner.infos))
+        self.assertTrue(len(scanner.dirs) > 1)
+        self.assertTrue(len(scanner.infos) < len(scanner.dirs) )
 
     def test_find_os(self):
         '''test that we can use the find command. split is necessary'''

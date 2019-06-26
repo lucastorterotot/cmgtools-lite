@@ -36,11 +36,16 @@ class SubdirScanner(Scanner):
         for info in infos: 
             infos_with_this_name = by_name.get(info['name'], None)
             if infos_with_this_name is None: 
+                # happens if latest info already added to no_dupes, 
+                # see below
                 continue
             ninfos = len(infos_with_this_name)
             if ninfos==1: 
                 no_dupes.append(infos_with_this_name[0])
             else: 
+                # using lexicographical comparison on sub_date. 
+                # this assumes that sub_date is of the form: 
+                # year month day hour min sec
                 latest = max(infos_with_this_name, key=lambda x: x['sub_date'])
                 no_dupes.append(latest)
             # remove this name from the dictionary, 

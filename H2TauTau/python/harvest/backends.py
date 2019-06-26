@@ -5,7 +5,6 @@ import subprocess
 import re
 import shutil
 import fnmatch
-from ROOT import TFile
 
 class GFAL(object):
     '''GFAL backend. Should we remove it?'''
