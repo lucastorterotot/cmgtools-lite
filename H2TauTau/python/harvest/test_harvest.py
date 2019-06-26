@@ -39,12 +39,16 @@ class TestHarvest(unittest.TestCase):
         ntgzs = 2
         harv.fetch(infos[0], outdir, ntgzs)
         harv.unpack(infos[0], outdir, ntgzs)
-        chunks = os.listdir( '/'.join([outdir, '0000']))
+        chunks = os.listdir(outdir)
         # pprint.pprint(chunks)
         self.assertListEqual(chunks, 
                              ['190503%DY1JetsToLL_M50_LO_ext%tt_DY_nominal_Chunk10',
                               '190503%DY1JetsToLL_M50_LO_ext%tt_DY_nominal_Chunk1']
                              )
+        harv.hadd(outdir)
+        results = os.listdir(outdir)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], '190503%DY1JetsToLL_M50_LO_ext%tt_DY_nominal')
         shutil.rmtree(outdir)
         
 
