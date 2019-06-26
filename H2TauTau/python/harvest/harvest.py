@@ -76,5 +76,40 @@ class Harvester(object):
           os.chdir(basepath)
           return True
 
+     def hadd(self, path=''):
+          for subdir in self.tgzs:
+               if not path:
+                    path = '{dest}/{subd}/'.format(dest=self.dest,
+                                                   subd=subdir)
+               os.system('heppy_hadd.py {path}'.format(path=path))
+               os.system('rm -rf {path}/*Chunk*'.format(path=path))
 
+     def unpack(self, info, destination, ntgzs=None):
+          '''unpacks the dataset after fetching. 
+          each tgz file is unpacked into an heppy chunk, 
+          for later heppy_hadd
+          '''
+          basepath=os.getcwd()
+          os.chdir(destination)
+          destpath = os.getcwd()
+          chunks = dict()
+          for subd, tgzs in info['tgzs'].iteritems():
+               print 'unpacking subdir', subd
+               os.chdir(subd)
+               chunks[subd] = []
+               if ntgzs is None:
+                    ntgzs = len(tgzs)
+               for tgz in tgzs[:ntgzs]: 
+                    print 'unpacking', tgz
+                    os.system('tar -zxf {}'.format(tgz))
+                    # tgz is e.g. heppyOutput_43.tgz
+                    # so index is 43
+                    index = os.path.splitext(tgz)[0].split('_')[1]
+                    chunkname = '{}_Chunk{}'.format(info['name'], index)
+                    chunks[subd].append(chunkname)
+                    os.rename('Output', chunkname)
+                    os.remove(tgz)
+               os.chdir(destpath)
+          os.chdir(basepath)
+          
 

@@ -2,6 +2,7 @@ import unittest
 import pprint 
 import tempfile
 import shutil
+import os 
 
 from harvest import Harvester
 from datasetdb import DatasetDB 
@@ -34,7 +35,16 @@ class TestHarvest(unittest.TestCase):
         harv = Harvester(dsdb)
         infos = harv.get_ds_infos('se', '.*DY1Jets.*_ext')
         outdir = tempfile.mkdtemp()
-        harv.fetch(infos[0], outdir, 2)
+        # print(outdir)
+        ntgzs = 2
+        harv.fetch(infos[0], outdir, ntgzs)
+        harv.unpack(infos[0], outdir, ntgzs)
+        chunks = os.listdir( '/'.join([outdir, '0000']))
+        # pprint.pprint(chunks)
+        self.assertListEqual(chunks, 
+                             ['190503%DY1JetsToLL_M50_LO_ext%tt_DY_nominal_Chunk10',
+                              '190503%DY1JetsToLL_M50_LO_ext%tt_DY_nominal_Chunk1']
+                             )
         shutil.rmtree(outdir)
         
 
