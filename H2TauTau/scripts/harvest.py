@@ -1,28 +1,52 @@
 
 from CMGTools.H2TauTau.harvest.datasetdb import DatasetDB
+import CMGTools.H2TauTau.harvest.harvest as harvest
 
-def option_parser():
+harvest.datasetdb = DatasetDB(mode='writer', db='datasets')
+
+def get_options():
      from optparse import OptionParser
      usage = "usage: %prog [options]"
      parser = OptionParser(usage=usage)
-     parser.add_option("-d", "--dataset-pattern", dest="dataset_pattern",
-                       default='*',
-                       help='dataset pattern')
+     parser.add_option("-p", "--dataset-pattern", dest="dataset_pattern",
+                       default='.*',
+                       help='dataset regex pattern')
      parser.add_option("-n", "--negate", dest="negate",
                        action="store_true", default=False,
                        help='do nothing')
-    (options,args) = parser.parse_args()
-    if len(args)!=0:
-        print parser.usage
-        sys.exit(1)
-    return options, args
-
+     parser.add_option("-w", "--workers", dest='workers', 
+                       default = 20, 
+                       type='int',
+                       help='number of workers. default 20')
+     (options,args) = parser.parse_args()
+     if len(args)!=1:
+          print parser.usage
+          sys.exit(1)
+     return options, args
+     
 
 if __name__ == '__main__':
-     basedir = '/gridgroup/cms/touquet/crab_submission_dirs'
-     db = 'datasets'
-     scanner = SubdirScanner(basedir, db=db)
-     scanner.scan()
-     scanner.writedb()
-     print('{} datasets written to database'.format(len(scanner.datasets)))
+     
+     import pprint 
+     import sys 
 
+     options, args = get_options()
+     destdir = args[0]
+     infos = harvest.get_ds_infos('se', options.dataset_pattern)
+     for name in sorted(info['name'] for info in infos):
+          print(name)
+     print('{} datasets to be harvested. {} workers'.format(len(infos),
+                                                            options.workers))
+     estimated_time = len(infos)*30./options.workers/3600.
+     print('estimated time: {:3.1f} hours'.format(estimated_time))
+     if options.negate:
+          sys.exit(0)
+
+     choice = 'foobar'
+     while choice not in 'yn': 
+          choice = raw_input('are you sure? [y/n]')
+     if choice == 'n':
+          print('operation cancelled')
+          sys.exit(0)
+
+     harvest.harvest(infos, destdir, ntgzs=2, nworkers=options.workers)

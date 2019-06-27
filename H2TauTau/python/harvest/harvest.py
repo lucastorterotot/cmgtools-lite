@@ -48,8 +48,10 @@ def harvest_one(info, destination, ntgzs=None):
      hadd(tmpdir)
      sampledir = '/'.join([tmpdir,info['name']])
      # print(sampledir)
-     scp(sampledir, 'localhost:'+destination, '-P 2222')
-     shutil.rmtree(tmpdir)
+     # scp(sampledir, 'localhost:'+destination, '-P 2222')
+     for path in os.listdir(tmpdir): 
+          shutil.move('/'.join([tmpdir,path]), destination)
+     # shutil.rmtree(tmpdir)
      del info['_id']
      info['harv_time'] = time.time()
      info['harv_dir'] = sampledir
@@ -59,14 +61,24 @@ def get_ds_infos(coll, regex):
      '''returns infos for datasets with a name matching regex
      in collection coll
      '''
-     return datasetdb.find_by_name(coll, regex)
-
+     infos = datasetdb.find_by_name(coll, regex)
+     infos = [info for info in infos if 'path' in info]
+     return infos
 
 def harvest(infos, destination, nworkers=None, ntgzs=None): 
      '''harvest the datasets corresponding to infos
      the data is stored in the destination directory 
      IMPLEMENT MULTIPROCESSING MODE
      '''
+     if os.path.isdir(destination):
+          choice = 'foo'
+          while choice not in 'yn': 
+               choice = raw_input('{} exists. remove it? [y/n]'.format(destination))
+          if choice == 'n':
+               sys.exit(0)
+          else: 
+               shutil.rmtree(destination)
+     os.mkdir(destination)
      hinfos = []
      if nworkers is None or nworkers==1:
           for info in infos: 
