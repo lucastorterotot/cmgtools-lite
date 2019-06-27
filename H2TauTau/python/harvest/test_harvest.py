@@ -4,6 +4,7 @@ import tempfile
 import shutil
 import os 
 import subprocess
+import time 
 
 from harvest import Harvester
 from datasetdb import DatasetDB 
@@ -52,7 +53,7 @@ class TestHarvest(unittest.TestCase):
         self.assertEqual(results[0], '190503%DY1JetsToLL_M50_LO_ext%tt_DY_nominal')
         shutil.rmtree(outdir)
 
-    def test_scp(self): 
+    def test_3_scp(self): 
         harv = Harvester(dsdb)
         srcdir = tempfile.mkdtemp()
         dummy_fname = 'foo'
@@ -78,6 +79,22 @@ class TestHarvest(unittest.TestCase):
         shutil.rmtree(srcdir)
         shutil.rmtree(destdir)
 
+    def test_4_harvest_one(self):
+        harv = Harvester(dsdb)
+        infos = harv.get_ds_infos('se', '.*DY1Jets.*_ext')
+        destdir = '/data2/htt/unittests'
+        info = infos[0]
+        start = time.time()
+        harv.harvest_one(info, destdir, ntgzs=2)
+        # check that dataset exists on destination: 
+        result = subprocess.check_output(
+            'ssh -p 2222 localhost ls {}'.format(destdir).split()
+            )
+        self.assertEqual(result.strip(), info['name'])
+        # check harvesting time in db
+        hinfo = harv.get_ds_infos('harvested', info['name'])
+        self.assertEqual(len(hinfo),1)
+        self.assertTrue(hinfo[0]['harv_time']>start)
 
         
 if __name__ == '__main__':

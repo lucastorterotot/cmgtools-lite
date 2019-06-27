@@ -76,7 +76,9 @@ class TestDatasetDB(unittest.TestCase):
         
         # clean up 
         writedb.remove('se', {'name':info['name']})
-        
+
+    def test_4_createcol(self):
+        writedb.insert('newcol', {'name':'foo', 'a':2})
 
 if __name__ == '__main__': 
     unittest.main()

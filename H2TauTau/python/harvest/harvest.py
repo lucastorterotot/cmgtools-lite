@@ -1,5 +1,7 @@
 import os
 import shutil
+import tempfile 
+import time
 
 from datasetdb import DatasetDB
 from dataset import Dataset
@@ -40,7 +42,6 @@ class Harvester(object):
           '''
           return self.dsdb.find_by_name(coll, regex)
 
-
      def harvest(self, infos, destination): 
           '''harvest the datasets corresponding to infos
           the data is stored in the destination directory 
@@ -49,10 +50,30 @@ class Harvester(object):
           for info in infos: 
                self.harvest_one(info, destination)
 
-     def harvest_one(self, info, destination):
-          '''harvest one dataset'''
-          self.fetch(info, destination)
-     
+     def harvest_one(self, info, destination, ntgzs=None):
+          '''harvest one dataset
+          
+          dataset is: 
+          - fetched
+          - unpacked
+          - hadded 
+          - copied to destination on lyovis10 (don't forget the tunnel)
+          
+          Finally, its info is added to the harv table in the db
+          '''
+          tmpdir = tempfile.mkdtemp()
+          self.fetch(info, tmpdir, ntgzs)
+          self.unpack(info, tmpdir, ntgzs)
+          self.hadd(tmpdir)
+          sampledir = '/'.join([tmpdir,info['name']])
+          # print(sampledir)
+          self.scp(sampledir, 'localhost:'+destination, '-P 2222')
+          shutil.rmtree(tmpdir)
+          del info['_id']
+          info['harv_time'] = time.time()
+          info['harv_dir'] = sampledir
+          self.dsdb.insert('harvested', info)
+
      def fetch(self, info, destination, ntgzs=None):
           '''fetch the dataset and put it into a destination directory
           ntgzs : maximum number of tgzs to fetch. used for testing
