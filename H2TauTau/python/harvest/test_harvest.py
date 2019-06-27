@@ -3,6 +3,7 @@ import pprint
 import tempfile
 import shutil
 import os 
+import subprocess
 
 from harvest import Harvester
 from datasetdb import DatasetDB 
@@ -50,7 +51,34 @@ class TestHarvest(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], '190503%DY1JetsToLL_M50_LO_ext%tt_DY_nominal')
         shutil.rmtree(outdir)
-        
 
+    def test_scp(self): 
+        harv = Harvester(dsdb)
+        srcdir = tempfile.mkdtemp()
+        dummy_fname = 'foo'
+        open('/'.join([srcdir, dummy_fname]),'w').close()
+
+        # test local copy
+        destdir = tempfile.mkdtemp()
+        # print(srcdir)
+        # print(destdir)
+        harv.scp(srcdir, 'localhost:'+destdir)
+        self.assertTrue(os.path.isfile('/'.join([destdir, 
+                                                 os.path.basename(srcdir), 
+                                                 dummy_fname])))
+        
+        # test copy to lyovis10 
+        harv.scp(srcdir, 'localhost:'+destdir, '-P 2222')
+        result = subprocess.check_output(
+            'ssh -p 2222 localhost ls {}'.format(destdir).split()
+            )
+        self.assertEqual(result.strip(), dummy_fname)
+
+        # cleaning up 
+        shutil.rmtree(srcdir)
+        shutil.rmtree(destdir)
+
+
+        
 if __name__ == '__main__':
     unittest.main()

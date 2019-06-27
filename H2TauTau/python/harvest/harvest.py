@@ -76,13 +76,19 @@ class Harvester(object):
           os.chdir(basepath)
           return True
 
-     def hadd(self, destination):
-          #           for subdir in self.tgzs:
-          #               if not path:
-          # path = '{dest}/{subd}/'.format(dest=self.dest,
-          #                                         subd=subdir)
+
+     def scp(self, directory, destination, options=''): 
+          '''scp the directory to a destination'''
+          cmd = 'scp -r {} {} {}'.format(
+               options, directory, destination
+               )
+          os.system(cmd)
+
+     def hadd(self, directory):
+          '''Run heppy_hadd in directory, 
+          and remove the chunks'''
           oldpath=os.getcwd()
-          os.chdir(destination)
+          os.chdir(directory)
           os.system('heppy_hadd.py .')
           os.system('rm -rf *Chunk*')
           os.chdir(oldpath)
@@ -117,4 +123,3 @@ class Harvester(object):
                shutil.rmtree(subd)
           os.chdir(oldpath)
           
-
