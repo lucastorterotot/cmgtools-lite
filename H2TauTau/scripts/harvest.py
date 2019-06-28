@@ -32,14 +32,18 @@ if __name__ == '__main__':
 
      options, args = get_options()
      destdir = args[0]
-     infos = harvest.get_ds_infos('se', options.dataset_pattern)
+     infos,done = harvest.get_ds_infos(options.dataset_pattern)
      for name in sorted(info['name'] for info in infos):
           print(name)
-     print('{} datasets to be harvested. {} workers'.format(len(infos),
-                                                            options.workers))
-     estimated_time = len(infos)*30./options.workers/3600.
-     print('estimated time: {:3.1f} hours'.format(estimated_time))
-     if options.negate:
+     print('{} datasets to be harvested, {} skipped.  {} workers'.format(
+               len(infos),
+               len(done),
+               options.workers)
+           )
+     if len(infos):
+          estimated_time = len(infos)*30./options.workers/3600.
+          print('estimated time: {:3.1f} hours'.format(estimated_time))
+     if options.negate or not len(infos):
           sys.exit(0)
 
      choice = 'foobar'

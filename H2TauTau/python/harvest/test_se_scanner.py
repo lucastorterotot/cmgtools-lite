@@ -10,7 +10,7 @@ class TestSEScanner(unittest.TestCase):
         scanner = SEScanner(path, '*tt_DY_Btagging_down*')
         scanner.scan()
         # check that we can find at least one dataset
-        self.assertTrue(len(scanner.datasets)>0)
+        self.assertTrue(len(scanner.infos)>0)
 
 if __name__ == '__main__':
     unittest.main()

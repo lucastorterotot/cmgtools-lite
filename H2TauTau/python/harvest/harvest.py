@@ -1,3 +1,11 @@
+'''Harvesting tools
+
+set 
+harvest.datasetdb 
+before using 
+See datasetdb.py for more information
+'''
+
 import os
 import shutil
 import tempfile 
@@ -9,27 +17,6 @@ from multiprocessing import Pool
 # to be set by user
 datasetdb = None
 
-def get_options():
-     from optparse import OptionParser
-     usage = "usage: %prog [options]"
-     parser = OptionParser(usage=usage)
-     parser.add_option("-d", "--dataset-pattern", dest="dataset_pattern",
-                       default='*',
-                       help='dataset pattern')
-     parser.add_option("-n", "--negate", dest="negate",
-                       action="store_true", default=False,
-                       help='do nothing')
-     (options,args) = parser.parse_args()
-     if len(args)!=0:
-          print parser.usage
-          sys.exit(1)
-     return options, args
-     
-def wait_a_bit(nsec):
-     time.sleep(nsec)
-     print('done')
-
-
 def harvest_one(info, destination, ntgzs=None):
      '''harvest one dataset
      
@@ -37,38 +24,54 @@ def harvest_one(info, destination, ntgzs=None):
      - fetched
      - unpacked
      - hadded 
-     - copied to destination on lyovis10 (don't forget the tunnel)
+     - copied to a destination directory 
      
-     Finally, its info is added to the harv table in the db
+     returns info for the harvested dataset, 
+     including harv_time and harv_dir
      '''
      print('there')
      tmpdir = tempfile.mkdtemp()
      fetch(info, tmpdir, ntgzs)
      unpack(info, tmpdir, ntgzs)
      hadd(tmpdir)
-     sampledir = '/'.join([tmpdir,info['name']])
-     # print(sampledir)
+     tmpsampledir = '/'.join([tmpdir,info['name']])
+     destsampledir = '/'.join([destination, info['name']])
+     # oprint(sampledir)
      # scp(sampledir, 'localhost:'+destination, '-P 2222')
-     for path in os.listdir(tmpdir): 
-          shutil.move('/'.join([tmpdir,path]), destination)
-     # shutil.rmtree(tmpdir)
+     # import pdb; pdb.set_trace()
+     if os.path.isdir(destsampledir): 
+          shutil.rmtree(destsampledir)
+     shutil.move(tmpsampledir, destsampledir)
+     shutil.rmtree(tmpdir)
      del info['_id']
      info['harv_time'] = time.time()
-     info['harv_dir'] = sampledir
+     info['harv_dir'] = destsampledir
      return info 
 
-def get_ds_infos(coll, regex): 
+def get_ds_infos(regex): 
      '''returns infos for datasets with a name matching regex
-     in collection coll
+     in collection coll, and with a path on the SE so that they can be harvested
      '''
-     infos = datasetdb.find_by_name(coll, regex)
-     infos = [info for info in infos if 'path' in info]
-     return infos
+     infos = datasetdb.find_by_name('se', regex)
+     selected = []
+     done = []
+#     import pdb; pdb.set_trace()
+     for info in infos: 
+          if 'path' not in info: 
+               continue
+          hinfos = datasetdb.find('harvested', {'name':info['name']})
+          if len(hinfos) == 0: 
+               selected.append(info)
+          elif len(hinfos) == 1: 
+               done.append(info)
+          else: 
+               pprint.pprint(hinfos)
+               raise ValueError('duplicate dataset in harvested db!')
+     return selected, done
 
 def harvest(infos, destination, nworkers=None, ntgzs=None): 
      '''harvest the datasets corresponding to infos
      the data is stored in the destination directory 
-     IMPLEMENT MULTIPROCESSING MODE
      '''
      if os.path.isdir(destination):
           choice = 'foo'

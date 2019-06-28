@@ -63,7 +63,7 @@ class TestSubdirScanner(unittest.TestCase):
             ] 
         scanner = SubdirScanner('dummy')
         infos = scanner._extract_info(dirs)
-        no_dupes = scanner._remove_duplicates(infos)
+        no_dupes = scanner._remove_duplicates(infos, 'sub_date')
         # pprint.pprint(infos)
         # print('no dupes')
         # pprint.pprint(no_dupes)
