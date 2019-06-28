@@ -52,6 +52,7 @@ class Dataset(object):
                 ),
             sample = sample,
             prod_date = prod_date,
+            write_date = write_date,
             sample_version = sample_version,
             se_path = path,
             subdir_pattern = subdir_pattern,
