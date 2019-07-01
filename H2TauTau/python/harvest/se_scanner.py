@@ -6,6 +6,23 @@ import os
 import re
 import pprint
 
+from multiprocessing import Pool
+
+def _extract_info(path): 
+    return Dataset(path).info() 
+
+def _extract_info_multi(dirs): 
+    p = Pool()  
+    futures = []
+    for path in dirs: 
+        futures.append( p.apply_async(_extract_info, (path,)) )
+    infos = []
+    for future in futures: 
+        infos.append(future.get())
+    p.close()
+    p.join()
+    return infos
+
 class SEScanner(Scanner): 
     '''Scan the storage element to find datasets'''
 
@@ -19,12 +36,9 @@ class SEScanner(Scanner):
 
     def _scan(self, path):
         dirs = self._find_dirs(path, level=0)
-        infos = self._extract_info(dirs)
+        infos = _extract_info_multi(dirs)
         infos = self._remove_duplicates(infos, 'write_date')
         return infos
-
-    def _extract_info(self, dirs): 
-        return [Dataset(path).info() for path in dirs]
 
     def _find_dirs(self, path, level=0):
         '''recursive scan to find datasets.
