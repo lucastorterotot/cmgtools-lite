@@ -1,15 +1,16 @@
 import unittest
 from se_scanner import SEScanner
+from test_db import TestDB
 import pprint
 
-class TestSEScanner(unittest.TestCase): 
+class TestSEScanner(TestDB): 
     
     def test_1_duplicates(self): 
         paths = [
             '/store/user/gtouquet/heppyTrees/190503/tt_DY_Btagging_down/DY1JetsToLL_M50_LO/190505_153210',
             '/store/user/gtouquet/heppyTrees/190503/tt_DY_Btagging_down/DY1JetsToLL_M50_LO/190505_155301'
             ]
-        scanner = SEScanner('dummy')
+        scanner = SEScanner('dummy', self.__class__.db)
         infos = scanner._extract_info(paths)
         self.assertEqual(len(infos), len(paths))
         no_dupes = scanner._remove_duplicates(infos, 'write_date')
@@ -19,8 +20,9 @@ class TestSEScanner(unittest.TestCase):
     def test_2_scan(self):
         '''test that we can scan'''
         path = '/store/user/gtouquet/heppyTrees/190503'
-        scanner = SEScanner(path, '*tt_DY_Btagging_down*')
+        scanner = SEScanner(path, self.__class__.db, '*tt_DY_Btagging_down*')
         scanner.scan()
+        scanner.writedb()
         # check that we can find at least one dataset
         self.assertTrue(len(scanner.infos)>0)
 

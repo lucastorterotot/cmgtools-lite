@@ -55,7 +55,6 @@ def get_ds_infos(regex):
      infos = datasetdb.find_by_name('se', regex)
      selected = []
      done = []
-#     import pdb; pdb.set_trace()
      for info in infos: 
           if 'path' not in info: 
                continue
@@ -69,11 +68,13 @@ def get_ds_infos(regex):
                raise ValueError('duplicate dataset in harvested db!')
      return selected, done
 
-def harvest(infos, destination, nworkers=None, ntgzs=None): 
+def harvest(infos, destination, nworkers=None, ntgzs=None, force=False): 
      '''harvest the datasets corresponding to infos
      the data is stored in the destination directory 
      '''
-     if os.path.isdir(destination):
+     if force: 
+          shutil.rmtree(destination) 
+     elif os.path.isdir(destination):
           choice = 'foo'
           while choice not in 'yn': 
                choice = raw_input('{} exists. remove it? [y/n]'.format(destination))

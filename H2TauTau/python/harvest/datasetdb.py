@@ -4,15 +4,15 @@ import sys
 
 class DatasetDB(object): 
 
-    def __init__(self, mode='reader', db='datasets_unittests'):
+    def __init__(self, mode, pwd, db='datasets_unittests'):
         '''init connection with database.
         mode = reader(default) or writer 
+        pwd = password
         db = dataset name (datasets_unittests by default)
         will ask for user password
         '''
         if mode not in ['reader', 'writer']: 
             raise( ValueError('mode must be either "reader" or "writer"') )
-        pwd = raw_input('{} password:'.format(mode))
         self.client = pymongo.MongoClient(
             'mongodb://{}:{}@localhost/?authSource={}&authMechanism=MONGODB-CR'.format(
                 mode, pwd, db
@@ -24,7 +24,7 @@ class DatasetDB(object):
     def insert(self, coll, info):
         '''insert or update a dataset info'''
         self.db[coll].update({'name':info['name']}, 
-                             info, 
+                             {'$set': info},
                              upsert=True)
 
     def remove(self, coll, query): 
@@ -47,3 +47,4 @@ class DatasetDB(object):
         if query is None: 
             query = {}
         return list(self.db[coll].count(query))
+

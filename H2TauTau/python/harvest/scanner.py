@@ -18,7 +18,7 @@ class Scanner(object):
     - infos : list of info dicts for all infos. 
     '''
 
-    def __init__(self, path, pattern='*', db='datasets_unittests', writedb_asap=False):
+    def __init__(self, path, database, pattern='*'):
         '''create scanner
         
         path: base directory
@@ -26,26 +26,22 @@ class Scanner(object):
         '''
         self.path = path
         self.pattern = pattern
-        self.db = db
-        self.writedb_asap = writedb_asap
-        self.database = None
+        self.database = database
         self.infos = None
 
     def writedb(self, infos=None):
         '''write infos to the db'''
-        if not self.database :
-            self.database = DatasetDB('writer', 
-                                      db=self.db)
         if infos is None: 
             infos = self.infos
         for ds in infos: 
-            self.database.insert(ds)
+            self.database.insert('se',ds)
 
     def scan(self):
         '''initiate recursive scan'''
         print('scanning {} ({}) please be patient...'.format(self.path, 
                                                              self.pattern))
         self.infos = self._scan(self.path)
+        return self.infos
 
     def _remove_duplicates(self, infos, date_field):
         '''removes duplicate infos. 

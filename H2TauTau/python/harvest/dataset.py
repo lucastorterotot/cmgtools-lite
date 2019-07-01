@@ -54,7 +54,7 @@ class Dataset(object):
             prod_date = prod_date,
             write_date = write_date,
             sample_version = sample_version,
-            se_path = path,
+            path = path,
             subdir_pattern = subdir_pattern,
             tgz_pattern = tgz_pattern,
             subdirs = subdirs,
