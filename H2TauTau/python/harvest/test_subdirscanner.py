@@ -125,5 +125,6 @@ class TestSubdirScanner(TestDB):
         path = '/gridgroup/cms/touquet/crab_submission_dirs/crab_W1JetsToLNu_LO_tt_generic_bg_Btagging_up/crab_W1JetsToLNu_LO_190503_tt_generic_bg_Btagging_up_2019-05-08_14-34-41'
         self.assertEqual( sdscanner._find_njobs(path), 54 )
 
+
 if __name__ == '__main__':
     unittest.main()
