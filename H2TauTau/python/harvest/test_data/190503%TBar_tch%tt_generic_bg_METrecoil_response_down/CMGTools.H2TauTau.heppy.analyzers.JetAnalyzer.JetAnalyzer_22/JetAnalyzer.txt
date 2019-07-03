@@ -1,0 +1,5 @@
+Counter JetAnalyzer :
+	 all events                                       0 	 -1.00 	 -1.0000
+	 at least 2 good jets                             0 	 -1.00 	 -1.0000
+	 at least 2 clean jets                            0 	 -1.00 	 -1.0000
+
