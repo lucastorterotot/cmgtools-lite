@@ -1,12 +1,13 @@
 
 from CMGTools.H2TauTau.harvest.datasetdb import DatasetDB
 import CMGTools.H2TauTau.harvest.harvest as harvest
+from getpass import getpass 
 
-harvest.datasetdb = DatasetDB(mode='writer', db='datasets')
+harvest.datasetdb = DatasetDB(mode='writer', pwd=getpass(), db='datasets')
 
 def get_options():
      from optparse import OptionParser
-     usage = "usage: %prog [options]"
+     usage = "usage: %prog [options] <dest_dir>"
      parser = OptionParser(usage=usage)
      parser.add_option("-p", "--dataset-pattern", dest="dataset_pattern",
                        default='.*',
@@ -18,6 +19,10 @@ def get_options():
                        default = 20, 
                        type='int',
                        help='number of workers. default 20')
+     parser.add_option("-v", "--verbose", dest="verbose",
+                       action="store_true", default=False,
+                       help='verbose printout')
+    
      (options,args) = parser.parse_args()
      if len(args)!=1:
           print parser.usage
@@ -53,4 +58,4 @@ if __name__ == '__main__':
           print('operation cancelled')
           sys.exit(0)
 
-     harvest.harvest(infos, destdir, ntgzs=2, nworkers=options.workers)
+     harvest.harvest(infos, destdir, nworkers=options.workers)

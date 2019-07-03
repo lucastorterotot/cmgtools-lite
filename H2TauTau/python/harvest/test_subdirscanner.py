@@ -9,6 +9,10 @@ basedir = '/gridgroup/cms/touquet/crab_submission_dirs'
 
 class TestSubdirScanner(TestDB):
 
+    def setUp(self):
+        super(TestSubdirScanner, self).setUp()
+        self.maxDiff = None
+
     def test_info(self): 
         scanner = SubdirScanner('dummy', self.__class__.db)
         dirs = [
@@ -19,12 +23,14 @@ class TestSubdirScanner(TestDB):
         self.assertEqual(len(infos),2)
         self.assertListEqual(infos, 
                              [{'name':'190503%HiggsSUSYGG3200%tt_mssm_signals_METrecoil_resolution_up',
+                               'njobs':1,
                                'sample': 'HiggsSUSYGG3200',
                                'prod_date': '190503',
                                'sample_version': 'tt_mssm_signals_METrecoil_resolution_up',
                                'sub_date': '2019-05-17_07-51-36',
                                'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_HiggsSUSYGG3200_tt_mssm_signals_METrecoil_resolution_up/crab_HiggsSUSYGG3200_190503_tt_mssm_signals_METrecoil_resolution_up_2019-05-17_07-51-36'},
                               {'name':'190503%HiggsSUSYGG3200%tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up', 
+                               'njobs':1,
                                'sample': 'HiggsSUSYGG3200',
                                'prod_date': '190503',
                                'sample_version': 'tt_mssm_signals_CMS_scale_j_RelativeBal_13TeV_up',
@@ -48,18 +54,21 @@ class TestSubdirScanner(TestDB):
         self.assertListEqual(
             no_dupes, 
             [{'name': '190503%DY3JetsToLL_M50_LO%tt_DY_TES_HadronicTau_3prong0pi0_down',
+              'njobs': 1,
               'prod_date': '190503',
               'sample': 'DY3JetsToLL_M50_LO',
               'sample_version': 'tt_DY_TES_HadronicTau_3prong0pi0_down',
               'sub_date': '2019-05-05_22-45-56',
               'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY3JetsToLL_M50_LO_tt_DY_TES_HadronicTau_3prong0pi0_down/crab_DY3JetsToLL_M50_LO_190503_tt_DY_TES_HadronicTau_3prong0pi0_down_2019-05-05_22-45-56'},
              {'name': '190503%DY4JetsToLL_M50_LO%tt_DY_CMS_scale_j_eta0to3_13TeV_up',
+              'njobs':4,
               'prod_date': '190503',
               'sample': 'DY4JetsToLL_M50_LO',
               'sample_version': 'tt_DY_CMS_scale_j_eta0to3_13TeV_up',
               'sub_date': '2019-05-05_14-10-23',
               'sub_dir': '/gridgroup/cms/touquet/crab_submission_dirs/crab_DY4JetsToLL_M50_LO_tt_DY_CMS_scale_j_eta0to3_13TeV_up/crab_DY4JetsToLL_M50_LO_190503_tt_DY_CMS_scale_j_eta0to3_13TeV_up_2019-05-05_14-10-23'},
              {'name': '190503%HiggsSUSYGG400%tt_mssm_signals_nominal',
+              'njobs':1,
               'prod_date': '190503',
               'sample': 'HiggsSUSYGG400',
               'sample_version': 'tt_mssm_signals_nominal',
@@ -109,6 +118,12 @@ class TestSubdirScanner(TestDB):
         dirs = subprocess.check_output('find . -type d'.format(basedir).split())     
         self.assertTrue(len(dirs)>1)
 
+
+    def test_find_njobs(self):
+        '''test extraction of the number of jobs from the crab log'''
+        sdscanner = SubdirScanner('dummy', self.__class__.db)
+        path = '/gridgroup/cms/touquet/crab_submission_dirs/crab_W1JetsToLNu_LO_tt_generic_bg_Btagging_up/crab_W1JetsToLNu_LO_190503_tt_generic_bg_Btagging_up_2019-05-08_14-34-41'
+        self.assertEqual( sdscanner._find_njobs(path), 54 )
 
 if __name__ == '__main__':
     unittest.main()

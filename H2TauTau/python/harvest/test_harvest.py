@@ -5,6 +5,7 @@ import shutil
 import os 
 import subprocess
 import time 
+import copy
 
 import harvest
 from test_db import TestDB
@@ -26,6 +27,7 @@ class TestHarvest(TestDB):
 
     def test_1_ds_info(self):
         '''test that dataset info can be readout and filtered'''
+        # import pdb; pdb.set_trace()
         infos,done = harvest.get_ds_infos('.*DY1Jets.*')
         self.assertEqual(len(infos), 2)        
         self.assertEqual(len(done), 0)
@@ -35,8 +37,26 @@ class TestHarvest(TestDB):
         # test that datasets already in the harvested db are masked
         harvest.datasetdb.insert('harvested', infos[0])
         infos,done = harvest.get_ds_infos('.*DY1Jets.*')
+        print('selected')
+        pprint.pprint(infos)
+        print('done')
+        pprint.pprint(done)
         self.assertEqual(len(infos), 1)
         self.assertEqual(len(done), 1)
+        # add one more tgz to a sample that has already been harvested
+        newinfo = copy.copy(done[0])
+        newinfo['tgzs']['0000'].append('heppyOutput_666.tgz')
+        harvest.datasetdb.insert('se', newinfo)
+        infos2,done2 = harvest.get_ds_infos('.*DY1Jets.*')
+        self.assertEqual(len(infos2), 2)
+        self.assertEqual(len(done2), 0)        
+        # add one more subdir
+        newinfo = copy.copy(done[0])
+        newinfo['tgzs']['0001'] = []
+        infos2,done2 = harvest.get_ds_infos('.*DY1Jets.*')
+        self.assertEqual(len(infos2), 2)
+        self.assertEqual(len(done2), 0)        
+         
 
                              
     def test_2_fetch(self): 
@@ -103,11 +123,23 @@ class TestHarvest(TestDB):
         self.assertTrue(hinfo[0]['harv_time']>start)
 
     def test_5_harvest_multi(self):
+        '''test harvesting in multiprocessing'''
         infos,_ = harvest.get_ds_infos('.*')
         destdir = '/gridgroup/cms/cbernet/unittests/multi'
-#        destdir = '/data2/htt/unittests/multi'
-        print(len(infos))
-        harvest.harvest(infos, destdir, ntgzs=2, nworkers=2, force=True)
+        harvest.harvest(infos, destdir, ntgzs=2, nworkers=2, delete='y')
+        results = os.listdir(destdir)
+        self.assertEqual(len(results), 2)
+
+    def test_6_harvest_sequential(self):
+        '''test that harvesting can be done in steps'''
+        infos,_ = harvest.get_ds_infos('.*')
+        destdir = '/gridgroup/cms/cbernet/unittests/multi'
+        infos1 = infos[:1]
+        infos2 = infos[1:2]
+        harvest.harvest(infos1, destdir, ntgzs=2, nworkers=1, delete='y')
+        harvest.harvest(infos2, destdir, ntgzs=2, nworkers=1, delete='n')
+        results = os.listdir(destdir)
+        self.assertEqual(len(results), 2)
 
         
 if __name__ == '__main__':

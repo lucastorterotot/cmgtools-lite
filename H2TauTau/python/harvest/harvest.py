@@ -59,30 +59,41 @@ def get_ds_infos(regex):
           if 'path' not in info: 
                continue
           hinfos = datasetdb.find('harvested', {'name':info['name']})
+          do_harvest = False
           if len(hinfos) == 0: 
-               selected.append(info)
-          elif len(hinfos) == 1: 
-               done.append(info)
+               do_harvest = True
+          elif len(hinfos) == 1:
+               hinfo = hinfos[0]
+               for subd, tgzs in info['tgzs'].iteritems(): 
+                    if (subd not in hinfo['tgzs']) or \
+                             len(tgzs) > len(hinfo['tgzs'][subd]):
+                         # subdir was not harvested yet, 
+                         # or subdir contains addtl tgzs
+                         do_harvest = True
+                         break
           else: 
                pprint.pprint(hinfos)
                raise ValueError('duplicate dataset in harvested db!')
+          if do_harvest: 
+               selected.append(info) 
+          else: 
+               done.append(info)
      return selected, done
 
-def harvest(infos, destination, nworkers=None, ntgzs=None, force=False): 
+def harvest(infos, destination, nworkers=None, ntgzs=None, delete='ask'): 
      '''harvest the datasets corresponding to infos
      the data is stored in the destination directory 
      '''
-     if force: 
-          shutil.rmtree(destination) 
-     elif os.path.isdir(destination):
-          choice = 'foo'
-          while choice not in 'yn': 
-               choice = raw_input('{} exists. remove it? [y/n]'.format(destination))
-          if choice == 'n':
-               sys.exit(0)
-          else: 
+     if os.path.isdir(destination):
+          while delete not in 'yne': 
+               delete = raw_input('{} exists. remove it? [y(es)/n(o)/e(exit)]'.format(destination))
+          if delete == 'y':
                shutil.rmtree(destination)
-     os.mkdir(destination)
+               os.mkdir(destination)
+          elif delete == 'e': 
+               sys.exit(0)
+          else: # we keep the directory to add inside
+               pass
      hinfos = []
      if nworkers is None or nworkers==1:
           for info in infos: 

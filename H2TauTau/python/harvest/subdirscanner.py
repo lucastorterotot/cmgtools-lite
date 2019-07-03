@@ -34,6 +34,7 @@ class SubdirScanner(Scanner):
             m = pattern.match(path)
             if m: 
                 sample, prod_date, sample_version, sub_date = m.groups()
+                njobs = self._find_njobs(path)
                 info = dict(
                     name = '{}%{}%{}'.format(
                         prod_date, sample, sample_version
@@ -42,14 +43,31 @@ class SubdirScanner(Scanner):
                     sample = sample,
                     prod_date = prod_date, 
                     sample_version = sample_version, 
-                    sub_date = sub_date
+                    sub_date = sub_date, 
+                    njobs = njobs
                     )
                 infos.append(info)
                 filtered_dirs.append(path)
         self.dirs = filtered_dirs
         return infos
 
-
+    def _find_njobs(self, path): 
+        '''Get number of jobs from the crab log. 
+        taken from this line: 
+        config.JobType.scriptArgs = ['dataset=W1JetsToLNu_LO', 'total=54', \
+                'useAAA=full', 'cfgfile=diTau_2018_modular_cfg.py', 'cfgname=Btagging_up']
+        '''
+        pattern = re.compile('total=(\d+)')
+        logfile = os.path.join(path,'crab.log')
+        with open(logfile) as ifile: 
+            for line in ifile: 
+                if line.startswith('config.JobType.scriptArgs'):
+                    m = pattern.search(line)
+                    if m: 
+                        return int(m.group(1))
+                    else: 
+                        assert(False)
+        
     def _find_dirs(self, path, pattern=None):
         if pattern: 
             cmd = 'find {} -type d -iname {}'.format(path, pattern)

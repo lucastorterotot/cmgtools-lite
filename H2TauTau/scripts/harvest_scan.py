@@ -5,8 +5,8 @@ from getpass import getpass
 
 if __name__ == '__main__':
      path = '/store/user/gtouquet/heppyTrees/190503'
-     pattern = '*tt_DY_Btagging*'
-     # pattern = '*'
+     # pattern = '*tt_DY_Btagging*'
+     pattern = '*'
      pwd = getpass()
      dsdb = DatasetDB('writer', pwd, db='datasets')
      scanner = Scanner(path, dsdb, pattern)
