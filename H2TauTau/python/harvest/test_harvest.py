@@ -109,7 +109,7 @@ class TestHarvest(TestDB):
         info = infos[0]
         start = time.time()
         hinfo = harvest.harvest_one(info, destdir, ntgzs=2)
-        harvest.datasetdb.insert('harvested', info)
+        harvest.datasetdb.insert('se', hinfo)
         # check that dataset exists on destination: 
         # result = subprocess.check_output(
         #     'ssh -p 2222 localhost ls {}'.format(destdir).split()
@@ -118,9 +118,10 @@ class TestHarvest(TestDB):
         self.assertEqual(len(result),1)
         self.assertEqual(result[0], info['name'])
         # check harvesting time in db
-        hinfo = harvest.datasetdb.find('harvested', {'name':info['name']})
-        self.assertEqual(len(hinfo),1)
-        self.assertTrue(hinfo[0]['harv_time']>start)
+        hinfo2 = harvest.datasetdb.find('se', {'name':info['name']})
+        self.assertEqual(len(hinfo2),1)
+        # pprint.pprint(hinfo2[0])
+        self.assertTrue(hinfo2[0]['harvesting']['time']>start)
 
     def test_5_harvest_multi(self):
         '''test harvesting in multiprocessing'''

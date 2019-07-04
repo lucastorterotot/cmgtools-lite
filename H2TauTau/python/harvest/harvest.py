@@ -44,8 +44,13 @@ def harvest_one(info, destination, ntgzs=None):
      shutil.move(tmpsampledir, destsampledir)
      shutil.rmtree(tmpdir)
      del info['_id']
-     info['harv_time'] = time.time()
-     info['harv_dir'] = destsampledir
+     harv_info = {
+          'time': time.time(),
+          'parent': None, 
+          'dir': destsampledir, 
+          'tgzs': info['tgzs']
+          }
+     info['harvesting'] = harv_info
      return info 
 
 def get_ds_infos(regex): 
@@ -110,7 +115,7 @@ def harvest(infos, destination, nworkers=None, ntgzs=None, delete='ask'):
           p.close()
           p.join()
      for hinfo in hinfos: 
-          datasetdb.insert('harvested', hinfo)
+          datasetdb.insert('se', hinfo)
 
 
 def fetch(info, destination, ntgzs=None):
