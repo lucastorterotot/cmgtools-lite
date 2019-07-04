@@ -25,7 +25,7 @@ def process(dataset_path):
     itree = ifile.Get('events')
     ofname = tempfile.mktemp('.root',prefix='/scratch/tmp')
     ofile = TFile(ofname, 'recreate')
-    FakesAdd.FakesAdd(ifile, ofile, systematics = True, channel = channel)
+    FakesAdd.FakesAdd(ifile, ofile, systematics = False, channel = channel)
     ofile.Write()
     os.remove(tmpfname)
     return ofname, path_in_dataset
