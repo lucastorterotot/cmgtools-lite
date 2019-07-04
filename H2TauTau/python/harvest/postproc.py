@@ -51,7 +51,7 @@ def prepare_output_dataset(source, destination):
 def process_dataset(info, tier, func, meta, destination, new_tier):
     '''process a single dataset'''
     adestination = os.path.abspath(destination)
-    sourcedir = info['tiers'][tier]['dir']
+    sourcedir = info[tier]['dir']
     sourceds = os.path.join(sourcedir, info['name'])
     destds = os.path.join(destination, info['name'])
     prepare_output_dataset(sourceds, destds)
@@ -67,21 +67,24 @@ def process_dataset(info, tier, func, meta, destination, new_tier):
     # prepare new tier info
     tier_info = copy.deepcopy(meta)
     tier_info['dir'] = adestination
+    tier_info['parent'] = tier
 
     new_info = copy.deepcopy(info)
-    new_info['tiers'][new_tier] = tier_info
+    new_info[new_tier] = tier_info
 
     # come back
     os.chdir(oldwd)
     return new_info
 
 
-def process(dataset_regex, script, destination):
+def process(dataset_regex, tier, script, destination, new_tier):
     '''process all datasets with a name containg the dataset_regex
     regex pattern, with the process function in the script module
     '''
     infos = get_datasets(dataset_regex)
+    print(len(infos))
     func, meta = load_script(script)
     for info in infos: 
-        processs_dataset(info, func, meta, destination) 
+        pprint.pprint(info)
+        process_dataset(info, tier, func, meta, destination, new_tier) 
         

@@ -36,9 +36,10 @@ class TestPostProc(TestDB):
                 "sub_date" : "2019-05-07_11-28-15",
                 "sub_dir" : "/gridgroup/cms/touquet/crab_submission_dirs/crab_TBar_tch_tt_generic_bg_METrecoil_response_down/crab_TBar_tch_190503_tt_generic_bg_METrecoil_response_down_2019-05-07_11-28-15",
                 "njobs" : 3,
-                "tiers" : { "T1" : { "dir" : "/home/cms/cbernet/CMS/HTauTau/2017/CMSSW_9_4_11_cand1/src/CMGTools/H2TauTau/python/harvest/test_data"
-                                     }
-                            }
+                "T1" : { "dir" : "/home/cms/cbernet/CMS/HTauTau/2017/CMSSW_9_4_11_cand1/src/CMGTools/H2TauTau/python/harvest/test_data",
+                         "parent": None, 
+                         }
+                
                 }
             )
         
@@ -96,15 +97,20 @@ class TestPostProc(TestDB):
         # check that new info is correct
         # contains the new tier
         self.assertDictEqual(
-            new_info['tiers']['T2'], 
+            new_info['T2'], 
             {'foo':'bar', 
-             'dir': os.path.abspath(outdir)
+             'dir': os.path.abspath(outdir),
+             'parent': 'T1'
              } 
             )
         # and is otherwise identical to old info
-        del new_info['tiers']['T2']
+        del new_info['T2']
         self.assertDictEqual(new_info, info)
         shutil.rmtree(outdir) 
+
+    def test_process(self): 
+        outdir = '/gridgroup/cms/cbernet/unittests/skim'
+        postproc.process('WZ%tt_generic_bg_nominal', 'harvesting', 'test_macros/skim.py', outdir, 'skim')
 
 if __name__ == '__main__':
     unittest.main()
