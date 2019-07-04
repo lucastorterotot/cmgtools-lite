@@ -22,6 +22,9 @@ def get_options():
      parser.add_option("-v", "--verbose", dest="verbose",
                        action="store_true", default=False,
                        help='verbose printout')
+     parser.add_option("-f", "--force", dest="force",
+                       action="store_true", default=False,
+                       help='force overwrite if processed dataset already exists')
     
      (options,args) = parser.parse_args()
      if len(args)!=4:
@@ -38,6 +41,8 @@ if __name__ == '__main__':
      options, args = get_options()
      destdir, tier, new_tier, script = args
      sel, done, skip = postproc.get_datasets(options.dataset_pattern, tier, new_tier)
+     if options.force: 
+          sel.extend(done)
      for name in sorted(info['name'] for info in sel):
           print(name)
      nworkers = min(len(sel), options.workers)
