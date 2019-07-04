@@ -31,5 +31,4 @@ def process(dataset_path):
     return ofname, path_in_dataset
 
 if __name__ == '__main__':
-    print('ok')
-    #print(process('tree.root'))
+    print(process('tree.root'))
