@@ -51,11 +51,16 @@ class TestPostProc(TestDB):
     def test_get_datasets_nodb(self):
         with self.assertRaises(ValueError): 
             postproc.dataset_db = None
-            postproc.get_datasets('.*')
+            postproc.get_datasets('.*', 'T1', 'T2')
 
     def test_get_datasets(self):
-        infos = postproc.get_datasets('TBar_tch')
-        self.assertEqual(len(infos), 1)
+        sel, done, skip = postproc.get_datasets('TBar_tch', 'T1', 'T2')
+        self.assertEqual((len(sel),len(done),len(skip)),(1,0,0))
+        sel, done, skip = postproc.get_datasets('TBar_tch', 'T2', 'T3')
+        self.assertEqual((len(sel),len(done),len(skip)),(0,0,1))
+        sel, done, skip = postproc.get_datasets('TBar_tch', 'T1', 'T1')
+        self.assertEqual((len(sel),len(done),len(skip)),(0,1,0))
+        
         
     def test_prepare_output(self):
         outdspath =  'test_data/outdir'
@@ -78,9 +83,9 @@ class TestPostProc(TestDB):
         if os.path.isdir(outdir): 
             shutil.rmtree(outdir)
         os.mkdir(outdir)
-        infos = postproc.get_datasets('TBar_tch')
-        info = infos[0]
-        self.assertEqual(len(infos), 1)
+        sel, done, skipped = postproc.get_datasets('TBar_tch', 'T1', 'T2')
+        self.assertEqual(len(sel), 1)
+        info = sel[0]
         func, meta = postproc.load_script('test_macros/copy.py')
         new_info = postproc.process_dataset(info, 'T1', func, meta, outdir, 'T2')
         # check that the new dataset directory exists
@@ -110,7 +115,8 @@ class TestPostProc(TestDB):
 
     def test_process(self): 
         outdir = '/gridgroup/cms/cbernet/unittests/skim'
-        postproc.process('WZ%tt_generic_bg_nominal', 'harvesting', 'test_macros/skim.py', outdir, 'skim')
+        sel, done, skip = postproc.get_datasets('WZ%tt_generic_bg_nominal', 'harvesting', 'skim')
+        postproc.process(sel, 'harvesting', 'test_macros/skim.py', outdir, 'skim')
 
 if __name__ == '__main__':
     unittest.main()

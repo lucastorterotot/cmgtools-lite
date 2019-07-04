@@ -4,16 +4,31 @@ import os
 import imp 
 import shutil
 import copy
+from multiprocessing import Pool
 
 dataset_db = None
 
-def get_datasets(dataset_regex): 
+def get_datasets(dataset_regex, tier, new_tier): 
     '''returns infos from the database for datasets containing 
     dataset_regex
     '''
     if not dataset_db: 
         raise ValueError('first set postproc.dataset_db to a valid DatasetDB object')
-    return dataset_db.find_by_name('se', dataset_regex)
+    infos = dataset_db.find_by_name('se', dataset_regex)
+    selected = []
+    done = []
+    skipped = []
+    for info in infos: 
+        if new_tier in info: 
+            # done
+            done.append(info)
+        elif tier not in info:
+            # cannot do the processing
+            skipped.append(info)
+        else: 
+            # will do! 
+            selected.append(info)
+    return selected, done, skipped
 
 
 def load_script(script):
@@ -77,14 +92,39 @@ def process_dataset(info, tier, func, meta, destination, new_tier):
     return new_info
 
 
-def process(dataset_regex, tier, script, destination, new_tier):
-    '''process all datasets with a name containg the dataset_regex
-    regex pattern, with the process function in the script module
+def process(infos, tier, script, destination, new_tier, nworkers=None, delete='ask'):
+    '''process all datasets with the process function in the script module
     '''
-    infos = get_datasets(dataset_regex)
-    print(len(infos))
+    if os.path.isdir(destination):
+        while delete not in 'yne': 
+            delete = raw_input('{} exists. remove it? [y(es)/n(o)/e(exit)]'.format(destination))
+        if delete == 'y':
+            shutil.rmtree(destination)
+            os.mkdir(destination)
+        elif delete == 'e': 
+            sys.exit(0)
+        else: # we keep the directory to add inside
+            pass
+    else:
+        os.mkdir(destination)
     func, meta = load_script(script)
-    for info in infos: 
-        pprint.pprint(info)
-        process_dataset(info, tier, func, meta, destination, new_tier) 
-        
+    new_infos = []
+    if nworkers is None or nworkers==1:
+        for info in infos: 
+            new_infos.append(process_dataset(info, tier, func, meta, 
+                                             destination, new_tier))
+    else:
+        print('work starting on {} workers, please be patient...'.format(nworkers) )
+        p = Pool(nworkers)
+        futures = []
+        for info in infos: 
+            futures.append( p.apply_async( process_dataset, 
+                                           (info, tier, func, meta,
+                                            destination, new_tier)) )
+        for future in futures: 
+            new_infos.append(future.get())
+        p.close()
+        p.join()
+    for info in new_infos: 
+        dataset_db.insert('se', info)
+
