@@ -45,7 +45,7 @@ config.Data.outputDatasetTag = os.environ["DATASET"]
 config.Data.ignoreLocality = (os.environ["USEAAA"]!="local") # "full" or "eos"
 if (os.environ["USEAAA"]!="local"): 
     config.Site.whitelist = [
-        # "T3_FR_LYON",
+        "T3_FR_IPNL",
         "T2_CH_CSCS", 
         "T2_IT_Legnaro", 
         "T2_UK_London_IC", 
