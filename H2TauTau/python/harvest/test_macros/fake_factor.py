@@ -12,7 +12,7 @@ channel = 'tt'
 
 meta = {
     'channel' : channel,
-    'FF_file' : FakesAdd.FF_file.format(channel),
+    'FF_file' : os.path.expandvars(FakesAdd.FF_file.format(channel)),
     'frac_file' : FakesAdd.frac_file
 }
 
@@ -25,7 +25,10 @@ def process(dataset_path):
     itree = ifile.Get('events')
     ofname = tempfile.mktemp('.root',prefix='/scratch/tmp')
     ofile = TFile(ofname, 'recreate')
-    FakesAdd.FakesAdd(ifile, ofile, systematics = False, channel = channel)
+    systematics = False
+    if 'nominal' in dataset_path:
+        systematics = True
+    FakesAdd.FakesAdd(ifile, ofile, systematics = systematics, channel = channel)
     ofile.Write()
     os.remove(tmpfname)
     return ofname, path_in_dataset
