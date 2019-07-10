@@ -47,7 +47,7 @@ def harvest_one(info, destination, ntgzs=None):
      harv_info = {
           'time': time.time(),
           'parent': None, 
-          'dir': destsampledir, 
+          'dir': destination, 
           'tgzs': info['tgzs']
           }
      info['harvesting'] = harv_info
