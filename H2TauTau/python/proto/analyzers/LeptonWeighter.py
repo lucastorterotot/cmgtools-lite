@@ -69,10 +69,10 @@ class LeptonWeighter(Analyzer):
 
             iso = None
             if hasattr(lep, 'muonID'): # muon
-                iso = lep.relIsoR(R=0.4, dBetaFactor=0.5)
+                iso = lep.relIso(0.4, dbeta_factor=0.5)
 
             if hasattr(lep, 'mvaNonTrigV0'): # electron
-                iso = lep.relIsoR(R=0.3, dBetaFactor=0.5)
+                iso = lep.relIso(R=0.3, dbeta_factor=0.5)
 
             # Get scale factors
             for sf_name, sf in self.scaleFactors.items():

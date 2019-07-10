@@ -166,7 +166,7 @@ lepton_vars = [
 # electron
 electron_vars = [
     Variable('eid_nontrigmva_loose', lambda ele : ele.mvaRun2('NonTrigSpring15MiniAOD')),
-    Variable('reliso05', lambda lep : lep.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0)),
+    Variable('reliso05', lambda lep : lep.relIso(0.3, dbeta_factor=0.5, all_charged=0)),
     Variable('weight_tracking', lambda lep : getattr(lep, 'weight_tracking', 1.)),
 
     # Variable('eid_nontrigmva_tight', lambda ele : ele.mvaIDRun2("NonTrigSpring15MiniAOD", "POG80")),
@@ -183,7 +183,7 @@ electron_vars = [
 
 # muon
 muon_vars = [
-    Variable('reliso05', lambda lep : lep.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0)),
+    Variable('reliso05', lambda lep : lep.relIso(0.4, dbeta_factor=0.5, all_charged=0)),
     Variable('weight_tracking', lambda muon : getattr(muon, 'weight_tracking', 1.)),
 
     # Variable('reliso05_03', lambda lep : lep.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0)),

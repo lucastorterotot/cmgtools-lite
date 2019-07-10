@@ -155,21 +155,26 @@ class CMSDataset( BaseDataset ):
             query += "  status=VALID" # status doesn't interact well with run range
         if self.dbsInstance != None:
             query += "  instance=prod/%s" % self.dbsInstance
-        dbs='dasgoclient --query="file %s=%s"'%(qwhat,query) # files must be valid
+        dbs='dasgoclient --json --query="file %s=%s"'%(qwhat,query) # files must be valid
         if begin >= 0:
             dbs += ' --idx %d' % begin
         if end >= 0:
             dbs += ' --limit %d' % (end+1)
         else:
-            dbs += ' --limit 0' 
-        dbsOut = _dasPopen(dbs)
+            dbs += ' --limit 0'
+        dbsOut = json.load(_dasPopen(dbs))
         files = []
-        for line in dbsOut:
-            if line.find('/store')==-1:
-                continue
-            line = line.rstrip()
-            # print 'line',line
-            files.append(line)
+        if dbsOut:
+            for dbsEntry in dbsOut:
+                if 'file' not in dbsEntry:
+                    continue
+                dbsFiles = dbsEntry['file']
+                for fileDict in dbsFiles:
+                    if 'name' not in fileDict:
+                        continue
+                    files.append(fileDict['name'])
+        if not files:
+            raise RuntimeError("No files for query \'%s\'" % query)
         return files
 
     def buildListOfFiles(self, pattern='.*root'):
@@ -245,7 +250,12 @@ class CMSDataset( BaseDataset ):
         if dbsInstance != None:
             query += "  instance=prod/%s" % dbsInstance
         dbs='dasgoclient --query="summary %s=%s" --format=json'%(qwhat,query)
-        jdata = json.load(_dasPopen(dbs))['data']
+        try:
+            jdata = json.load(_dasPopen(dbs))['data']
+        except ValueError as err:
+            err=['cannot decode json obtained from das']
+            err.append(_dasPopen(dbs).read())
+            raise ValueError('\n'.join(err))
         events = []
         files = []
         lumis = []
@@ -398,17 +408,21 @@ class PrivateDataset ( BaseDataset ):
     def buildListOfFilesDBS(self, name, dbsInstance):
         entries = self.findPrimaryDatasetNumFiles(name, dbsInstance, -1, -1)
         files = []
-        dbs = 'dasgoclient --query="file dataset=%s instance=prod/%s" --limit=%s' % (name, dbsInstance, entries)
-        dbsOut = _dasPopen(dbs)
-        for line in dbsOut:
-            if line.find('/store')==-1:
-                continue
-            line = line.rstrip()
-            # print 'line',line
-            files.append(line)
-        #return ['root://eoscms//eos/cms%s' % f for f in files]
+        dbs = 'dasgoclient --json --query="file dataset=%s instance=prod/%s" --limit=%s' % (name, dbsInstance, entries)
+        dbsOut = json.load(_dasPopen(dbs))
+        if dbsOut:
+            for dbsEntry in dbsOut:
+                if 'file' not in dbsEntry:
+                    continue
+                dbsFiles = dbsEntry['file']
+                for fileDict in dbsFiles:
+                    if 'name' not in fileDict:
+                        continue
+                    files.append(fileDict['name'])
+        if not files:
+            raise RuntimeError("Dataset %s is empty!" % name)
         return files
-    
+
     def buildListOfFiles(self, pattern='.*root'):
         self.files = self.buildListOfFilesDBS(self.name, self.dbsInstance)
 
@@ -424,17 +438,18 @@ class PrivateDataset ( BaseDataset ):
             else:
                 print "WARNING: queries with run ranges are slow in DAS"
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
-        dbs='dasgoclient --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
-        dbsOut = _dasPopen(dbs).readlines()
+        dbs='dasgoclient --json --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
+        dbsOut = json.load(_dasPopen(dbs))
         entries = []
-        for line in dbsOut:
-            line = line.replace('\n','')
-            if "nevents" in line:
-                entries.append(int(line.split(":")[1]))
+        if dbsOut:
+            dbsSummary = dbsOut[0]['summary']
+            for summaryDict in dbsSummary:
+                if "nevents" in summaryDict:
+                    entries.append(int(summaryDict["nevents"]))
         if entries:
             return sum(entries)
         return -1
-        
+
 
     @staticmethod
     def findPrimaryDatasetNumFiles(dataset, dbsInstance, runmin, runmax):
@@ -447,14 +462,12 @@ class PrivateDataset ( BaseDataset ):
             else:
                 print "WARNING: queries with run ranges are slow in DAS"
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
-        dbs='dasgoclient --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
-        dbsOut = _dasPopen(dbs).readlines()
-        
+        dbs='dasgoclient --json --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
+        dbsOut = json.load(_dasPopen(dbs))[0]['summary']
         entries = []
-        for line in dbsOut:
-            line = line.replace('\n','')
-            if "nfiles" in line:
-                entries.append(int(line.split(":")[1]))
+        for summaryDict in dbsOut:
+            if "nfiles" in summaryDict:
+                entries.append(int(summaryDict["nfiles"]))
         if entries:
             return sum(entries)
         return -1

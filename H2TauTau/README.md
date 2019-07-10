@@ -10,21 +10,20 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 Then follow this recipe to install the analysis software: 
 
 ```
-export SCRAM_ARCH=slc6_amd64_gcc630
-cmsrel CMSSW_9_4_11_cand1
-cd CMSSW_9_4_11_cand1/src
+cmsrel CMSSW_10_4_0
+cd CMSSW_10_4_0/src
 cmsenv
 git cms-init --upstream-only
 
 # add custom CMSSW repo
-git remote add colin git@github.com:cbernet/cmg-cmssw.git  -f  -t htt_9_4_11_cand1_v1
+git remote add lucas git@github.com:lucastorterotot/cmg-cmssw.git -f -t heppy_104X_dev
 
 # configure the sparse checkout, and get the base heppy packages
-cp /afs/cern.ch/user/c/cbern/public/HTT/sparse-checkouts/sparse-checkouts-htt_9_4_11_cand1_v1 .git/info/sparse-checkout
-git checkout -t colin/htt_9_4_11_cand1_v1
+cp /afs/cern.ch/user/g/gpetrucc/public/sparse-checkout_104X_heppy .git/info/sparse-checkout
+git checkout -t lucas/heppy_104X_dev
 
 # get the CMGTools subsystem from the cmgtools-lite repository
-git clone -o colin git@github.com:cbernet/cmgtools-lite.git -b htt_9_4_11_cand1_v1 CMGTools
+git clone -o lucas git@github.com:lucastorterotot/cmgtools-lite.git -b 104X_dev CMGTools
 
 # get the recoil correction interface
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections 
@@ -39,7 +38,7 @@ Small interactive test:
 
 ```
 cd CMGTools/H2TauTau/cfgPython/mt
-heppy Trash tauMu_2018_modular_cfg.py -N 1000 -f 
+heppy Trash tauMu_2019_modular_cfg.py -N 1000 -f 
 ```
 
 ## Creation of MINIAOD_CL 

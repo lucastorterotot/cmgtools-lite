@@ -151,7 +151,7 @@ class TauTauAnalyzer(DiLeptonAnalyzer):
             pyl.event = event.input.object()
             if not pyl.muonID("POG_ID_Medium_Moriond"):
                 continue
-            if not pyl.relIsoR(R=0.4, dBetaFactor=0.5, allCharged=0) < 0.3:
+            if not pyl.relIso(0.4, dbeta_factor=0.5, all_charged=0) < 0.3:
                 continue
             if not self.testLegKine(pyl, ptcut=10, etacut=2.4):
                 continue
@@ -172,7 +172,7 @@ class TauTauAnalyzer(DiLeptonAnalyzer):
             pyl.event = event.input.object()
             if not pyl.mvaIDRun2('Spring16', 'POG90'):
                 continue
-            if not pyl.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3:
+            if not pyl.relIso(0.3, dbeta_factor=0.5, all_charged=0) < 0.3:
                 continue
             if not self.testLegKine(pyl, ptcut=10, etacut=2.5):
                 continue

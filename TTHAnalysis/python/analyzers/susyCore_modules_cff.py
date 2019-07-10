@@ -74,7 +74,7 @@ eventFlagsAna = cfg.Analyzer(
         "eeBadScFilter" : [ "Flag_eeBadScFilter" ],
         "ecalBadCalibFilter" : [ "Flag_ecalBadCalibFilter" ],
         "BadPFMuonFilter" : [ "Flag_BadPFMuonFilter" ],
-        "BadChargedCandidateFilter" : [ "BadChargedCandidateFilter" ],
+        "BadChargedCandidateFilter" : [ "Flag_BadChargedCandidateFilter" ],
         }
     )
 
@@ -222,7 +222,7 @@ lepAna = cfg.Analyzer(
     # electron isolation correction method (can be "rhoArea" or "deltaBeta")
     ele_isoCorr = "rhoArea" ,
     ele_effectiveAreas = "Fall17" , #(can be 'Data2012' or 'Phys14_25ns_v1' or 'Spring15_25ns_v1')
-    ele_tightId = "Cuts_2012" ,
+    ele_tightId = "Cuts_SPRING15_25ns_v1_ConvVetoDxyDz" ,
     # Mini-isolation, with pT dependent cone: will fill in the miniRelIso, miniRelIsoCharged, miniRelIsoNeutral variables of the leptons (see https://indico.cern.ch/event/368826/ )
     doMiniIsolation = False, # off by default since it requires access to all PFCandidates 
     packedCandidates = 'packedPFCandidates',
@@ -357,8 +357,8 @@ jetAna = cfg.Analyzer(
     recalibrateJets = True, #'MC', # True, False, 'MC', 'Data'
     applyL2L3Residual = True, # Switch to 'Data' when they will become available for Data
     recalibrationType = "AK4PFchs",
-    mcGT     = "Fall17_17Nov2017_V6_MC",
-    dataGT   = [(1,"Fall17_17Nov2017B_V6_DATA"),(299337,"Fall17_17Nov2017C_V6_DATA"),(302030,"Fall17_17Nov2017D_V6_DATA"),(303435,"Fall17_17Nov2017E_V6_DATA"),(304911,"Fall17_17Nov2017F_V6_DATA")],
+    mcGT     = "Fall17_17Nov2017_V32_MC",
+    dataGT   = [(1,"Fall17_17Nov2017B_V32_DATA"),(299337,"Fall17_17Nov2017C_V32_DATA"),(302030,"Fall17_17Nov2017DE_V32_DATA"),(304911,"Fall17_17Nov2017F_V32_DATA")],
     jecPath = "${CMSSW_BASE}/src/CMGTools/RootTools/data/jec/",
     shiftJEC = 0, # set to +1 or -1 to apply +/-1 sigma shift to the nominal jet energies
     addJECShifts = False, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
@@ -550,6 +550,19 @@ susyTauMatchAna = cfg.Analyzer(
     statusOne  = False # put True if trying to match to genParticle with same pdgId and status 1, but False if only require same pdgId
     )
 
+from CMGTools.TTHAnalysis.analyzers.PrefiringAnalyzer import PrefiringAnalyzer
+PrefiringAnalyzer = cfg.Analyzer(
+  PrefiringAnalyzer, name='PrefiringAnalyzer',
+  #class_object= PrefiringAnalyzer,
+  L1Maps = '$CMSSW_BASE/src/CMGTools/RootTools/data/L1PrefiringMaps_new.root',
+  DataEra = '2017BtoF',
+  UseJetEMPt = False ,
+  PrefiringRateSystematicUncty =  0.2 , 
+  SkipWarnings= True,
+  )
+  
+
+
 # Core sequence of all common modules
 susyCoreSequence = [
     lheWeightAna,
@@ -583,4 +596,5 @@ susyCoreSequence = [
     badMuonAnaMoriond2017,
     badCloneMuonAnaMoriond2017,
     badChargedHadronAna,
+    PrefiringAnalyzer,
 ]

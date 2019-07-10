@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from math import *
+from math import ceil, hypot, sqrt
 import re
 import os, os.path
 from array import array
@@ -12,21 +12,22 @@ import ROOT
 sys.argv = args
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gSystem.Load("libpng") # otherwise we may end up with a bogus version
 
-from copy import *
+import copy
 
 from CMGTools.TTHAnalysis.plotter.cutsFile import *
 from CMGTools.TTHAnalysis.plotter.mcCorrections import *
 from CMGTools.TTHAnalysis.plotter.fakeRate import *
 from CMGTools.TTHAnalysis.plotter.uncertaintyFile import *
-from CMGTools.TTHAnalysis.plotter.histoWithNuisances import HistoWithNuisances
+from CMGTools.TTHAnalysis.plotter.histoWithNuisances import HistoWithNuisances, cropNegativeBins
 
 if "/functions_cc.so" not in ROOT.gSystem.GetLibraries(): 
     ROOT.gROOT.ProcessLine(".L %s/src/CMGTools/TTHAnalysis/python/plotter/functions.cc+" % os.environ['CMSSW_BASE']);
 
 def scalarToVector(x):
     x0 = x
-    x = re.sub(r"(LepGood|Lep|JetFwd|Jet|GenTop|SV|PhoGood|TauGood|Tau)(\d)_(\w+)", lambda m : "%s_%s[%d]" % (m.group(1),m.group(3),int(m.group(2))-1), x)
+    x = re.sub(r"(LepGood|Lep|JetFwd|Jet|GenTop|SV|PhoGood|TauGood|Tau|Muon|Electron)(\d)_(\w+)", lambda m : "%s_%s[%d]" % (m.group(1),m.group(3),int(m.group(2))-1), x)
     x = re.sub(r"\bmet\b", "met_pt", x)
     return x
 
@@ -68,6 +69,20 @@ def stylePlot(plot,spec,getOption):
             plot.GetXaxis().SetNdivisions(spec.getOption('XNDiv',510))
             plot.GetXaxis().SetMoreLogLabels(True)
 
+def makeBinningProductString(xbins,ybins):
+    if xbins[0] == "[":
+        if ybins[0] != "[":
+            (nbins,ymin,ymax) = map(float, ybins.split(','))
+            ybins = "[" + ",".join(map(str, [ymin+i*(ymax-ymin)/nbins for i in xrange(0,int(nbins+1))])) + "]"
+        return xbins+"*"+ybins
+    elif ybins[0] == "[":
+        if xbins[0] != "[":
+            (nbins,xmin,xmax) = map(float, xbins.split(','))
+            xbins = "[" + ",".join(map(str, [xmin+i*(xmax-xmin)/nbins for i in xrange(0,int(nbins+1))])) + "]"
+        return xbins+"*"+ybins
+    else:
+        return xbins+","+ybins
+    
 def makeHistFromBinsAndSpec(name,expr,bins,plotspec):
         profile1D      = plotspec.getOption('Profile1D',False) if plotspec != None else False
         profile2D      = plotspec.getOption('Profile2D',False) if plotspec != None else False
@@ -119,26 +134,13 @@ def makeHistFromBinsAndSpec(name,expr,bins,plotspec):
         histo.Sumw2()
         return histo
 
-def cropNegativeBins(histo):
-            if "TH1" in histo.ClassName():
-                for b in xrange(0,histo.GetNbinsX()+2):
-                    if histo.GetBinContent(b) < 0: histo.SetBinContent(b, 0.0)
-            elif "TH2" in histo.ClassName():
-                for bx in xrange(0,histo.GetNbinsX()+2):
-                    for by in xrange(0,histo.GetNbinsY()+2):
-                        if histo.GetBinContent(bx,by) < 0: histo.SetBinContent(bx,by, 0.0)
-            elif "TH3" in histo.ClassName():
-                for bx in xrange(0,histo.GetNbinsX()+2):
-                    for by in xrange(0,histo.GetNbinsY()+2):
-                        for bz in xrange(0,histo.GetNbinsZ()+2):
-                            if histo.GetBinContent(bx,by,bz) < 0: histo.SetBinContent(bx,by,bz, 0.0)
-
-
 class TreeToYield:
-    def __init__(self,root,options,scaleFactor='1.0',name=None,cname=None,settings={},objname=None,variation_inputs=[]):
+    def __init__(self,root,basepath,options,scaleFactor='1.0',name=None,cname=None,settings={},objname=None,variation_inputs=[],nanoAOD=False):
         self._name  = name  if name != None else root
         self._cname = cname if cname != None else self._name
         self._fname = root
+        self._basepath = basepath
+        self._isNano = nanoAOD
         self._isInit = False
         self._options = options
         self._objname = objname if objname else options.obj
@@ -162,7 +164,7 @@ class TreeToYield:
         else:
             self._mcCorrSourceList = [('_default_',x) for x in globalMCCorrections()]            
         if 'MCCorrections' in settings:
-            self._mcCorrs = self._mcCorrs[:] # make copy
+            self._mcCorrs = getattr(self, '_mcCorrs', [])[:] # make copy
             for cfile in settings['MCCorrections'].split(','): 
                 self._mcCorrSourceList.append( (cfile,MCCorrections(cfile)) )            
         if 'FakeRate' in settings:
@@ -174,6 +176,7 @@ class TreeToYield:
         self._appliedCut = None
         self._elist = None
         self._entries = None
+        self._sumweights = {} if self._isNano else None
         #print "Done creation  %s for task %s in pid %d " % (self._fname, self._name, os.getpid())
         for _var in variation_inputs:
             if _var.isDummy(): continue
@@ -209,7 +212,7 @@ class TreeToYield:
         ttyVariations = {}
         for var in self.getVariations():
             for direction in ['up','dn']:
-                tty2 = copy(self)
+                tty2 = copy.copy(self)
                 tty2._name = tty2._name + '_%s_%s'%(var.name,direction)
                 tty2._isVariation = (var,direction)
                 tty2._variations = []
@@ -304,22 +307,17 @@ class TreeToYield:
         if "root://" in self._fname: self._tree.SetCacheSize()
         self._friends = []
         friendOpts = self._options.friendTrees[:]
-        friendOpts += [ ('sf/t', d+"/evVarFriend_{cname}.root") for d in self._options.friendTreesSimple]
         friendOpts += (self._options.friendTreesData if self._isdata else self._options.friendTreesMC)
-        friendOpts += [ ('sf/t', d+"/evVarFriend_{cname}.root") for d in (self._options.friendTreesDataSimple if self._isdata else self._options.friendTreesMCSimple) ]
         if 'Friends' in self._settings: friendOpts += self._settings['Friends']
-        if 'FriendsSimple' in self._settings: friendOpts += [ ('sf/t', d+"/evVarFriend_{cname}.root") for d in self._settings['FriendsSimple'] ]
+        friendSimpleOpts = self._options.friendTreesSimple[:]
+        friendSimpleOpts += (self._options.friendTreesDataSimple if self._isdata else self._options.friendTreesMCSimple)
+        if 'FriendsSimple' in self._settings: friendSimpleOpts += self._settings['FriendsSimple']
+        if self._isNano:
+            friendOpts += [ ('Friends', d+"/{cname}_Friend.root") for d in friendSimpleOpts]
+        else:
+            friendOpts += [ ('sf/t', d+"/evVarFriend_{cname}.root") for d in friendSimpleOpts]
         for tf_tree,tf_file in friendOpts:
-#            print 'Adding friend',tf_tree,tf_file
-            basepath = None
-            for treepath in getattr(self._options, 'path', []):
-                if self._cname in os.listdir(treepath):
-                    basepath = treepath
-                    break
-            if not basepath:
-                raise RuntimeError("%s -- ERROR: %s process not found in paths (%s)" % (__name__, cname, repr(options.path)))
-
-            tf_filename = tf_file.format(name=self._name, cname=self._cname, P=basepath)
+            tf_filename = tf_file.format(name=self._name, cname=self._cname, P=self._basepath)
             tf = self._tree.AddFriend(tf_tree, tf_filename),
             self._friends.append(tf)
         self._isInit = True
@@ -329,10 +327,31 @@ class TreeToYield:
         self._tfile.Close()
         self._tfile = None
         self._isInit = False
-    def getTree(self):
+    def getTree(self,treeName=None):
         if not self._isInit: self._init()
-        return self._tree
-
+        if treeName is None:
+            return self._tree
+        else:
+            t = self._tfile.Get(treeName)
+            if not t: raise RuntimeError, "Cannot find tree %s in file %s\n" % (treeName, self._fname)
+            return t
+    def getSumW(self,expr="genEventSumw",closeFileAfterwards=True):
+        if self._maintty != None: print "WARNING: getSumW called on a non-main TTY"
+        if expr not in self._sumweights:
+            if self._isNano:
+                if closeFileAfterwards and (not self._isInit):
+                    if "root://" in self._fname: ROOT.gEnv.SetValue("XNet.Debug", -1); # suppress output about opening connections
+                    tfile = ROOT.TFile.Open(self._fname)
+                    if not tfile: raise RuntimeError, "Cannot open %s\n" % self._fname
+                    t = tfile.Get("Runs")
+                    if not t: raise RuntimeError, "Cannot find tree %s in file %s\n" % ("LuminosityBlocks", self._fname)
+                    self._sumweights[expr] = _treeSum(t, expr)
+                    tfile.Close()
+                else:
+                    self._sumweights[expr] = _treeSum(self.getTree("Runs"), expr)
+            else:
+                raise RuntimeError, "getSumW implemented only for NanoAOD for now"
+        return self._sumweights[expr]
     def getEntries(self,useEList=True,closeFileAfterwards=True):
         if useEList and self._elist: 
             return self._elist.GetN()
@@ -637,6 +656,14 @@ def _copyPlotStyle(self,plotfrom,plotto):
         plotto.GetYaxis().SetNdivisions(plotfrom.GetYaxis().GetNdivisions())
         plotto.GetZaxis().SetNdivisions(plotfrom.GetZaxis().GetNdivisions())
 
+def _treeSum(tree,expr):
+    if tree.GetEntries() == 0: return 0.
+    ROOT.gROOT.cd()
+    if ROOT.gROOT.FindObject("dummy") != None: ROOT.gROOT.FindObject("dummy").Delete()
+    histo = ROOT.TH1D("dummy","dummy",1,0.0,1.0); histo.Sumw2()
+    tree.Draw("0.5>>dummy", expr, "goff")
+    return histo.GetBinContent(1)
+
 def addTreeToYieldOptions(parser):
     parser.add_option("-l", "--lumi",           dest="lumi",   type="float", default="19.7", help="Luminosity (in 1/fb)");
     parser.add_option("-u", "--unweight",       dest="weight",       action="store_false", default=True, help="Don't use weights (in MC events), note weights are still used if a fake rate file is given");
@@ -673,7 +700,6 @@ def addTreeToYieldOptions(parser):
 
 
 def mergeReports(reports):
-    import copy
     one = copy.deepcopy(reports[0])
     for i,(c,x) in enumerate(one):
         one[i][1][1] = pow(one[i][1][1], 2)

@@ -14,14 +14,13 @@ if __name__ == '__main__':
 
     for directory in os.listdir("."):
         if directory.find("ext")!=-1:
-            continue
-    
-        dirOrig=directory.split("_ext")[0]
-        dirNew = dirOrig="_ext"
-        os.system("mv {orig} {orig}_Chunk0".format(orig=dirOrig))
-        os.system("mv {new} {new}_Chunk1".format(new=dirNew))
-        os.system("rm -rf {orig}".format(orig=dirOrig))
-        os.system("rm -rf {orig}.*}".format(orig=dirOrig))
+            dirOrig=directory.split("_ext")[0]
+            dirNew = dirOrig+"_ext"
+            os.system("mv {orig} {orig}_Chunk0".format(orig=dirOrig))
+            os.system("mv {new} {orig}_Chunk1".format(new=dirNew,orig=dirOrig))
+#            print("mv {orig} {orig}_Chunk0".format(orig=dirOrig))
+#            print("mv {new} {orig}_Chunk1".format(new=dirNew,orig=dirOrig))
+
 
         
     
