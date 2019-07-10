@@ -22,7 +22,7 @@ class JetAnalyzer(Analyzer):
                     "${CMSSW_BASE}/src/CMGTools/RootTools/data/jec"
                     ),
                 calculateType1METCorrection=True,
-                groupForUncertaintySources = data_analysis_2017
+                #groupForUncertaintySources = data_analysis_2017
                 )
         self.counters.addCounter('JetAnalyzer')
         count = self.counters.counter('JetAnalyzer')
