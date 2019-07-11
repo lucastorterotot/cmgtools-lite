@@ -16,14 +16,14 @@ cmsenv
 git cms-init --upstream-only
 
 # add custom CMSSW repo
-git remote add lucas git@github.com:lucastorterotot/cmg-cmssw.git -f -t heppy_104X_dev
+git remote add lucas git@github.com:lucastorterotot/cmg-cmssw.git -f -t htt_10_4_0_v1
 
 # configure the sparse checkout, and get the base heppy packages
 cp /afs/cern.ch/user/g/gpetrucc/public/sparse-checkout_104X_heppy .git/info/sparse-checkout
-git checkout -t lucas/heppy_104X_dev
+git checkout -t lucas/htt_10_4_0_v1
 
 # get the CMGTools subsystem from the cmgtools-lite repository
-git clone -o lucas git@github.com:lucastorterotot/cmgtools-lite.git -b 104X_dev CMGTools
+git clone -o lucas git@github.com:lucastorterotot/cmgtools-lite.git -b htt_10_4_0_v1 CMGTools
 
 # get the recoil correction interface
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections 
