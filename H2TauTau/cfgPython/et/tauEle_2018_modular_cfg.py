@@ -24,7 +24,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', False)
 data = getHeppyOption('data', False)
 embedded = getHeppyOption('embedded', False)
@@ -503,6 +503,7 @@ def config_Btagging(up_or_down):
 for up_or_down in up_down:
     configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
 
+configs = {'nominal':configs['nominal']}
 print configs
 
 # config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
