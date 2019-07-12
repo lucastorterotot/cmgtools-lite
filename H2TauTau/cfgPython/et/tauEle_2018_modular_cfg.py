@@ -68,7 +68,7 @@ for sample in selectedComponents:
         sample.triggers = data_triggers
         sample.triggerobjects = data_triggerfilters
         if embedded:
-            sample.triggerobjects = embedded_triggerfilters
+            sample.triggerobjects = embed_triggerfilters
     else:
         sample.triggers = mc_triggers
         sample.triggerobjects = mc_triggerfilters
