@@ -3,7 +3,7 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 echo 'set crab3 environment'
 source /cvmfs/cms.cern.ch/crab3/crab.sh
 echo 'set cms vo proxy'
-voms-proxy-init --rfc --voms cms
+voms-proxy-init --rfc --voms cms --valid 192:00
 cd ../..
 echo 'set cmssw environment...'
 cmsenv
