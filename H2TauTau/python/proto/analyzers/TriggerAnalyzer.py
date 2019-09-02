@@ -198,6 +198,14 @@ class TriggerAnalyzer(Analyzer):
             # import pdb;pdb.set_trace()
             for info in trigger_infos:
                 
+                for match_info in info.match_infos:
+                    info.trigtype = match_info.trigtype
+                    if info.fired:
+                        if match_info.leg1_names and not info.leg1_objs:
+                            print 'Warning in TriggerAnalyzer, matching info associated but no leg1 objects set', info.name, match_info
+                        if match_info.leg2_names and not info.leg2_objs:
+                            print 'Warning in TriggerAnalyzer, matching info associated but no leg2 objects set', info.name, match_info
+
                 if not info.fired: 
                     continue
 
@@ -209,13 +217,6 @@ class TriggerAnalyzer(Analyzer):
                     for match_info in info.match_infos: 
                         print match_info
 
-                for match_info in info.match_infos:
-                    info.trigtype = match_info.trigtype
-                    if info.fired:
-                        if match_info.leg1_names and not info.leg1_objs:
-                            print 'Warning in TriggerAnalyzer, matching info associated but no leg1 objects set', info.name, match_info
-                        if match_info.leg2_names and not info.leg2_objs:
-                            print 'Warning in TriggerAnalyzer, matching info associated but no leg2 objects set', info.name, match_info
 
                                                 
         event.trigger_infos = trigger_infos

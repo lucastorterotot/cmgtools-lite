@@ -1,6 +1,10 @@
+import os
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 
 creator = ComponentCreator()
+
+json = os.path.expandvars('$CMSSW_BASE/src/CMGTools/H2TauTau/data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt')
+lumi = 41529.
 
 # Embedded2017B_tt = creator.makeDataComponent("Embedded2017B_tt", "/EmbeddingRun2017B/StoreResults-inputDoubleMu_94X_miniAOD-v1/USER", "CMS", ".*root")
 Embedded2017B_tt = creator.makeDataComponent('Embedded2017B_tt', '/EmbeddingRun2017B/TauTauFinalState-StoreResults_inputDoubleMu_94X_miniAOD-v2/USER', 'CMS', '.*root')
@@ -29,3 +33,7 @@ Embedded2017E_et = creator.makeDataComponent('Embedded2017E_et', '/EmbeddingRun2
 Embedded2017F_et = creator.makeDataComponent('Embedded2017F_et', '/EmbeddingRun2017F/ElTauFinalState-StoreResults_inputDoubleMu_94X_miniAOD-v2/USER', 'CMS', '.*root')
 
 embedded_et = [Embedded2017B_et,Embedded2017C_et,Embedded2017D_et,Embedded2017E_et,Embedded2017F_et]
+
+for sample in embedded_tt+embedded_mt+embedded_et:
+    sample.json = json
+    sample.lumi = lumi

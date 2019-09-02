@@ -27,13 +27,13 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # production = True run on batch, production = False run locally
 test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', False)
-data = getHeppyOption('data', False)
-embedded = getHeppyOption('embedded', False)
+data = getHeppyOption('data', True)
+embedded = getHeppyOption('embedded', True)
 if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'sm_higgs') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
+samples_name = getHeppyOption('samples_name', 'embedded_tt') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
 AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
@@ -294,8 +294,8 @@ sequence.append(tauidweighter)
 sequence.append(triggerweighter)
 sequence.append(ntuple)
 
-if embedded:
-    sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
+# if embedded:
+#     sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
 
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
@@ -456,3 +456,20 @@ if not data:
 
 # config = configs['DY_pT_reweighting_up']
 # configs = {'DY_pT_reweighting_up':configs['DY_pT_reweighting_up'],'DY_pT_reweighting_down':configs['DY_pT_reweighting_down'],'nominal':nominal}
+
+# configs.pop('nominal')
+
+# resubmit_configs = {'Btagging_up': configs['Btagging_up'],
+#                     'TES_promptEle_1prong0pi0_up': configs['TES_promptEle_1prong0pi0_up']
+# }
+
+# resubmit_configs['Btagging_up'].components = [comp for comp in resubmit_configs['Btagging_up'].components if comp.name in ['WZ']]
+# # resubmit_configs['TES_HadronicTau_1prong0pi0_up'].components = [comp for comp in resubmit_configs['TES_HadronicTau_1prong0pi0_up'].components if comp.name in ['WJetsToLNu_LO','WJetsToLNu_LO_ext','T_tWch','WW']]
+# # resubmit_configs['TES_promptEle_1prong0pi0_down'].components = [comp for comp in resubmit_configs['TES_promptEle_1prong0pi0_down'].components if comp.name in ['TBar_tch','TBar_tWch','T_tch']]
+# resubmit_configs['TES_promptEle_1prong0pi0_up'].components = [comp for comp in resubmit_configs['TES_promptEle_1prong0pi0_up'].components if comp.name in ['WZ']]
+
+
+# configs = {'nominal': configs['nominal']}
+# configs = resubmit_configs
+
+print configs
