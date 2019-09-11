@@ -24,13 +24,13 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # production = True run on batch, production = False run locally
 test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', False)
-data = getHeppyOption('data', False)
-embedded = getHeppyOption('embedded', False)
+data = getHeppyOption('data', False) # set later
+embedded = getHeppyOption('embedded', False) # set later
 if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'TTbar') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
+samples_name = getHeppyOption('samples_name', 'generic_background') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
 AAA = getHeppyOption('AAA', 'global') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
@@ -58,6 +58,11 @@ from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauMu import mc_triggers, m
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauMu import data_triggers, data_triggerfilters
 
 selectedComponents = samples_lists[samples_name]
+subset_selections = ['WToLNu_M50_Plus2J', 'WToLNu_M50_Minus2J', 'ZToLL_M50', 'ZToNuNu']
+selectedComponents_ = []
+for subset_selection in subset_selections:
+    selectedComponents_ += [comp for comp in selectedComponents if subset_selection in comp.name]
+selectedComponents = selectedComponents_
 
 n_events_per_job = 1e5
 
