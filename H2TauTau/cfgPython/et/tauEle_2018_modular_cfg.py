@@ -347,8 +347,8 @@ sequence.append(eleidisoweighter)
 sequence.append(triggerweighter)
 sequence.append(ntuple)
 
-if embedded:
-    sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
+# if embedded:
+#     sequence = [x for x in sequence if x.name not in ['JSONAnalyzer']]
 
 if events_to_pick:
     from CMGTools.H2TauTau.htt_ntuple_base_cff import eventSelector
