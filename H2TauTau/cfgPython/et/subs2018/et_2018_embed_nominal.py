@@ -33,7 +33,7 @@ if embedded:
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 samples_name = getHeppyOption('samples_name', 'embedded_et') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
-AAA = getHeppyOption('AAA', 'global') # options : global, Lyon
+AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 if AAA == 'Lyon':
