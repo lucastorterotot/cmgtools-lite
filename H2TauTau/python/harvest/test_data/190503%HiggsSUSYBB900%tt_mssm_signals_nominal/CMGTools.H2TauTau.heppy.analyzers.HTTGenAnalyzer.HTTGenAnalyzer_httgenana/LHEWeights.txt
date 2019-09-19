@@ -1,0 +1,12 @@
+Counter LHEWeights :
+	 Sum LHEWeight 1                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 2                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 3                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 4                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 5                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 6                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 7                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 8                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 9                                  0 	 -1.00 	 -1.0000
+	 Sum LHEWeight 10                                 0 	 -1.00 	 -1.0000
+
