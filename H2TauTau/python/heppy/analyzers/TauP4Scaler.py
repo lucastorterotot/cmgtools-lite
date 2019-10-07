@@ -19,7 +19,7 @@ class TauP4Scaler(Analyzer):
 
 
     def process(self, event):
-        if self.cfg_comp.isData and not (hasattr(self.cfg_comp, 'isEmbed') and self.cfg_comp.isEmbed):
+        if self.cfg_comp.isData or (hasattr(self.cfg_comp, 'isEmbed') and self.cfg_comp.isEmbed) :
             return True
         taus = getattr(event, self.cfg_ana.src)
         for tau in taus:
