@@ -170,6 +170,7 @@ def unpack(info, destination, ntgzs=None):
      os.chdir(destination)
      destpath = os.getcwd()
      chunks = dict()
+     untar_exit_code_sum = 0
      for subd, tgzs in info['tgzs'].iteritems():
           # print 'unpacking subdir', subd
           subdid = int(subd)
@@ -180,6 +181,7 @@ def unpack(info, destination, ntgzs=None):
           for tgz in tgzs[:ntgzs]: 
                print 'unpacking', tgz
                untar_exit_code = os.system('tar -zxf {}'.format(tgz))
+               untar_exit_code_sum += untar_exit_code
                # tgz is e.g. heppyOutput_43.tgz
                # so index is 43
                index = int(os.path.splitext(tgz)[0].split('_')[1]) + subdid
@@ -189,7 +191,6 @@ def unpack(info, destination, ntgzs=None):
                               index,
                               info['sample_version'],
                               info['sub_date']))
-                    return untar_exit_code
                else:
                     chunkname = '{}_Chunk{}'.format(info['name'], index)
                     chunks[subd].append(chunkname)
@@ -198,5 +199,5 @@ def unpack(info, destination, ntgzs=None):
           os.chdir(destpath)
           shutil.rmtree(subd)
      os.chdir(oldpath)
-     return 0
+     return untar_exit_code_sum
           
