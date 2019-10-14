@@ -32,7 +32,9 @@ def harvest_one(info, destination, ntgzs=None):
      print('there')
      tmpdir = tempfile.mkdtemp()
      fetch(info, tmpdir, ntgzs)
-     unpack(info, tmpdir, ntgzs)
+     unpack_exit_code = unpack(info, tmpdir, ntgzs)
+     if not unpack_exit_code == 0:
+          return info 
      hadd(tmpdir)
      tmpsampledir = '/'.join([tmpdir,info['name']])
      destsampledir = '/'.join([destination, info['name']])
@@ -168,6 +170,7 @@ def unpack(info, destination, ntgzs=None):
      os.chdir(destination)
      destpath = os.getcwd()
      chunks = dict()
+     untar_exit_code_sum = 0
      for subd, tgzs in info['tgzs'].iteritems():
           # print 'unpacking subdir', subd
           subdid = int(subd)
@@ -177,15 +180,24 @@ def unpack(info, destination, ntgzs=None):
                ntgzs = len(tgzs)
           for tgz in tgzs[:ntgzs]: 
                print 'unpacking', tgz
-               os.system('tar -zxf {}'.format(tgz))
+               untar_exit_code = os.system('tar -zxf {}'.format(tgz))
+               untar_exit_code_sum += untar_exit_code
                # tgz is e.g. heppyOutput_43.tgz
                # so index is 43
                index = int(os.path.splitext(tgz)[0].split('_')[1]) + subdid
-               chunkname = '{}_Chunk{}'.format(info['name'], index)
-               chunks[subd].append(chunkname)
-               os.rename('Output', '../'+chunkname)
-               os.remove(tgz)
+               if not untar_exit_code == 0:
+                    os.system("echo 'Problem with sample {}, chunk {}, version {}, submitted on {}' >> $CMSSW_BASE/src/CMGTools/H2TauTau/scripts/tgzs_problems.log".format(
+                              info['sample'],
+                              index,
+                              info['sample_version'],
+                              info['sub_date']))
+               else:
+                    chunkname = '{}_Chunk{}'.format(info['name'], index)
+                    chunks[subd].append(chunkname)
+                    os.rename('Output', '../'+chunkname)
+                    os.remove(tgz)
           os.chdir(destpath)
           shutil.rmtree(subd)
      os.chdir(oldpath)
+     return untar_exit_code_sum
           

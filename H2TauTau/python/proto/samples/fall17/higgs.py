@@ -19,7 +19,10 @@ HiggsZH125 = creator.makeMCComponent('HiggsZH125', '/ZHToTauTau_M125_13TeV_powhe
 mc_higgs = [
     HiggsVBF125,
     HiggsGGH125,
-    HiggsTTH125
+    HiggsTTH125,
+    HiggsWplusH125,
+    HiggsWminusH125,
+    HiggsZH125
 ]
 
 # Signals
@@ -33,43 +36,43 @@ sync_list = [
 ]
 
 pattern = re.compile('Higgs(\D+)(\d+)')
-for h in mc_higgs:
-    m = pattern.match( h.name )
-    process = m.group(1)
+# for h in mc_higgs:
+#     m = pattern.match( h.name )
+#     process = m.group(1)
     
-    isToWW = False 
-    isInclusive = False
-    if 'toWW' in process :
-        process = process.replace('toWW', '')
-        isToWW = True
-    if 'Inclusive' in process:
-        process = process.replace('Inclusive', '')
-        isInclusive = True
+#     isToWW = False 
+#     isInclusive = False
+#     if 'toWW' in process :
+#         process = process.replace('toWW', '')
+#         isToWW = True
+#     if 'Inclusive' in process:
+#         process = process.replace('Inclusive', '')
+#         isInclusive = True
           
-    mass = float(m.group(2))
-    xSection = 0.
-    try:
-        if process == 'VH':
-            xSection += yrparser13TeV.get(mass)['WH']['sigma']
-            xSection += yrparser13TeV.get(mass)['ZH']['sigma']
-        else:
-            xSection += yrparser13TeV.get(mass)[process]['sigma']
-    except KeyError:
-        print 'Higgs mass', mass, 'not found in cross section tables. Interpolating linearly at +- 1 GeV...'
-        if process=='VH':
-            xSection += 0.5 * (yrparser13TeV.get(mass-1.)['WH']['sigma'] + xSection + yrparser13TeV.get(mass+1.)['WH']['sigma'])
-            xSection += 0.5 * (yrparser13TeV.get(mass-1.)['ZH']['sigma'] + yrparser13TeV.get(mass+1.)['ZH']['sigma'])
-        else:
-            xSection += 0.5 * (yrparser13TeV.get(mass-1.)[process]['sigma'] + yrparser13TeV.get(mass+1.)[process]['sigma'])
+#     mass = float(m.group(2))
+#     xSection = 0.
+#     try:
+#         if process == 'VH':
+#             xSection += yrparser13TeV.get(mass)['WH']['sigma']
+#             xSection += yrparser13TeV.get(mass)['ZH']['sigma']
+#         else:
+#             xSection += yrparser13TeV.get(mass)[process]['sigma']
+#     except KeyError:
+#         print 'Higgs mass', mass, 'not found in cross section tables. Interpolating linearly at +- 1 GeV...'
+#         if process=='VH':
+#             xSection += 0.5 * (yrparser13TeV.get(mass-1.)['WH']['sigma'] + xSection + yrparser13TeV.get(mass+1.)['WH']['sigma'])
+#             xSection += 0.5 * (yrparser13TeV.get(mass-1.)['ZH']['sigma'] + yrparser13TeV.get(mass+1.)['ZH']['sigma'])
+#         else:
+#             xSection += 0.5 * (yrparser13TeV.get(mass-1.)[process]['sigma'] + yrparser13TeV.get(mass+1.)[process]['sigma'])
 
-    if isToWW :
-        br = yrparser13TeV.get(mass)['H2B']['WW']
-    elif isInclusive:
-        br = 1.
-    else :
-        br = yrparser13TeV.get(mass)['H2F']['tautau']
+#     if isToWW :
+#         br = yrparser13TeV.get(mass)['H2B']['WW']
+#     elif isInclusive:
+#         br = 1.
+#     else :
+#         br = yrparser13TeV.get(mass)['H2F']['tautau']
       
-    h.xSection = xSection*br
-    h.branchingRatio = br
-    print h.name, 'sigma*br =', h.xSection, 'sigma =', xSection, 'br =', h.branchingRatio
+#     h.xSection = xSection*br
+#     h.branchingRatio = br
+#     print h.name, 'sigma*br =', h.xSection, 'sigma =', xSection, 'br =', h.branchingRatio
 
