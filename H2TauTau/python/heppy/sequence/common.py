@@ -9,9 +9,9 @@ import ROOT
 puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_13Nov.root'
 puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
-gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
-gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
+gt_mc = 'Fall17_17Nov2017_V32_MC'#latest : V32
+gt_data = 'Fall17_17Nov2017{}_V32_DATA'#latest: V32
+gt_embed = 'Fall17_17Nov2017{}_V32_DATA'
 
 #########################
 ### samples #############
