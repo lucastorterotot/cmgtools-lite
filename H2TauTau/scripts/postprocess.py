@@ -25,6 +25,9 @@ def get_options():
      parser.add_option("-f", "--force", dest="force",
                        action="store_true", default=False,
                        help='force overwrite if processed dataset already exists')
+     parser.add_option("-c", "--channel", dest="channel",
+                       default='tt',
+                       help='Channel: default is tt, but can be mt or et too.')
     
      (options,args) = parser.parse_args()
      if len(args)!=4:
@@ -68,4 +71,5 @@ if __name__ == '__main__':
                       destdir,
                       new_tier,
                       nworkers=nworkers,
-                      delete='n')
+                      delete='n',
+                      channel=options.channel)

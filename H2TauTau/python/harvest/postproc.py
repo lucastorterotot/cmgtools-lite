@@ -92,7 +92,7 @@ def process_dataset(info, tier, func, meta, destination, new_tier):
     return new_info
 
 
-def process(infos, tier, script, destination, new_tier, nworkers=None, delete='ask'):
+def process(infos, tier, script, destination, new_tier, nworkers=None, delete='ask', channel='tt'):
     '''process all datasets with the process function in the script module
     '''
     if os.path.isdir(destination):
@@ -108,6 +108,8 @@ def process(infos, tier, script, destination, new_tier, nworkers=None, delete='a
     else:
         os.mkdir(destination)
     func, meta = load_script(script)
+    if 'channel' in meta:
+        meta['channel'] = channel
     new_infos = []
     if nworkers is None or nworkers==1:
         for info in infos: 
