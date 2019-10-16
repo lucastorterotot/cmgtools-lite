@@ -33,8 +33,6 @@ def harvest_one(info, destination, ntgzs=None):
      tmpdir = tempfile.mkdtemp()
      fetch(info, tmpdir, ntgzs)
      unpack_exit_code = unpack(info, tmpdir, ntgzs)
-     if not unpack_exit_code == 0:
-          return info 
      hadd(tmpdir)
      tmpsampledir = '/'.join([tmpdir,info['name']])
      destsampledir = '/'.join([destination, info['name']])
@@ -45,6 +43,8 @@ def harvest_one(info, destination, ntgzs=None):
           shutil.rmtree(destsampledir)
      shutil.move(tmpsampledir, destsampledir)
      shutil.rmtree(tmpdir)
+     if not unpack_exit_code == 0:
+          return info 
      del info['_id']
      harv_info = {
           'time': time.time(),
