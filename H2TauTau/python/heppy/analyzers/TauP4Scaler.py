@@ -1,6 +1,6 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
-from CMGTools.H2TauTau.heppy.utils.TauEnergyScales import TauEnergyScales, TauEnergyScales_up, TauEnergyScales_down
+from CMGTools.H2TauTau.heppy.utils.TauEnergyScales import TauEnergyScales_dict
 import copy
 
 gen_match_dict = {6:'JetToTau',
@@ -19,13 +19,16 @@ class TauP4Scaler(Analyzer):
 
 
     def process(self, event):
-        if self.cfg_comp.isData or (hasattr(self.cfg_comp, 'isEmbed') and self.cfg_comp.isEmbed) :
+        if self.cfg_comp.isData and not (hasattr(self.cfg_comp, 'isEmbed') and self.cfg_comp.isEmbed) :
             return True
         taus = getattr(event, self.cfg_ana.src)
+        process_type = 'MC'
+        if (hasattr(self.cfg_comp, 'isEmbed') and self.cfg_comp.isEmbed):
+            process_type = 'EMB'
         for tau in taus:
-            self.correct_energy(tau)
+            self.correct_energy(tau,process_type)
  
-    def correct_energy(self, tau):
+    def correct_energy(self, tau, process_type):
         if hasattr(tau, 'gen_match') :
             gen_match = tau.gen_match
             decayMode = tau.decayMode()
@@ -34,7 +37,7 @@ class TauP4Scaler(Analyzer):
             
             if gen_match in gen_match_dict.keys():
                 if decayMode in decay_modes_dict.keys():
-                    energy_scale = TauEnergyScales[ gen_match_dict[gen_match] ][ decay_modes_dict[decayMode] ]
+                    energy_scale = TauEnergyScales_dict[process_type][ gen_match_dict[gen_match] ][ decay_modes_dict[decayMode] ]
             tau.unscaledP4 = copy.copy(tau.p4())
             tau.energyScale = energy_scale
             # call isolation before energy scale to match score derived and stored in MINIAOD/NANOAOD
@@ -42,11 +45,11 @@ class TauP4Scaler(Analyzer):
             tau.tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017')
             tau.scaleEnergy(energy_scale)
             if hasattr(self.cfg_ana, 'systematics') and self.cfg_ana.systematics:
-                self.add_up_down_TES(tau, energy_scale)
+                self.add_up_down_TES(tau, energy_scale, process_type)
         else:
             print 'No gen match for tau lepton!'
 
-    def add_up_down_TES(self, tau, base_energy_scale):
+    def add_up_down_TES(self, tau, base_energy_scale, process_type):
         tau.up_down_TES = {}
         decayMode = tau.decayMode()
         gen_match = tau.gen_match
@@ -65,7 +68,7 @@ class TauP4Scaler(Analyzer):
             dm_name = decayMode
         else:
             dm_name = decay_modes_dict[decayMode]
-            TES_up = TauEnergyScales_up[gm_name][dm_name]
-            TES_down = TauEnergyScales_down[gm_name][dm_name]
+            TES_up = TauEnergyScales_dict[process_type+'_up'][gm_name][dm_name]
+            TES_down = TauEnergyScales_dict[process_type+'_down'][gm_name][dm_name]
         setattr(tau,'TES_{}_{}_{}'.format(gm_name,dm_name,'up'),TES_up/base_energy_scale)
         setattr(tau,'TES_{}_{}_{}'.format(gm_name,dm_name,'down'),TES_down/base_energy_scale)
