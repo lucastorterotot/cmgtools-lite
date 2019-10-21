@@ -25,15 +25,15 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', False)
-data = getHeppyOption('data', True)
-embedded = getHeppyOption('embedded', True)
+data = getHeppyOption('data', False)
+embedded = getHeppyOption('embedded', False)
 if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'embedded_tt') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
+samples_name = getHeppyOption('samples_name', 'mc_higgs_susy_bb_amcatnlo') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals, mc_higgs_susy_bb_amcatnlo
 AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
@@ -480,4 +480,28 @@ if not data:
 # configs = {'nominal': configs['nominal']}
 # configs = resubmit_configs
 
-print configs
+
+# dirset = set()
+
+# for dirpath, dirnames, filenames in os.walk('/gridgroup/cms/touquet/crab_submission_dirs/'):
+#     for dirname in dirnames:
+#         dirset.add(dirname)   
+
+# newconfigs = {}
+
+# for confname, conf in configs.iteritems():
+#     print confname
+#     print 'added comp:'
+#     comps = []
+#     for comp in conf.components:
+#         if not any([(confname in d and comp.name in d) for d in dirset]):
+#             print comp.name
+#             comps.append(comp)
+#     if comps:
+#         newconf = copy.copy(conf)
+#         newconf.components = comps
+#         newconfigs[confname] = newconf
+
+# configs = newconfigs
+
+# print configs
