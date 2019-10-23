@@ -76,10 +76,10 @@ for sample in selectedComponents:
 if test:
     cache = True
     selectedComponents = [selectedComponents[0]]
-    # for comp in selectedComponents:
-    #    comp.files = comp.files[:1]
-    #    comp.splitFactor = 1
-    #    comp.fineSplitFactor = 1
+    for comp in selectedComponents:
+        comp.files = comp.files[:1]
+        comp.splitFactor = 1
+        comp.fineSplitFactor = 1
     #    comp.files = ['file1.root']
 
 events_to_pick = []
