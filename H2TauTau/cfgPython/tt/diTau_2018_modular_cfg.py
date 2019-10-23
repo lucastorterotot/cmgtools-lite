@@ -25,7 +25,7 @@ Event.print_patterns = ['*taus*', '*muons*', '*electrons*', 'veto_*',
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', False)
 data = getHeppyOption('data', True)
 embedded = getHeppyOption('embedded', True)
@@ -33,7 +33,7 @@ if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'embedded_tt') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
+samples_name = getHeppyOption('samples_name', 'mc_higgs_susy_bb_amcatnlo') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals, mc_higgs_susy_bb_amcatnlo
 AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
@@ -79,7 +79,7 @@ for sample in selectedComponents:
         sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, n_events_per_job)
     sample.channel = 'tt'
-        
+
 if test:
     cache = True
     selectedComponents = [selectedComponents[0]]
@@ -406,11 +406,19 @@ TES = [['HadronicTau','1prong0pi0'],
        ['promptEle','1prong0pi0'],
        ['promptEle','1prong1pi0']]
 
-if (not data) or (data and embedded):
+TES_embed = [['HadronicTau','1prong0pi0'],
+             ['HadronicTau','1prong1pi0'],
+             ['HadronicTau','3prong0pi0']]
+
+if (not data):
     for gm_name, dm_name in TES:
         configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
         configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
+elif (data and embedded):
+    for gm_name, dm_name in TES_embed:
+        configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+        configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
 ### Jet energy scale
 from CMGTools.H2TauTau.heppy.sequence.common import jets
@@ -450,26 +458,3 @@ def config_Btagging(up_or_down):
 if not data:
     for up_or_down in up_down:
         configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
-
-# config = configs['Btagging_up']
-# configs = {'Btagging_up':configs['Btagging_up'],'Btagging_down':configs['Btagging_down'],'nominal':nominal}
-
-# config = configs['DY_pT_reweighting_up']
-# configs = {'DY_pT_reweighting_up':configs['DY_pT_reweighting_up'],'DY_pT_reweighting_down':configs['DY_pT_reweighting_down'],'nominal':nominal}
-
-# configs.pop('nominal')
-
-# resubmit_configs = {'Btagging_up': configs['Btagging_up'],
-#                     'TES_promptEle_1prong0pi0_up': configs['TES_promptEle_1prong0pi0_up']
-# }
-
-# resubmit_configs['Btagging_up'].components = [comp for comp in resubmit_configs['Btagging_up'].components if comp.name in ['WZ']]
-# # resubmit_configs['TES_HadronicTau_1prong0pi0_up'].components = [comp for comp in resubmit_configs['TES_HadronicTau_1prong0pi0_up'].components if comp.name in ['WJetsToLNu_LO','WJetsToLNu_LO_ext','T_tWch','WW']]
-# # resubmit_configs['TES_promptEle_1prong0pi0_down'].components = [comp for comp in resubmit_configs['TES_promptEle_1prong0pi0_down'].components if comp.name in ['TBar_tch','TBar_tWch','T_tch']]
-# resubmit_configs['TES_promptEle_1prong0pi0_up'].components = [comp for comp in resubmit_configs['TES_promptEle_1prong0pi0_up'].components if comp.name in ['WZ']]
-
-
-# configs = {'nominal': configs['nominal']}
-# configs = resubmit_configs
-
-print configs

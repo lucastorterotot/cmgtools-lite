@@ -1,0 +1,10 @@
+Counter Trigger :
+	 All events                                   86350 	 1.00 	 1.0000
+	 HLT                                          86350 	 1.00 	 1.0000
+	 HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*     38757 	 0.45 	 0.4488
+	 HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*prescaled         0 	 0.00 	 0.0000
+	 HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*     39538 	 -1.00 	 0.4579
+	 HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*prescaled         0 	 0.00 	 0.0000
+	 HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*     38960 	 -1.00 	 0.4512
+	 HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v*prescaled         0 	 0.00 	 0.0000
+

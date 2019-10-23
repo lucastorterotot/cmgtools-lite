@@ -1,0 +1,12 @@
+Counter LHEWeights :
+	 Sum LHEWeight 1                          6660.02055422 	 1.00 	 1.0000
+	 Sum LHEWeight 2                          6764.91967507 	 1.02 	 1.0158
+	 Sum LHEWeight 3                          6255.20313432 	 0.92 	 0.9392
+	 Sum LHEWeight 4                          6201.66448511 	 0.99 	 0.9312
+	 Sum LHEWeight 5                          6331.41390052 	 1.02 	 0.9507
+	 Sum LHEWeight 6                          7173.72044839 	 1.13 	 1.0771
+	 Sum LHEWeight 7                          7165.5217532 	 1.00 	 1.0759
+	 Sum LHEWeight 8                          7241.57527911 	 1.01 	 1.0873
+	 Sum LHEWeight 9                          6489.56465278 	 0.90 	 0.9744
+	 Sum LHEWeight 10                         6484.42752777 	 1.00 	 0.9736
+
