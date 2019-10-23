@@ -121,6 +121,64 @@ HiggsSUSYBB2900 = creator.makeMCComponent(
 HiggsSUSYBB3200 = creator.makeMCComponent(
     "HiggsSUSYBB3200", "/SUSYGluGluToBBHToTauTau_M-3200_TuneCP5_13TeV-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 
+HiggsSUSYBB80_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB80_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-80_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB90_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB90_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-90_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+# HiggsSUSYBB100_amcatnlo = creator.makeMCComponent(
+#     "HiggsSUSYBB100_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-100_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB110_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB110_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-110_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB120_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB120_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-120_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB130_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB130_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-130_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB140_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB140_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-140_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB160_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB160_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-160_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB180_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB180_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-180_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB200_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB200_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-200_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB250_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB250_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-250_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB300_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB300_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-300_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB350_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB350_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-350_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB400_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB400_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-400_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB450_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB450_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-450_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB600_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB600_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-600_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB700_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB700_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-700_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB800_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB800_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-800_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB900_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB900_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-900_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB1200_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB1200_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-1200_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB1400_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB1400_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-1400_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+# HiggsSUSYBB1500_amcatnlo = creator.makeMCComponent(
+#     "HiggsSUSYBB1500_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-1500_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB1600_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB1600_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-1600_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB1800_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB1800_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-1800_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB2000_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB2000_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-2000_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB2300_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB2300_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-2300_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB2600_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB2600_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-2600_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB2900_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB2900_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-2900_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYBB3200_amcatnlo = creator.makeMCComponent(
+    "HiggsSUSYBB3200_amcatnlo", "/SUSYGluGluToBBHToTauTau_M-3200_TuneCP5_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 
 mc_higgs_susy_gg = [
     HiggsSUSYGG80,
@@ -184,6 +242,36 @@ mc_higgs_susy_bb = [
     HiggsSUSYBB3200
 ]
 
+mc_higgs_susy_bb_amcatnlo = [
+    HiggsSUSYBB80_amcatnlo,
+    HiggsSUSYBB90_amcatnlo,
+    # HiggsSUSYBB100_amcatnlo,
+    HiggsSUSYBB110_amcatnlo,
+    HiggsSUSYBB120_amcatnlo,
+    HiggsSUSYBB130_amcatnlo,
+    # HiggsSUSYBB140_amcatnlo,
+    HiggsSUSYBB180_amcatnlo,
+    # HiggsSUSYBB200_amcatnlo,
+    HiggsSUSYBB250_amcatnlo,
+    HiggsSUSYBB300_amcatnlo,
+    # HiggsSUSYBB350_amcatnlo,
+    HiggsSUSYBB400_amcatnlo,
+    HiggsSUSYBB450_amcatnlo,
+    HiggsSUSYBB600_amcatnlo,
+    # HiggsSUSYBB700_amcatnlo,
+    HiggsSUSYBB800_amcatnlo,
+    HiggsSUSYBB900_amcatnlo,
+    HiggsSUSYBB1200_amcatnlo,
+    HiggsSUSYBB1400_amcatnlo,
+    # HiggsSUSYBB1500_amcatnlo,
+    HiggsSUSYBB1600_amcatnlo,
+    HiggsSUSYBB1800_amcatnlo,
+    HiggsSUSYBB2000_amcatnlo,
+    HiggsSUSYBB2300_amcatnlo,
+    HiggsSUSYBB2600_amcatnlo,
+    HiggsSUSYBB2900_amcatnlo,
+    # HiggsSUSYBB3200_amcatnlo
+]
 mssm_signals = copy.copy(mc_higgs_susy_gg)
-mssm_signals.extend(mc_higgs_susy_bb)
+mssm_signals.extend(mc_higgs_susy_bb_amcatnlo)
 

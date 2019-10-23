@@ -6,12 +6,12 @@ import ROOT
 ### pu files & global tags
 #########################
 
-puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_13Nov.root'
+puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_Jul9_update_bbhamcatnlo.root'
 puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
-gt_mc = 'Fall17_17Nov2017_V8_MC'#latest : V32
-gt_data = 'Fall17_17Nov2017{}_V6_DATA'#latest: V32
-gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
+gt_mc = 'Fall17_17Nov2017_V32_MC'#latest : V32
+gt_data = 'Fall17_17Nov2017{}_V32_DATA'#latest: V32
+gt_embed = 'Fall17_17Nov2017{}_V32_DATA'
 
 #########################
 ### samples #############
@@ -20,7 +20,7 @@ gt_embed = 'Fall17_17Nov2017{}_V6_DATA'
 from CMGTools.H2TauTau.proto.samples.fall17.backgrounds import DY, TTbar, generic_backgrounds
 from CMGTools.H2TauTau.proto.samples.fall17.data import data_tau, data_single_muon, data_single_electron
 from CMGTools.H2TauTau.proto.samples.fall17.higgs import mc_higgs
-from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals
+from CMGTools.H2TauTau.proto.samples.fall17.higgs_susy import mssm_signals, mc_higgs_susy_bb_amcatnlo
 from CMGTools.H2TauTau.proto.samples.fall17.embedded import embedded_tt, embedded_mt, embedded_et
 
 for sample in embedded_tt+embedded_mt+embedded_et:
@@ -47,7 +47,8 @@ samples_lists = {'DY': DY,
                  'embedded_mt': embedded_mt,
                  'embedded_et': embedded_et,
                  'sm_higgs': mc_higgs,
-                 'mssm_signals': mssm_signals}
+                 'mssm_signals': mssm_signals,
+                 'mc_higgs_susy_bb_amcatnlo': mc_higgs_susy_bb_amcatnlo}
 
 #########################
 ### analyzers ###########

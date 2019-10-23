@@ -17,14 +17,14 @@ cmsenv
 git cms-init --upstream-only
 
 # add custom CMSSW repo
-git remote add colin git@github.com:cbernet/cmg-cmssw.git  -f  -t htt_9_4_11_cand1_v1
+git remote add gael git@github.com:GaelTouquet/cmg-cmssw.git  -f  -t htt_9_4_11_cand1_v1
 
 # configure the sparse checkout, and get the base heppy packages
 cp /afs/cern.ch/user/c/cbern/public/HTT/sparse-checkouts/sparse-checkouts-htt_9_4_11_cand1_v1 .git/info/sparse-checkout
-git checkout -t colin/htt_9_4_11_cand1_v1
+git checkout -t gael/htt_9_4_11_cand1_v1
 
 # get the CMGTools subsystem from the cmgtools-lite repository
-git clone -o colin git@github.com:cbernet/cmgtools-lite.git -b htt_9_4_11_cand1_v1 CMGTools
+git clone -o gael git@github.com:GaelTouquet/cmgtools-lite.git -b htt_9_4_11_cand1_v1 CMGTools
 
 # get the recoil correction interface
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections 
