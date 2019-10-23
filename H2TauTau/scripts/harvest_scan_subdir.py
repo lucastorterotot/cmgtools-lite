@@ -3,8 +3,10 @@ from CMGTools.H2TauTau.harvest.datasetdb import DatasetDB
 
 from getpass import getpass
 
+import os
+
 if __name__ == '__main__':
-     basedir = '/gridgroup/cms/touquet/crab_submission_dirs'
+     basedir = '/gridgroup/cms/{}/crab_submission_dirs'.format(os.environ['USER'])
      pwd = getpass()
      dsdb = DatasetDB('writer', pwd, db='datasets')
      scanner = SubdirScanner(basedir, dsdb)
