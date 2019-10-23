@@ -12,7 +12,7 @@ class EmbeddedAnalyzer(Analyzer):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(EmbeddedAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
-        self.wsfile = TFile('$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_2017_v2.root')
+        self.wsfile = TFile('$CMSSW_BASE/src/CMGTools/H2TauTau/data/htt_scalefactors_v17_5.root')
         self.ws = self.wsfile.Get('w')
 
     def declareHandles(self):
@@ -76,11 +76,14 @@ class EmbeddedAnalyzer(Analyzer):
 
         if self.cfg_ana.channel == 'tt':
             self.ws.var('t_pt').setVal(l1_pt)
-            self.ws.var('t_eta').setVal(l1_eta)
-            event.weight_embed_DoubleTauHLT_eff_l1 = self.ws.function('t_trg_tight_tt_data').getVal()/self.ws.function('t_trg_tight_tt_embed').getVal()
+            event.weight_embed_DoubleTauHLT_eff_l1 = self.ws.function('tt_emb_PFTau35OR40_tight_kit_ratio').getVal()
+            # import pdb;pdb.set_trace()
+            # self.ws.var('t_eta').setVal(l1_eta)
+            # event.weight_embed_DoubleTauHLT_eff_l1 = self.ws.function('t_trg_tight_tt_data').getVal()/self.ws.function('t_trg_tight_tt_embed').getVal()
             self.ws.var('t_pt').setVal(l2_pt)
-            self.ws.var('t_eta').setVal(l2_eta)
-            event.weight_embed_DoubleTauHLT_eff_l2 = self.ws.function('t_trg_tight_tt_data').getVal()/self.ws.function('t_trg_tight_tt_embed').getVal()
+            event.weight_embed_DoubleTauHLT_eff_l2 = self.ws.function('tt_emb_PFTau35OR40_tight_kit_ratio').getVal()
+            # self.ws.var('t_eta').setVal(l2_eta)
+            # event.weight_embed_DoubleTauHLT_eff_l2 = self.ws.function('t_trg_tight_tt_data').getVal()/self.ws.function('t_trg_tight_tt_embed').getVal()
         
         if self.cfg_ana.channel == 'mt':
             self.ws.var('t_pt').setVal(l2_pt)
