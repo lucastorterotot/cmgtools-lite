@@ -4,7 +4,7 @@ from CMGTools.H2TauTau.harvest.datasetdb import DatasetDB
 from getpass import getpass
 
 if __name__ == '__main__':
-     path = '/store/user/gtouquet/heppyTrees/190503'
+     path = '/store/user/ltortero/heppyTrees/190819'
      # pattern = '*tt_DY_Btagging*'
      pattern = '*'
      pwd = getpass()
