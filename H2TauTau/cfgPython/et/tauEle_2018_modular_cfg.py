@@ -32,8 +32,8 @@ if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'DY') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
-AAA = getHeppyOption('AAA', 'global') # options : global, Lyon
+samples_name = getHeppyOption('samples_name', 'embedded_et') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals, mc_higgs_susy_bb_amcatnlo
+AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 if AAA == 'Lyon':
@@ -464,8 +464,17 @@ TES = [['HadronicTau','1prong0pi0'],
        ['promptEle','1prong0pi0'],
        ['promptEle','1prong1pi0']]
 
-if (not data) or (data and embedded):
+TES_embed = [['HadronicTau','1prong0pi0'],
+             ['HadronicTau','1prong1pi0'],
+             ['HadronicTau','3prong0pi0']]
+
+if (not data):
     for gm_name, dm_name in TES:
+        configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+        configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
+
+elif (data and embedded):
+    for gm_name, dm_name in TES_embed:
         configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
         configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
