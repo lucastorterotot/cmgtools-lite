@@ -34,8 +34,16 @@ class TestHarvest(TestDB):
         for info in infos: 
             self.assertTrue('path' in info)
             self.assertTrue(len(info['tgzs']['0000'])>1)
-        # test that datasets already in the harvested db are masked
-        harvest.datasetdb.insert('harvested', infos[0])
+        # test that datasets already harvested are masked
+        # create dummy harvesting information:
+        harv_info = {
+            'time': time.time(),
+            'parent': None, 
+            'dir': 'foo', 
+            'tgzs': infos[1]['tgzs']
+            }
+        infos[1]['harvesting'] = harv_info
+        harvest.datasetdb.insert('se', infos[1])
         infos,done = harvest.get_ds_infos('.*DY1Jets.*')
         print('selected')
         pprint.pprint(infos)

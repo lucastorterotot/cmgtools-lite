@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 from CMGTools.H2TauTau.harvest.datasetdb import DatasetDB
 import CMGTools.H2TauTau.harvest.postproc as postproc
