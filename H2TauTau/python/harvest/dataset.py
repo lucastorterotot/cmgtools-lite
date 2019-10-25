@@ -99,14 +99,18 @@ class Dataset(object):
         files = self.fhandler.ls(subd)
         files = [os.path.basename(f) for f in files if f.endswith('.tgz')
                  and fnmatch.fnmatch(f, tgz_pattern)]
-        size_checking_command = "xrdfs lyogrid06.in2p3.fr stat /dpm/in2p3.fr/home/cms/data/{}/{} | grep Size"
+        size_checking_command = "xrdfs lyogrid06.in2p3.fr stat /dpm/in2p3.fr/home/cms/data/{}/{}"
         returned_files = []
         for f in files:
             command_output = os.popen(size_checking_command.format(subd, f))
+            file_size = 0
             if command_output:
-                file_size = command_output[0][6:]
-                if int(file_size) > 0 :
-                    returned_files.append(f)
+                string_to_grep = 'Size:'
+                for l in command_output.readlines():
+                    if l[:len(string_to_grep)] == string_to_grep:
+                        file_size = int(l[len(string_to_grep):-1])
+            if file_size > 0 :
+                returned_files.append(f)
         return returned_files
 
 
