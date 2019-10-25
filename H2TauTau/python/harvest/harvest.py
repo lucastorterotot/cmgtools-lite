@@ -36,9 +36,6 @@ def harvest_one(info, destination, ntgzs=None):
      hadd(tmpdir)
      tmpsampledir = '/'.join([tmpdir,info['name']])
      destsampledir = '/'.join([destination, info['name']])
-     # oprint(sampledir)
-     # scp(sampledir, 'localhost:'+destination, '-P 2222')
-     # import pdb; pdb.set_trace()
      if os.path.isdir(destsampledir): 
           shutil.rmtree(destsampledir)
      shutil.move(tmpsampledir, destsampledir)
@@ -64,23 +61,18 @@ def get_ds_infos(regex):
      done = []
      for info in infos: 
           if 'path' not in info: 
-               continue
-          hinfos = datasetdb.find('harvested', {'name':info['name']})
+               continue          
           do_harvest = False
-          if len(hinfos) == 0: 
+          hinfo = info.get('harvesting', None)
+          if hinfo is None: 
                do_harvest = True
-          elif len(hinfos) == 1:
-               hinfo = hinfos[0]
+          else: 
                for subd, tgzs in info['tgzs'].iteritems(): 
                     if (subd not in hinfo['tgzs']) or \
                              len(tgzs) > len(hinfo['tgzs'][subd]):
                          # subdir was not harvested yet, 
                          # or subdir contains addtl tgzs
                          do_harvest = True
-                         break
-          else: 
-               pprint.pprint(hinfos)
-               raise ValueError('duplicate dataset in harvested db!')
           if do_harvest: 
                selected.append(info) 
           else: 
