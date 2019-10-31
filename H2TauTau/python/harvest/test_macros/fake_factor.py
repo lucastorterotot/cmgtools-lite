@@ -29,6 +29,7 @@ def process(dataset_path):
     systematics = False
     if 'nominal' in dataset_path:
         systematics = True
+    print("Faking {} for channel {} on {}".format(dataset_path, channel, os.popen("date").readlines()[0][:-1]))
     FakesAdd.FakesAdd(ifile, ofile, systematics = systematics, channel = channel)
     ofile.Write()
     os.remove(tmpfname)
