@@ -17,6 +17,7 @@ meta = {
 }
 
 def process(dataset_path):  
+    channel = meta['channel']
     path_in_dataset = 'NtupleProducer/tree.root'
     ifname =  os.path.join(dataset_path, path_in_dataset)
     tmpfname = tempfile.mktemp('.root',prefix='/scratch/tmp')
