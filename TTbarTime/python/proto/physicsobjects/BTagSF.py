@@ -9,11 +9,11 @@ ROOT.gSystem.Load('libCondToolsBTau')
 class BTagSF(object):
     '''Translate heppy run 1 BTagSF class to python, and update to 2012.
     '''
-    def __init__ (self, seed, wp='medium', measurement='central') :
+    def __init__ (self, seed, wp='loose', measurement='central') :
         self.randm = TRandom3(seed)
 
         rootfname = '/'.join([os.environ["CMSSW_BASE"],
-                              'src/CMGTools/H2TauTau/data/tagging_efficiencies_Moriond2017.root'])# tagging_efficiencies_march2018_btageff-all_samp-inc-DeepCSV_medium.root
+                              'src/CMGTools/TTbarTime/data/btag_efficiency_CSVv2.root'])# tagging_efficiencies_march2018_btageff-all_samp-inc-DeepCSV_medium.root
         self.mc_eff_file = TFile(rootfname)
 
         # MC b-tag efficiencies as measured in HTT by Adinda
@@ -23,7 +23,7 @@ class BTagSF(object):
 
         # b-tag SFs from POG
         # Todo : COLIN 3jul18: new recommendation is DeepCSV V2. what about CSV v2? 
-        calib = ROOT.BTagCalibration("DeepCSV", os.path.expandvars("$CMSSW_BASE/src/CMGTools/H2TauTau/data/DeepCSV_94XSF_V3_B_F.csv"))
+        calib = ROOT.BTagCalibration("CSVv2", os.path.expandvars("$CMSSW_BASE/src/CMGTools/TTbarTime/data/CSVv2_94XSF_V2_B_F.csv"))
         
         op_dict = {
             'loose':0,
@@ -69,7 +69,7 @@ class BTagSF(object):
 
         return self.reader_light.eval_auto_bounds('central', self.getBTVJetFlav(flavor), eta, pt)
 
-    def isBTagged(self, pt, eta, csv, jetflavor, is_data, csv_cut=0.8484):
+    def isBTagged(self, pt, eta, csv, jetflavor, is_data, csv_cut=0.5803 ):
         jetflavor = abs(jetflavor)
 
         if is_data or pt < 20. or abs(eta) > 2.5:

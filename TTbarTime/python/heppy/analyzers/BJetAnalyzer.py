@@ -1,11 +1,11 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from CMGTools.H2TauTau.proto.physicsobjects.BTagSF import BTagSF
+from CMGTools.TTbarTime.proto.physicsobjects.BTagSF import BTagSF
 
 class BJetAnalyzer(Analyzer):
         
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(BJetAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
-        self.btagSF = BTagSF(0, wp='medium')
+        self.btagSF = BTagSF(0, wp='loose')
 
     def process(self, event):
         '''Adds the is_btagged attribute to the jets of the
@@ -16,8 +16,10 @@ class BJetAnalyzer(Analyzer):
             jet.is_btagged = self.btagSF.isBTagged(pt=jet.pt(),
                                                    eta=jet.eta(),
                                                    csv=jet.btag(
-                    "pfDeepCSVDiscriminatorsJetTags:BvsAll"),
+                    "pfCombinedInclusiveSecondaryVertexV2BJetTags"),
                                                    jetflavor=abs(jet.hadronFlavour()),
                                                    is_data=not self.cfg_comp.isMC,
-                                                   csv_cut=0.4941)
-                    
+                                                   csv_cut=0.5803 )
+
+# CSVv2 "pfCombinedInclusiveSecondaryVertexV2BJetTags"  loose : 0.5803 
+# DeepCSV "pfDeepCSVJetTags:probb + pfDeepCSVJetTags:probbb" loose : 0.1522  

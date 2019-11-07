@@ -8,7 +8,6 @@ class DiLepton(object):
 
     def __init__(self, l1, l2):
         if abs(l1.pdgId()) == abs(l2.pdgId()):
-            # e.g. tau tau channel or any channel where the two legs 
             # are of the same time 
             if l2.pt() > l1.pt():
                 l1,l2=l2,l1
@@ -44,6 +43,18 @@ class DiLepton(object):
 
     def leg2(self):
         return self._l2
+
+    def pt_lead(self):
+        if self._l1.pt() >= self._l2.pt() :
+            return self._l1.pt()
+        else:
+            return self._l2.pt()
+                        
+    def pt_sublead(self):
+        if self._l1.pt() <= self._l2.pt() :
+            return self._l1.pt()
+        else:
+            return self._l2.pt()
 
     def mass(self):
         return self.p4().mass()
