@@ -1,4 +1,0 @@
-Counter TrigMatcher :
-	 all events                                       8 	 1.00 	 1.0000
-	 trig matched                                     4 	 0.50 	 0.5000
-
