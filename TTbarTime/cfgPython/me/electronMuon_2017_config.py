@@ -38,14 +38,8 @@ logging.basicConfig(level=logging.WARNING)
 test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
-embedded = getHeppyOption('embedded', False)
-if embedded:
-    data = True
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-# For specific studies
-add_iso_info = getHeppyOption('add_iso_info', False)
-add_tau_fr_info = getHeppyOption('add_tau_fr_info', False)
 
 
 ############################################################################
