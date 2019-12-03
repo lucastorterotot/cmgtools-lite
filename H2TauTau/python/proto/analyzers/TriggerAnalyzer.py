@@ -12,6 +12,8 @@ class TriggerFilterMatch(object):
         self.leg2_names = leg2_names
         # If true, requires both legs to be matched (if there are names)
         self.match_both_legs = match_both_legs
+        if self.match_both_legs and (len(self.leg1_names)==0 or len(self.leg2_names)==0):
+            raise Exception("You require to match both legs but do not provide paths for both of them.")
         # If set, will only attach this to passed trigger names; other,
         # TriggerAnalyzer will figure it out
         self.triggers = [] if triggers is None else triggers

@@ -12,13 +12,15 @@ data_triggerfilters = [
     TFM(trigtype='m',
         leg1_names=['hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07'], 
         leg2_names=[], 
-        triggers=['HLT_IsoMu24_v*']),
+        triggers=['HLT_IsoMu24_v*'],
+        match_both_legs = False),
 
     # IsoMu27
     TFM(trigtype='m',
         leg1_names=['hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07'], 
         leg2_names=[], 
-        triggers=['HLT_IsoMu27_v*']), 
+        triggers=['HLT_IsoMu27_v*'],
+        match_both_legs = False), 
 
     
     TFM(trigtype='mt',
@@ -38,13 +40,15 @@ mc_triggerfilters = [
     TFM(trigtype='m',
         leg1_names=['hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07'], 
         leg2_names=[], 
-        triggers=['HLT_IsoMu24_v*']),
+        triggers=['HLT_IsoMu24_v*'],
+        match_both_legs = False),
 
     # IsoMu27
     TFM(trigtype='m',
         leg1_names=['hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07'], 
         leg2_names=[], 
-        triggers=['HLT_IsoMu27_v*']),  
+        triggers=['HLT_IsoMu27_v*'],
+        match_both_legs = False),  
     
     # IsoMu19_eta2p1_LooseIsoPFTau20
     TFM(trigtype='mt',
@@ -61,13 +65,15 @@ embed_triggerfilters = [
     TFM(trigtype='m',
         leg1_names=['hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07'], 
         leg2_names=[], 
-        triggers=['HLT_IsoMu24_v*']),
+        triggers=['HLT_IsoMu24_v*'],
+        match_both_legs = False),
 
     # IsoMu27
     TFM(trigtype='m',
         leg1_names=['hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07'], 
         leg2_names=[], 
-        triggers=['HLT_IsoMu27_v*']), 
+        triggers=['HLT_IsoMu27_v*'],
+        match_both_legs = False), 
 
     
     TFM(trigtype='mt',
