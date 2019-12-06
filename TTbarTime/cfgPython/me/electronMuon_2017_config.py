@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.WARNING)
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', False)
+test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
@@ -122,7 +122,13 @@ debugger = cfg.Analyzer(Debugger,
                         name = 'Debugger',
                         condition = lambda x: True)
 
+############################################################################
+# Time
+############################################################################
+from CMGTools.TTbarTime.heppy.analyzers.TimeAnalyzerARC import TimeAnalyzerARC
 
+time = cfg.Analyzer(TimeAnalyzerARC,
+                     name = 'TimeAnalyzer')
 
 ############################################################################
 # Muon 
@@ -414,6 +420,8 @@ sequence = cfg.Sequence([
 # Analyzers
     json,
     vertex,
+# Time
+    time,
 # Muon
     muons,
     select_muon,
