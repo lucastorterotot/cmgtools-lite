@@ -47,7 +47,15 @@ weights = Block(
     weight_sfe = v(lambda x : getattr(x, 'sfeWeight', 1.)),
     weight_sfm_id = v(lambda x : getattr(x, 'sfmIdWeight', 1.)),
     weight_sfm_iso = v(lambda x : getattr(x, 'sfmIsoWeight', 1.)),
+    weight_sfm_trig_isomu27 = v(lambda x : getattr(x, 'sfmTrigIsoMu27Weight', 1.)),
+    weight_sfm_trig_mu50 = v(lambda x : getattr(x, 'sfmTrigMu50Weight', 1.)),
 ) 
+
+triggers = Block(
+
+
+
+)
 
 bjets = Block(
     'bjets', lambda x: x.bjets_30,
