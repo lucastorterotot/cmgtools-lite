@@ -38,7 +38,10 @@ class MuonSFARC(Analyzer):
                               'src/CMGTools/TTbarTime/data/RunBCDEF_SF_ID.root'])                       
         rootfname_iso = '/'.join([os.environ["CMSSW_BASE"],
                               'src/CMGTools/TTbarTime/data/RunBCDEF_SF_ISO.root'])
+        rootfname_trigger = '/'.join([os.environ["CMSSW_BASE"],
+                              'src/CMGTools/TTbarTime/data/RunBCDEF_SF_ISO.root'])                            
                               
+                            EfficienciesAndSF_RunBtoF_Nov17Nov2017.root  
         self.mc_sfm_id_file = TFile(rootfname_id)
         self.mc_sfm_id_hist = self.mc_sfm_id_file.Get('NUM_TightID_DEN_genTracks_pt_abseta')                              
                 

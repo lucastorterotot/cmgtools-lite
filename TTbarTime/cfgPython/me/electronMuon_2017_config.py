@@ -35,9 +35,9 @@ logging.basicConfig(level=logging.WARNING)
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', False)
+data = getHeppyOption('data', True)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 
@@ -47,7 +47,7 @@ reapplyJEC = getHeppyOption('reapplyJEC', True)
 ############################################################################
 from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import mc_ttbar
 from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import data_elecmuon
-# from CMGTools.TTbarTime.proto.samples.fall17.ttbar import data_ttbar
+from CMGTools.TTbarTime.proto.samples.fall17.trigger import data_triggers
 
 events_to_pick = []
 
@@ -66,10 +66,17 @@ for sample in mc_ttbar:
     sample.puFileData = puFileData
  
 for sample in data_elecmuon:
-    #sample.triggers = data_triggers
+    # sample.name[sample.name.find('2017')+4] are era A,B,C,D,E and F
+    sample.triggers = data_triggers[sample.name[sample.name.find('2017')+4]]
     era = sample.name[sample.name.find('2017')+4]
     if 'V32' in gt_data and era in ['D','E']:
         era = 'DE'
+    sample.dataGT = gt_data.format(era)
+
+if (not data):
+    selectedComponents = mc_ttbar
+elif (data):
+    selectedComponents = data_elecmuon
 
 ############################################################################
 # Test
@@ -78,12 +85,13 @@ import CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 as backgrounds_forindex
 from CMGTools.TTbarTime.proto.samples.component_index import ComponentIndex
 bindex = ComponentIndex( backgrounds_forindex)
 
-selectedComponents = mc_ttbar
-
 if test:
     cache = True
-    comp = bindex.glob('signal_MC_dilep')[0]
-#    comp = bindex.glob('background_MC_tW_antitop')[0]
+    if (not data):
+        comp = bindex.glob('signal_MC_dilep')[0]
+#       comp = bindex.glob('background_MC_tW_antitop')[0]
+    else:
+        comp = bindex.glob('DoubleEG_Run2017B_31Mar2018')[0]
     selectedComponents = [comp]
     comp.files = comp.files[:1]
     comp.splitFactor = 1

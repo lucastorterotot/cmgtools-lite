@@ -13,6 +13,7 @@ class TimeAnalyzerARC( Analyzer ):
        
         time = event.input.eventAuxiliary().time()
         unix_time = time.unixTime()
+#        unix_time = time.timeLow()
 
         setattr(event, 'unixTime', unix_time)
 
