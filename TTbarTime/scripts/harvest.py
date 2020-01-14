@@ -236,8 +236,8 @@ def harvest(src, subdir_pattern='*', tgz_pattern='*', apply_ff=False, convert_nt
             os.system(command)
         else:
             os.system('mv '+ds.dest+'/'+ds.subdirs[0]+'/'+compname+'/NtupleProducer/tree.root '+ds.dest+'/tree.root')
-        for subdir in ds.subdirs:
-            os.system('rm -rf '+ds.dest+'/'+subdir+' &')
+#        for subdir in ds.subdirs:
+#            os.system('rm -rf '+ds.dest+'/'+subdir+' &')
         if apply_ff:
             pass # to be done
         if convert_ntuple:

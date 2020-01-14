@@ -45,8 +45,8 @@ mc_ttbar = [
     background_MC_WZ,
     background_MC_ZZ,
     background_MC_WJets,
-    background_MC_DY_50
-    #background_MC_DY_1050
+    background_MC_DY_50,
+    background_MC_DY_1050
 ]
 
 ############################################################################

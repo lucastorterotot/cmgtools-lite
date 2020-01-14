@@ -15,20 +15,6 @@ def eta_binned(eta_param):
         return 3
     elif(2.1 <= eta_param and eta_param < 2.4):
         return 4
-
-def eta_binned_trig(eta_param):
-    if(0.2 <= eta_param and eta_param < 0.3):
-        return 1
-    elif(0.3 <= eta_param and eta_param < 0.9):
-        return 2   
-    elif(0.9 <= eta_param and eta_param < 1.2):
-        return 3
-    elif(1.2 <= eta_param and eta_param < 1.6):
-        return 4
-    elif(1.6 <= eta_param and eta_param < 2.1):
-        return 5
-    elif(2.1 <= eta_param and eta_param < 2.4):
-        return 6
  
 def pt_binned(pt_param):
     if(20 <= pt_param and pt_param < 25):
@@ -45,58 +31,32 @@ def pt_binned(pt_param):
         return 6   
 
 def pt_binned_IsoMu27(pt_param):
-    if(20 <= pt_param and pt_param < 25):
-        return 1
-    elif(25 <= pt_param and pt_param < 27):
-        return 2         
-    elif(27 <= pt_param and pt_param < 29):
-        return 3
-    elif(29 <= pt_param and pt_param < 32):
-        return 4 
+    if(29 <= pt_param and pt_param < 32):
+        return 1       
     elif(32 <= pt_param and pt_param < 40):
-        return 5 
+        return 2
     elif(40 <= pt_param and pt_param < 50):
-        return 6     
+        return 3 
     elif(50 <= pt_param and pt_param < 60):
-        return 7 
-    elif(60 <= pt_param and pt_param < 120):
-        return 8 
-    elif(120 <= pt_param and pt_param < 200):
-        return 9 
-    elif(200 <= pt_param and pt_param < 300):
-        return 10 
-    elif(300 <= pt_param and pt_param < 500):
-        return 11
-    elif(500 <= pt_param and pt_param < 700):
-        return 12
-    elif(700 <= pt_param and pt_param <= 1200):
-        return 13
-
-def pt_binned_Mu50(pt_param):
-    if(20 <= pt_param and pt_param < 45):
-        return 1
-    elif(45 <= pt_param and pt_param < 48):
-        return 2         
-    elif(48 <= pt_param and pt_param < 50):
-        return 3
-    elif(50 <= pt_param and pt_param < 52):
         return 4 
-    elif(52 <= pt_param and pt_param < 55):
-        return 5 
-    elif(55 <= pt_param and pt_param < 60):
-        return 6     
     elif(60 <= pt_param and pt_param < 120):
-        return 7
+        return 5 
     elif(120 <= pt_param and pt_param < 200):
-        return 8 
-    elif(200 <= pt_param and pt_param < 300):
-        return 9 
-    elif(300 <= pt_param and pt_param < 500):
-        return 10
-    elif(500 <= pt_param and pt_param < 700):
-        return 11
-    elif(700 <= pt_param and pt_param <= 1200):
-        return 12
+        return 6
+    elif(200 <= pt_param and pt_param <= 1200):
+        return 7 
+        
+def pt_binned_Mu50(pt_param):
+    if(52 <= pt_param and pt_param < 55):
+        return 1
+    elif(55 <= pt_param and pt_param < 60):
+        return 2         
+    elif(60 <= pt_param and pt_param < 120):
+        return 3
+    elif(120 <= pt_param and pt_param < 200):
+        return 4 
+    elif(200 <= pt_param and pt_param <= 1200):
+        return 5
 
 
 class MuonSFARC(Analyzer):
@@ -127,14 +87,16 @@ class MuonSFARC(Analyzer):
         sfm_iso_weight = 1.
         sfm_trig_isomu27_weight = 1.
         sfm_trig_mu50_weight = 1.
-        
-        muons = getattr(event, self.cfg_ana.muons)        
+        muons = getattr(event, self.cfg_ana.muons)    
         for muon in muons: # caution abs(eta)
-            sfm_trig_isomu27_weight *= self.mc_sfm_trig_isomu27_hist.GetBinContent(pt_binned(muon.pt()), eta_binned(abs(muon.eta())))
-            sfm_trig_mu50_weight    *= self.mc_sfm_trig_mu50_hist.GetBinContent(pt_binned(muon.pt()), eta_binned(abs(muon.eta())))
-            if(muon.pt() <= 120):
-                sfm_id_weight  *= self.mc_sfm_id_hist.GetBinContent(pt_binned(muon.pt()), eta_binned(abs(muon.eta())))
-                sfm_iso_weight *= self.mc_sfm_iso_hist.GetBinContent(pt_binned(muon.pt()), eta_binned(abs(muon.eta())))
+            if(muon.pt() <= 1200):
+                if(muon.pt() >= 29):
+                    sfm_trig_isomu27_weight *= self.mc_sfm_trig_isomu27_hist.GetBinContent(pt_binned_IsoMu27(muon.pt()), eta_binned(abs(muon.eta())))
+                if(muon.pt() >= 52):
+                    sfm_trig_mu50_weight    *= self.mc_sfm_trig_mu50_hist.GetBinContent(pt_binned_Mu50(muon.pt()), eta_binned(abs(muon.eta())))
+                if(muon.pt() <= 120):
+                    sfm_id_weight  *= self.mc_sfm_id_hist.GetBinContent(pt_binned(muon.pt()), eta_binned(abs(muon.eta())))
+                    sfm_iso_weight *= self.mc_sfm_iso_hist.GetBinContent(pt_binned(muon.pt()), eta_binned(abs(muon.eta())))
             
         setattr(event, 'sfmIdWeight', sfm_id_weight)
         setattr(event, 'sfmIsoWeight', sfm_iso_weight)

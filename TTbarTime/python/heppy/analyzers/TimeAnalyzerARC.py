@@ -20,7 +20,5 @@ class TimeAnalyzerARC( Analyzer ):
         if event.unixTime is None:
             raise ValueError('time cannot be None!')
 
-
-        print(event.unixTime)
         
         

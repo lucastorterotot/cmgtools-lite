@@ -4,6 +4,7 @@ import ROOT
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
+from PhysicsTools.HeppyCore.framework.looper import Looper
 from PhysicsTools.HeppyCore.framework.event import Event
 Event.print_patterns = ['*taus*', 
                         '*muons*', 
@@ -91,7 +92,7 @@ if test:
         comp = bindex.glob('signal_MC_dilep')[0]
 #       comp = bindex.glob('background_MC_tW_antitop')[0]
     else:
-        comp = bindex.glob('DoubleEG_Run2017B_31Mar2018')[0]
+        comp = selectedComponents[10]
     selectedComponents = [comp]
     comp.files = comp.files[:1]
     comp.splitFactor = 1
@@ -206,7 +207,7 @@ from PhysicsTools.Heppy.physicsobjects.Electron import Electron
 from PhysicsTools.Heppy.physicsutils.EffectiveAreas import areas
 from CMGTools.TTbarTime.heppy.analyzers.ElectronSFARC import ElectronSFARC
 from CMGTools.H2TauTau.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
-from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 
 Electron.EffectiveArea03 = areas['Fall17']['electron']
@@ -267,6 +268,7 @@ exclude_loose_electron = cfg.Analyzer(EventFilter,
 # Dilepton 
 ############################################################################
 from CMGTools.TTbarTime.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.DilepTriggerSFARC import DilepTriggerSFARC
 #DiLeptonAnalyzer change (rajout de fonction lead/sublead)
 from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
 from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
@@ -291,6 +293,10 @@ select_dilepton = cfg.Analyzer(Selector,
                          src = 'dileptons',
                          filter_func = select_dilepton_function)
 
+reweight_dilepton = cfg.Analyzer(DilepTriggerSFARC, 
+                                 'reweight_dilepton', 
+                                 dilepton = 'select_dilepton')
+
 only_one_dilepton = cfg.Analyzer(EventFilter, 
                             'one_dilepton',
                             src = 'select_dilepton',
@@ -310,7 +316,7 @@ dilepton_sorted = cfg.Analyzer(
 ############################################################################
 # Jets 
 ############################################################################
-from CMGTools.H2TauTau.heppy.analyzers.JetAnalyzer import JetAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.JetAnalyzer import JetAnalyzer
 from CMGTools.H2TauTau.heppy.analyzers.JetCleaner import JetCleaner
 from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
 
@@ -447,6 +453,7 @@ sequence = cfg.Sequence([
 # Dilepton
     dilepton,
     select_dilepton,
+    reweight_dilepton,
     only_one_dilepton,
     dilepton_sorted,
 # Jets
@@ -462,7 +469,7 @@ sequence = cfg.Sequence([
     one_bjets,
 # Mets
 # Rescaling
-    # trigger, 
+    trigger, 
     # trigger_match,
     # met_filters,
     # pfmetana,
