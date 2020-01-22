@@ -36,9 +36,9 @@ logging.basicConfig(level=logging.WARNING)
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', False)
+test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', True)
+data = getHeppyOption('data', False)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 
@@ -104,9 +104,9 @@ if test:
 ############################################################################
 from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer import JSONAnalyzer
 from PhysicsTools.Heppy.analyzers.core.SkimAnalyzerCount import SkimAnalyzerCount
-from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer import TriggerAnalyzer
+from CMGTools.TTbarTime.proto.analyzers.TriggerAnalyzer import TriggerAnalyzer
 from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer import VertexAnalyzer
-from CMGTools.H2TauTau.heppy.analyzers.Debugger import Debugger
+from CMGTools.TTbarTime.heppy.analyzers.Debugger import Debugger
 
 json = cfg.Analyzer(JSONAnalyzer,
                     name='JSONAnalyzer',)
@@ -145,9 +145,9 @@ time = cfg.Analyzer(TimeAnalyzerARC,
 # setting up an alias for our isolation, now use iso_htt everywhere
 from PhysicsTools.Heppy.physicsobjects.Muon import Muon
 from CMGTools.TTbarTime.heppy.analyzers.MuonSFARC import MuonSFARC
-from CMGTools.H2TauTau.heppy.analyzers.MuonAnalyzer import MuonAnalyzer
-from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
-from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
+from CMGTools.TTbarTime.heppy.analyzers.MuonAnalyzer import MuonAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.Selector import Selector
 
 Muon.iso_htt = lambda x: x.relIso(0.4, 
                                   'dbeta', 
@@ -206,9 +206,9 @@ exclude_loose_muon = cfg.Analyzer(EventFilter,
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
 from PhysicsTools.Heppy.physicsutils.EffectiveAreas import areas
 from CMGTools.TTbarTime.heppy.analyzers.ElectronSFARC import ElectronSFARC
-from CMGTools.H2TauTau.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
 from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
-from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
+from CMGTools.TTbarTime.heppy.analyzers.Selector import Selector
 
 Electron.EffectiveArea03 = areas['Fall17']['electron']
 
@@ -270,8 +270,8 @@ exclude_loose_electron = cfg.Analyzer(EventFilter,
 from CMGTools.TTbarTime.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
 from CMGTools.TTbarTime.heppy.analyzers.DilepTriggerSFARC import DilepTriggerSFARC
 #DiLeptonAnalyzer change (rajout de fonction lead/sublead)
-from CMGTools.H2TauTau.heppy.analyzers.Selector import Selector
-from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.Selector import Selector
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
 
 
 dilepton = cfg.Analyzer(DiLeptonAnalyzer,
@@ -298,7 +298,7 @@ reweight_dilepton = cfg.Analyzer(DilepTriggerSFARC,
                                  dilepton = 'select_dilepton')
 
 only_one_dilepton = cfg.Analyzer(EventFilter, 
-                            'one_dilepton',
+                            name = 'OneDilepton',
                             src = 'select_dilepton',
                             filter_func = lambda x : len(x)==1)
 
@@ -317,8 +317,8 @@ dilepton_sorted = cfg.Analyzer(
 # Jets 
 ############################################################################
 from CMGTools.TTbarTime.heppy.analyzers.JetAnalyzer import JetAnalyzer
-from CMGTools.H2TauTau.heppy.analyzers.JetCleaner import JetCleaner
-from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.JetCleaner import JetCleaner
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
 
 
 def select_good_jets_FixEE2017(jet): #function use in the next Analyzer
@@ -364,7 +364,7 @@ jets_30 = cfg.Analyzer(Selector,
                        filter_func = lambda x : x.pt()>30)
                        
 two_jets = cfg.Analyzer(EventFilter, 
-                        'two_jets',
+                        name = 'TwoJets',
                         src = 'jets_30',
                         filter_func = lambda x : len(x)>1)
 
@@ -372,7 +372,7 @@ two_jets = cfg.Analyzer(EventFilter,
 # b-Jets 
 ############################################################################
 from CMGTools.TTbarTime.heppy.analyzers.BJetAnalyzerARC import BJetAnalyzerARC
-from CMGTools.H2TauTau.heppy.analyzers.EventFilter import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
 
 
 btagger = cfg.Analyzer(BJetAnalyzerARC, 
@@ -380,7 +380,7 @@ btagger = cfg.Analyzer(BJetAnalyzerARC,
                        jets = 'jets_30')
 
 one_bjets = cfg.Analyzer(EventFilter, 
-                         'one_bjets',
+                         name = 'OneBJets',
                          src = 'bjets_30',
                          filter_func = lambda x : len(x)>0)
 
@@ -396,8 +396,8 @@ bjets_30 = cfg.Analyzer(Selector,
 ############################################################################
 from PhysicsTools.Heppy.analyzers.gen.LHEWeightAnalyzer import LHEWeightAnalyzer
 from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer import PileUpAnalyzer
-from CMGTools.H2TauTau.heppy.analyzers.MCWeighter import MCWeighter
-from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.MCWeighter import MCWeighter
+from CMGTools.TTbarTime.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
 
 
 lheweight = cfg.Analyzer(LHEWeightAnalyzer,
@@ -421,7 +421,7 @@ njets_ana = cfg.Analyzer(NJetsAnalyzer,
 ############################################################################
 # Ntuples 
 ############################################################################
-from CMGTools.H2TauTau.heppy.analyzers.NtupleProducer import NtupleProducer
+from CMGTools.TTbarTime.heppy.analyzers.NtupleProducer import NtupleProducer
 from CMGTools.TTbarTime.heppy.ntuple.NtupleCreator import common as event_content_test
 
 ntuple = cfg.Analyzer(NtupleProducer,
