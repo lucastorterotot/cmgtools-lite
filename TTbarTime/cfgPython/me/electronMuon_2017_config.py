@@ -49,6 +49,7 @@ reapplyJEC = getHeppyOption('reapplyJEC', True)
 from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import mc_ttbar
 from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import data_elecmuon
 from CMGTools.TTbarTime.proto.samples.fall17.trigger import data_triggers
+from CMGTools.TTbarTime.proto.samples.fall17.trigger import mc_triggers
 
 events_to_pick = []
 
@@ -63,6 +64,7 @@ puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.r
 puFileMC = '$CMSSW_BASE/src/CMGTools/TTbarTime/data/pileup.root'
 
 for sample in mc_ttbar:
+    sample.triggers = mc_triggers
     sample.puFileMC = puFileMC
     sample.puFileData = puFileData
  
@@ -89,8 +91,7 @@ bindex = ComponentIndex( backgrounds_forindex)
 if test:
     cache = True
     if (not data):
-        comp = bindex.glob('signal_MC_dilep')[0]
-#       comp = bindex.glob('background_MC_tW_antitop')[0]
+        comp = bindex.glob('MC_a_dilep')[0]
     else:
         comp = selectedComponents[10]
     selectedComponents = [comp]
@@ -303,14 +304,13 @@ only_one_dilepton = cfg.Analyzer(EventFilter,
                             filter_func = lambda x : len(x)==1)
 
 from CMGTools.H2TauTau.heppy.analyzers.Sorter import Sorter
+#completely useless with 1 dilepton but in case of ..
 dilepton_sorted = cfg.Analyzer(
     Sorter,
     output = 'dileptons_sorted',
     src = 'dileptons',
-    # sort by mu iso, mu pT, tau iso, tau pT
-    metric = lambda dl: (
-                         -dl.leg1().pt()-dl.leg2().pt()),
-                        reverse = False
+    metric = lambda x : x.pt(),
+    reverse = False
     )
 
 ############################################################################
