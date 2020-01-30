@@ -1,0 +1,11 @@
+if [ -f /cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/etc/profile.d/dependencies-setup.sh ]; then . /cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/etc/profile.d/dependencies-setup.sh; fi
+CRABCLIENT_ROOT="/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909"
+CRABCLIENT_VERSION="3.3.1909"
+CRABCLIENT_REVISION="1"
+CRABCLIENT_CATEGORY="cms"
+[ ! -d /cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/bin ] || export PATH="/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/bin${PATH:+:$PATH}";
+[ ! -d /cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/lib ] || export LD_LIBRARY_PATH="/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}";
+[ ! -d /cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/xbin ] || export PATH="/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/xbin${PATH:+:$PATH}";
+[ ! -d /cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/${PYTHON_LIB_SITE_PACKAGES} ] || export PYTHONPATH="/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/${PYTHON_LIB_SITE_PACKAGES}${PYTHONPATH:+:$PYTHONPATH}";
+[ ! -d /cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/x${PYTHON_LIB_SITE_PACKAGES} ] || export PYTHONPATH="/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1909/x${PYTHON_LIB_SITE_PACKAGES}${PYTHONPATH:+:$PYTHONPATH}";
+

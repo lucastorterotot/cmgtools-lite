@@ -1,7 +1,7 @@
 echo 'set cms environment'
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 echo 'set crab3 environment'
-source /cvmfs/cms.cern.ch/crab3/crab_slc6.sh.standalone
+source /cvmfs/cms.cern.ch/crab3/crab_slc6.sh
 cd ../..
 echo 'set cmssw environment...'
 cmsenv
