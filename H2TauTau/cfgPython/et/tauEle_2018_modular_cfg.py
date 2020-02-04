@@ -519,5 +519,3 @@ for up_or_down in up_down:
 
 configs = {'nominal':configs['nominal']}
 print configs
-
-# config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]
