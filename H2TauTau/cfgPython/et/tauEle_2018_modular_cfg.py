@@ -381,29 +381,29 @@ up_down = ['up','down']
 
 ### top pT reweighting
 
-def config_top_pT_reweighting(up_or_down):
-    new_config = copy.deepcopy(nominal)
-    for cfg in new_config.sequence:
-        if cfg.name == 'httgenana':
-            cfg.top_systematic = up_or_down
-    return new_config
+# def config_top_pT_reweighting(up_or_down):
+#     new_config = copy.deepcopy(nominal)
+#     for cfg in new_config.sequence:
+#         if cfg.name == 'httgenana':
+#             cfg.top_systematic = up_or_down
+#     return new_config
 
-if samples_name=='TTbar':
-    for up_or_down in up_down:
-        configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
+# if samples_name=='TTbar':
+#     for up_or_down in up_down:
+#         configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
 
 ### DY pT reweighting
 
-def config_DY_pT_reweighting(up_or_down):
-    new_config = copy.deepcopy(nominal)
-    for cfg in new_config.sequence:
-        if cfg.name == 'httgenana':
-            cfg.DY_systematic = up_or_down
-    return new_config
+# def config_DY_pT_reweighting(up_or_down):
+#     new_config = copy.deepcopy(nominal)
+#     for cfg in new_config.sequence:
+#         if cfg.name == 'httgenana':
+#             cfg.DY_systematic = up_or_down
+#     return new_config
 
-if samples_name=='DY':
-    for up_or_down in up_down:
-        configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
+# if samples_name=='DY':
+#     for up_or_down in up_down:
+#         configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
 
 ### MET recoil
 
