@@ -6,7 +6,8 @@ import ROOT
 ### pu files & global tags
 #########################
 
-puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_Jul9_update_bbhamcatnlo.root'
+puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_13Nov.root'
+puFileMC_bbhamcatnlo = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_mc_2017_artur_Jul9_update_bbhamcatnlo.root'
 puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
 
 gt_mc = 'Fall17_17Nov2017_V32_MC'
@@ -29,6 +30,10 @@ for sample in embedded_tt+embedded_mt+embedded_et:
 for sample in DY+TTbar+generic_backgrounds+mc_higgs+mssm_signals:
     sample.puFileData = puFileData
     sample.puFileMC = puFileMC
+
+for sample in mc_higgs_susy_bb_amcatnlo:
+    sample.puFileData = puFileData
+    sample.puFileMC = puFileMC_bbhamcatnlo
 
 for sample in data_tau+data_single_muon+data_single_electron+embedded_tt+embedded_mt+embedded_et:
     era = sample.name[sample.name.find('2017')+4]

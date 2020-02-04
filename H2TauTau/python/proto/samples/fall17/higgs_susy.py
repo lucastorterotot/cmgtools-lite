@@ -273,5 +273,5 @@ mc_higgs_susy_bb_amcatnlo = [
     # HiggsSUSYBB3200_amcatnlo
 ]
 mssm_signals = copy.copy(mc_higgs_susy_gg)
-mssm_signals.extend(mc_higgs_susy_bb_amcatnlo)
+# mssm_signals.extend(mc_higgs_susy_bb_amcatnlo)
 
