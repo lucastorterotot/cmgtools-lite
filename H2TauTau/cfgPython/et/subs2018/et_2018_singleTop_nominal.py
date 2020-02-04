@@ -32,7 +32,7 @@ if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'generic_background') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals
+samples_name = getHeppyOption('samples_name', 'generic_background') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals, mc_higgs_susy_bb_amcatnlo
 AAA = getHeppyOption('AAA', 'global') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
@@ -65,6 +65,7 @@ selectedComponents_ = []
 for subset_selection in subset_selections:
     selectedComponents_ += [comp for comp in selectedComponents if subset_selection in comp.name]
 selectedComponents = selectedComponents_
+
 
 n_events_per_job = 1e5
 
@@ -381,29 +382,29 @@ up_down = ['up','down']
 
 ### top pT reweighting
 
-def config_top_pT_reweighting(up_or_down):
-    new_config = copy.deepcopy(nominal)
-    for cfg in new_config.sequence:
-        if cfg.name == 'httgenana':
-            cfg.top_systematic = up_or_down
-    return new_config
+# def config_top_pT_reweighting(up_or_down):
+#     new_config = copy.deepcopy(nominal)
+#     for cfg in new_config.sequence:
+#         if cfg.name == 'httgenana':
+#             cfg.top_systematic = up_or_down
+#     return new_config
 
-if samples_name=='TTbar':
-    for up_or_down in up_down:
-        configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
+# if samples_name=='TTbar':
+#     for up_or_down in up_down:
+#         configs['top_pT_reweighting_{}'.format(up_or_down)] = config_top_pT_reweighting(up_or_down)
 
 ### DY pT reweighting
 
-def config_DY_pT_reweighting(up_or_down):
-    new_config = copy.deepcopy(nominal)
-    for cfg in new_config.sequence:
-        if cfg.name == 'httgenana':
-            cfg.DY_systematic = up_or_down
-    return new_config
+# def config_DY_pT_reweighting(up_or_down):
+#     new_config = copy.deepcopy(nominal)
+#     for cfg in new_config.sequence:
+#         if cfg.name == 'httgenana':
+#             cfg.DY_systematic = up_or_down
+#     return new_config
 
-if samples_name=='DY':
-    for up_or_down in up_down:
-        configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
+# if samples_name=='DY':
+#     for up_or_down in up_down:
+#         configs['DY_pT_reweighting_{}'.format(up_or_down)] = config_DY_pT_reweighting(up_or_down)
 
 ### MET recoil
 
@@ -464,8 +465,17 @@ TES = [['HadronicTau','1prong0pi0'],
        ['promptEle','1prong0pi0'],
        ['promptEle','1prong1pi0']]
 
-if (not data) or (data and embedded):
+TES_embed = [['HadronicTau','1prong0pi0'],
+             ['HadronicTau','1prong1pi0'],
+             ['HadronicTau','3prong0pi0']]
+
+if (not data):
     for gm_name, dm_name in TES:
+        configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+        configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
+
+elif (data and embedded):
+    for gm_name, dm_name in TES_embed:
         configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
         configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
@@ -510,5 +520,3 @@ for up_or_down in up_down:
 
 configs = {'nominal':configs['nominal']}
 print configs
-
-# config = configs['TES_{}_{}_up'.format('HadronicTau','1prong0pi0')]

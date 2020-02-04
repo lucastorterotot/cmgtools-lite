@@ -453,8 +453,17 @@ TES = [['HadronicTau','1prong0pi0'],
        ['promptEle','1prong0pi0'],
        ['promptEle','1prong1pi0']]
 
-if (not data) or (data and embedded):
+TES_embed = [['HadronicTau','1prong0pi0'],
+             ['HadronicTau','1prong1pi0'],
+             ['HadronicTau','3prong0pi0']]
+
+if (not data):
     for gm_name, dm_name in TES:
+        configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
+        configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
+
+elif (data and embedded):
+    for gm_name, dm_name in TES_embed:
         configs['TES_{}_{}_up'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'up')
         configs['TES_{}_{}_down'.format(gm_name, dm_name)] = config_TauEnergyScale(dm_name, gm_name, 'down')
 
