@@ -23,7 +23,8 @@ class BJetAnalyzerARC(Analyzer):
                                                    is_data=not self.cfg_comp.isMC,
                                                    csv_cut=0.5803 )
  
-            sfb_weight *= jet.btagWeight
+            if(jet.btagWeight > 0):
+                sfb_weight *= jet.btagWeight
             
         setattr(event, 'sfbWeight', sfb_weight)
         event.eventWeight *= event.sfbWeight

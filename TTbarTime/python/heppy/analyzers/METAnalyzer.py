@@ -55,11 +55,21 @@ class METAnalyzer(Analyzer):
             'std::vector<pat::MET>'
         )
 
+        self.handles['taus'] = AutoHandle(
+            'slimmedTaus',
+            'std::vector<pat::Tau>'
+        )
+
+        self.handles['genParticles'] = AutoHandle(
+            'prunedGenParticles', 
+            'std::vector<reco::GenParticle>'
+        )
+
         self.handles['photons'] = AutoHandle(
             'slimmedPhotons',
             'std::vector<pat::Photon>'
         )
-
+        
         self.handles['packedPFCandidates'] = AutoHandle(
             'packedPFCandidates',
             'std::vector<pat::PackedCandidate>'
@@ -72,34 +82,23 @@ class METAnalyzer(Analyzer):
         
 
     def getGenP4(self, event):
+    
+        if not hasattr(event, 'genParticles'): # fast construction of genParticles list
+            event.genParticles = self.handles['genParticles'].product()
+    
         leptons_prompt = [p for p in event.genParticles if abs(p.pdgId()) in [11, 12, 13, 14] and p.fromHardProcessFinalState()]
         leptons_prompt_vis = [p for p in leptons_prompt if abs(p.pdgId()) not in [12, 14]]
-
-        taus_prompt = [p for p in event.genParticles if p.statusFlags().isDirectHardProcessTauDecayProduct()]
-
-        taus_prompt_vis = [p for p in taus_prompt if abs(p.pdgId()) not in [12, 14, 16]]
 
         if 'DY' in self.cfg_comp.name or ('Higgs' in self.cfg_comp.name and 'TTH' not in self.cfg_comp.name) or 'WJ' in self.cfg_comp.name:
             if len(leptons_prompt) != 2 and len(taus_prompt) < 2:
                 print 'ERROR: No 2 prompt leptons found'
                 # import pdb; pdb.set_trace()
 
-        vis = leptons_prompt_vis + taus_prompt_vis
-        all = leptons_prompt + taus_prompt
+        vis = leptons_prompt_vis
+        all = leptons_prompt
 
         if len(vis) == 0 or len(all) == 0:
             return 0., 0., 0., 0.
-
-        taus = []
-        for t in taus_prompt:
-            if t.mother().pdgId() == 15:
-                taus.append(t.mother())
-                break
-
-        for t in taus_prompt:
-            if t.mother().pdgId() == -15:
-                taus.append(t.mother())
-                break
 
         p4 = self.p4sum(all)
         p4_vis = self.p4sum(vis)
@@ -201,7 +200,9 @@ class METAnalyzer(Analyzer):
         # CandViewMerger, pfcandidateClustered
         if not hasattr(event, 'photons'): # fast construction of photons list
             event.photons = [p for p in self.handles['photons'].product()]
-
+        if not hasattr(event, 'taus'): # fast construction of taus list
+            event.taus = [p for p in self.handles['taus'].product()]
+            
         pfcandidateClustered = event.electrons + event.muons \
             + event.taus  + event.photons + jets
 
@@ -209,9 +210,12 @@ class METAnalyzer(Analyzer):
         for ptc in event.electrons :
             for assPFcand in ptc.physObj.associatedPackedPFCandidates():
                 pfcandidateClustered_ptcs.append(assPFcand.get())
-        for ptc in event.muons + event.taus :
+        for ptc in event.muons :
             for k in range(ptc.physObj.numberOfSourceCandidatePtrs()):
                 pfcandidateClustered_ptcs.append(ptc.physObj.sourceCandidatePtr(k).get())
+        for ptc in event.taus :
+            for k in range(ptc.numberOfSourceCandidatePtrs()):
+                pfcandidateClustered_ptcs.append(ptc.sourceCandidatePtr(k).get())
         for ptc in event.photons :
             for k in range(ptc.numberOfSourceCandidatePtrs()):
                 pfcandidateClustered_ptcs.append(ptc.sourceCandidatePtr(k).get())
