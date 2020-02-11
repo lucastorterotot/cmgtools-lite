@@ -65,6 +65,11 @@ selectedComponents_ = []
 for subset_selection in subset_selections:
     selectedComponents_ += [comp for comp in selectedComponents if subset_selection in comp.name]
 selectedComponents = selectedComponents_
+subset_selections = ['DYJetsToLL_M50_ext']
+selectedComponents_ = []
+for subset_selection in subset_selections:
+    selectedComponents_ += [comp for comp in selectedComponents if subset_selection not in comp.name]
+selectedComponents = selectedComponents_
 
 n_events_per_job = 1e5
 

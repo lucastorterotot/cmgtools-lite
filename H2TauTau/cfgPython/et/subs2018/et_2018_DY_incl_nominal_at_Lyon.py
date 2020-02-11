@@ -32,8 +32,8 @@ if embedded:
     data = True
 add_sys = getHeppyOption('add_sys', True)
 reapplyJEC = getHeppyOption('reapplyJEC', True)
-samples_name = getHeppyOption('samples_name', 'generic_background') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals, mc_higgs_susy_bb_amcatnlo
-AAA = getHeppyOption('AAA', 'global') # options : global, Lyon
+samples_name = getHeppyOption('samples_name', 'DY') # options : DY, TTbar, generic_background, data_tau, data_single_muon, data_single_electron, embedded_tt, embedded_mt, embedded_et, sm_higgs, mssm_signals, mc_higgs_susy_bb_amcatnlo
+AAA = getHeppyOption('AAA', 'Lyon') # options : global, Lyon
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 if AAA == 'Lyon':
@@ -60,10 +60,15 @@ from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, 
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import data_triggers, data_triggerfilters
 
 selectedComponents = samples_lists[samples_name]
-subset_selections = ['WJets']
+subset_selections = ['DYJets']
 selectedComponents_ = []
 for subset_selection in subset_selections:
     selectedComponents_ += [comp for comp in selectedComponents if subset_selection in comp.name]
+selectedComponents = selectedComponents_
+subset_selections = ['DYJetsToLL_M50_ext']
+selectedComponents_ = []
+for subset_selection in subset_selections:
+    selectedComponents_ += [comp for comp in selectedComponents if subset_selection not in comp.name]
 selectedComponents = selectedComponents_
 
 n_events_per_job = 1e5
@@ -517,5 +522,5 @@ def config_Btagging(up_or_down):
 for up_or_down in up_down:
     configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
 
-configs.pop('nominal')
+configs = {'nominal':configs['nominal']}
 print configs

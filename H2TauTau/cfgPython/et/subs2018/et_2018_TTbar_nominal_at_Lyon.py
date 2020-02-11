@@ -60,11 +60,11 @@ from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import mc_triggers, 
 from CMGTools.H2TauTau.proto.samples.fall17.triggers_tauEle import data_triggers, data_triggerfilters
 
 selectedComponents = samples_lists[samples_name]
-# subset_selections = ['']
-# selectedComponents_ = []
-# for subset_selection in subset_selections:
-#     selectedComponents_ += [comp for comp in selectedComponents if subset_selection in comp.name]
-# selectedComponents = selectedComponents_
+subset_selections = ['TTHad_pow']
+selectedComponents_ = []
+for subset_selection in subset_selections:
+    selectedComponents_ += [comp for comp in selectedComponents if subset_selection not in comp.name]
+selectedComponents = selectedComponents_
 
 n_events_per_job = 1e5
 
@@ -517,5 +517,5 @@ def config_Btagging(up_or_down):
 for up_or_down in up_down:
     configs['Btagging_{}'.format(up_or_down)] = config_Btagging(up_or_down)
 
-configs.pop('nominal')
+configs = {'nominal':configs['nominal']}
 print configs
