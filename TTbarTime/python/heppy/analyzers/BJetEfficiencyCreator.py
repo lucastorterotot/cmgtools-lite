@@ -9,7 +9,7 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 
 def isBJetSelected(jet_param):
-    if jet_param.pt()>30 and abs(jet.eta())<2.4 and jet.jetID("PAG_monoID_Loose"):
+    if jet_param.pt()>30 and abs(jet.eta())<2.4 and jet.jetID("PAG_ttbar_Loose"):
         return True
     else:
         return False 
@@ -50,11 +50,11 @@ class BJetEfficiencyCreator(Analyzer):
               self.h2_b.Fill(jet.pt(), jet.eta())
               if jet.is_btagged:
                   self.btag_eff_b.Fill(jet.pt(), jet.eta())
-          if jet.is_btagged and jet.hadronFlavour() == 4:
+          elif jet.hadronFlavour() == 4:
               self.h2_c.Fill(jet.pt(), jet.eta())
               if jet.is_btagged:
                   self.btag_eff_c.Fill(jet.pt(), jet.eta())
-          if jet.is_btagged and jet.hadronFlavour() == 0:
+          elif jet.hadronFlavour() == 0:
               self.h2_oth.Fill(jet.pt(), jet.eta())
               if jet.is_btagged:
                   self.btag_eff_oth.Fill(jet.pt(), jet.eta())
