@@ -36,9 +36,9 @@ logging.basicConfig(level=logging.WARNING)
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', False)
+data = getHeppyOption('data', True)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 
@@ -93,9 +93,9 @@ if test:
     if (not data):
         comp = bindex.glob('MC_a_dilep')[0]
     else:
-        comp = selectedComponents[10]
+        comp = selectedComponents[9]
     selectedComponents = [comp]
-    comp.files = comp.files[:1]
+    comp.files = [comp.files[0]]#10 bug on semilep
     comp.splitFactor = 1
     comp.fineSplitFactor = 1
 
@@ -398,7 +398,15 @@ from PhysicsTools.Heppy.analyzers.gen.LHEWeightAnalyzer import LHEWeightAnalyzer
 from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer import PileUpAnalyzer
 from CMGTools.TTbarTime.heppy.analyzers.MCWeighter import MCWeighter
 from CMGTools.TTbarTime.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.METAnalyzer import METAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.GenAnalyzer import GenAnalyzer
 
+pfmetana = cfg.Analyzer(METAnalyzer,
+                        name='PFMetana',
+                        recoil_correction_file='HTT-utilities/RecoilCorrections/data/Type1_PFMET_2017.root',
+                        met = 'pfmet',
+                        apply_recoil_correction= True,#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+                        runFixEE2017= True)
 
 lheweight = cfg.Analyzer(LHEWeightAnalyzer,
                          name="LHEWeightAnalyzer",
@@ -467,15 +475,15 @@ sequence = cfg.Sequence([
     btagger,
     bjets_30,
     one_bjets,
-# Mets
 # Rescaling
     trigger, 
     # trigger_match,
     # met_filters,
-    # pfmetana,
     lheweight,
     pileup, 
     njets_ana,
+# Mets
+    pfmetana,
 # Ntuple
     #debugger,
     ntuple

@@ -42,7 +42,7 @@ class JetAnalyzer(Analyzer):
         for jet in jets:
             hjet = Jet(jet)
             if not hasattr(self.cfg_ana,'selection'):
-                output_jets.append(hjet)
+                continue
             elif self.cfg_ana.selection(hjet):
                 output_jets.append(hjet)
         if self.cfg_ana.do_jec:
@@ -53,3 +53,10 @@ class JetAnalyzer(Analyzer):
                                            metShift=event.metShift,
                                            type1METCorr=event.type1METCorr)
         setattr(event, self.cfg_ana.output, output_jets)
+        
+        
+        
+        
+        
+        
+        

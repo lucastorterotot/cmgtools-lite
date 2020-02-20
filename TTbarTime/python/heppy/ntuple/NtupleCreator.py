@@ -39,12 +39,19 @@ jets30 = Block(
     dijet_m = v(lambda x: (x[0].p4()+x[1].p4()).M() if len(x)>1 else default),
 )
 
+metvars = Block(
+    'metvars', lambda x: x.pfmet,
+    met = v(lambda x: x.pt()),
+    metphi = v(lambda x: x.phi()),
+)
+
 weights = Block(
     'weights', lambda x: x, 
     weight = v(lambda x : x.eventWeight),
     weight_pu = v(lambda x : getattr(x, 'puWeight', 1.)),
     weight_sfb = v(lambda x : getattr(x, 'sfbWeight', 1.)),
-    weight_sfe = v(lambda x : getattr(x, 'sfeWeight', 1.)),
+    weight_sfe_id = v(lambda x : getattr(x, 'sfeIdWeight', 1.)),
+    weight_sfe_reco = v(lambda x : getattr(x, 'sfeRecoWeight', 1.)),
     weight_sfm_id = v(lambda x : getattr(x, 'sfmIdWeight', 1.)),
     weight_sfm_iso = v(lambda x : getattr(x, 'sfmIsoWeight', 1.)),
     weight_sfm_trig_isomu27 = v(lambda x : getattr(x, 'sfmTrigIsoMu27Weight', 1.)),
@@ -96,20 +103,22 @@ for vname, variable in jets30.iteritems():
 
 electron = Block(
     'electron', lambda x: x.select_electron[0],
-    pt_elec = v(lambda x: x.pt()),
-    m_elec = v(lambda x: x.mass()),
-    q_elec =  v(lambda x: x.charge()),
-    iso_elec = v(lambda x: x.iso_htt()),
-    eta_elec = v(lambda x: x.eta()),
+    pt_elec    = v(lambda x: x.pt()),
+    eta_elec   = v(lambda x: x.eta()),
+    phi_elec   = v(lambda x: x.phi()),
+    m_elec     = v(lambda x: x.mass()),
+    q_elec     = v(lambda x: x.charge()),
+    iso_elec   = v(lambda x: x.iso_htt()),
 )
 
 muon = Block(
     'muon', lambda x: x.select_muon[0],
-    pt_muon = v(lambda x: x.pt()),
-    m_muon = v(lambda x: x.mass()),
-    q_muon =  v(lambda x: x.charge()),
-    iso_muon = v(lambda x: x.iso_htt()),
-    eta_muon = v(lambda x: x.eta()),
+    pt_muon    = v(lambda x: x.pt()),
+    eta_muon   = v(lambda x: x.eta()),
+    phi_muon   = v(lambda x: x.phi()),
+    m_muon     = v(lambda x: x.mass()),
+    q_muon     = v(lambda x: x.charge()),
+    iso_muon   = v(lambda x: x.iso_htt()),
 )
 
 dilepton = Block(
@@ -117,13 +126,13 @@ dilepton = Block(
     m_dilep = v(lambda x: x.mass()),
     pt_lead = v(lambda x: x.pt_lead()),
     pt_sublead = v(lambda x: x.pt_sublead()),
-    l1_eta = v(lambda x: x._l1.eta()),
-    l2_eta = v(lambda x: x._l2.eta())
+    eta_l1 = v(lambda x: x._l1.eta()),
+    eta_l2 = v(lambda x: x._l2.eta())
 )
 
 
 common = EventContent(
-    [event, weights, jets30, bjets, electron, muon, dilepton, triggers_fired]
+    [event, weights, jets30, bjets, electron, muon, dilepton, metvars, triggers_fired]
 )
 
 ################################################################################
