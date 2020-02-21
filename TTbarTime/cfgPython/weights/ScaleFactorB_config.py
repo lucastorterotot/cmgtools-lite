@@ -75,7 +75,7 @@ jets = cfg.Analyzer(JetAnalyzer,
 def select_jets_IDpt(jet): #function use in the next Analyzer
     return  jet.pt()>20 and\
             abs(jet.eta())<2.4 and\
-            jet.jetID("PAG_monoID_Loose")
+            jet.jetID("PAG_ttbarID_Loose")
 
 jets_20_unclean = cfg.Analyzer(Selector,
                                'jets_20_unclean',

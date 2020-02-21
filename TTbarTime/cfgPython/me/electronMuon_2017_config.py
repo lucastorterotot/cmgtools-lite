@@ -36,9 +36,9 @@ logging.basicConfig(level=logging.WARNING)
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', False)
+test = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', True)
+data = getHeppyOption('data', False)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 
@@ -60,7 +60,7 @@ gt_data = 'Fall17_17Nov2017{}_V32_DATA'
 
 
 # PileUp
-puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
+puFileData = '$CMSSW_BASE/src/CMGTools/TTbarTime/data/pudistributions_data_2017.root'
 puFileMC = '$CMSSW_BASE/src/CMGTools/TTbarTime/data/pileup.root'
 
 for sample in mc_ttbar:
@@ -294,9 +294,9 @@ select_dilepton = cfg.Analyzer(Selector,
                          src = 'dileptons',
                          filter_func = select_dilepton_function)
 
-reweight_dilepton = cfg.Analyzer(DilepTriggerSFARC, 
-                                 'reweight_dilepton', 
-                                 dilepton = 'select_dilepton')
+reweight_dilepton_trig = cfg.Analyzer(DilepTriggerSFARC, 
+                                      'reweight_dilepton', 
+                                      dilepton = 'select_dilepton')
 
 only_one_dilepton = cfg.Analyzer(EventFilter, 
                             name = 'OneDilepton',
@@ -461,8 +461,8 @@ sequence = cfg.Sequence([
 # Dilepton
     dilepton,
     select_dilepton,
-    reweight_dilepton,
     only_one_dilepton,
+    reweight_dilepton_trig,
     dilepton_sorted,
 # Jets
     jets,
