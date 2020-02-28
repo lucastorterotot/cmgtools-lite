@@ -200,7 +200,7 @@ class ComponentCreator(object):
         mapping = 'root://eoscms.cern.ch//eos/cms%s'
         if useAAA: mapping = 'root://cms-xrd-global.cern.ch/%s'
         if self.useLyonAAA: mapping = 'root://lyogrid06.in2p3.fr//dpm/in2p3.fr/home/cms/data%s'
-        return [ mapping % f for f in files]
+        return [ str(mapping % f) for f in files]
 
     def getPrimaryDatasetEntries(self, dataset, user, pattern, useAAA=False, run_range=None):
         # print 'getting files for', dataset,user,pattern
