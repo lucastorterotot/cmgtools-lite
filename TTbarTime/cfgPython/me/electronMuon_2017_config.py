@@ -36,7 +36,7 @@ logging.basicConfig(level=logging.WARNING)
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test = getHeppyOption('test', False)
 syncntuple = getHeppyOption('syncntuple', True)
 data = getHeppyOption('data', False)
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
@@ -93,7 +93,7 @@ if test:
     if (not data):
         comp = bindex.glob('MC_a_dilep')[0]
     else:
-        comp = selectedComponents[9]
+        comp = selectedComponents[0]
     selectedComponents = [comp]
     comp.files = [comp.files[0]]#10 bug on semilep
     comp.splitFactor = 1
@@ -438,6 +438,8 @@ ntuple = cfg.Analyzer(NtupleProducer,
                       treename = 'events',
                       event_content = event_content_test)
 
+#sequence = cfg.Sequence([trigger])
+
 sequence = cfg.Sequence([
 # Analyzers
     json,
@@ -488,6 +490,7 @@ sequence = cfg.Sequence([
     #debugger,
     ntuple
 ])
+
 
 
 ############################################################################

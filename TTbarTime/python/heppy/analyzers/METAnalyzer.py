@@ -90,7 +90,7 @@ class METAnalyzer(Analyzer):
         leptons_prompt_vis = [p for p in leptons_prompt if abs(p.pdgId()) not in [12, 14]]
 
         if 'DY' in self.cfg_comp.name or ('Higgs' in self.cfg_comp.name and 'TTH' not in self.cfg_comp.name) or 'WJ' in self.cfg_comp.name:
-            if len(leptons_prompt) != 2 and len(taus_prompt) < 2:
+            if len(leptons_prompt) != 2:
                 print 'ERROR: No 2 prompt leptons found'
                 # import pdb; pdb.set_trace()
 
