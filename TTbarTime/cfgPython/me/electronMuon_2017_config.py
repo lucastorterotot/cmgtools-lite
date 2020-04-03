@@ -390,6 +390,15 @@ bjets_30 = cfg.Analyzer(Selector,
                         output = 'bjets_30', 
                         src = 'jets_30',
                         filter_func = lambda x: x.is_btagged)
+############################################################################
+# Systematics 
+############################################################################
+from CMGTools.TTbarTime.heppy.analyzers.MuonSystematicARC import MuonSystARC
+
+systematic_muon= cfg.Analyzer(MuonSystARC, 
+                              'systematic_muon', 
+                              muons = 'select_muon')
+
 
 ############################################################################
 # Generator stuff 
@@ -451,6 +460,7 @@ sequence = cfg.Sequence([
     select_muon,
     exclude_muon,
     reweight_muon,
+    systematic_muon,
     one_muon,
     exclude_loose_muon,
 # Electron

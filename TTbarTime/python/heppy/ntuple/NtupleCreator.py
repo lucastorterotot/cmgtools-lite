@@ -61,6 +61,13 @@ weights = Block(
 #    weight_sf_mm_trig = v(lambda x : getattr(x, 'sfMMTrigWeight', 1.)),
 ) 
 
+syst = Block(
+    'systematics', lambda x: x,
+    weight_syst = v(lambda x : x.eventSystWeight),
+    syst_muon_id = v(lambda x : getattr(x, 'systMuonIdWeight', 1.)),
+    syst_muon_iso = v(lambda x : getattr(x, 'systMuonIsoWeight',1.)),
+)
+
 triggers_fired = Block(
     'triggers_fired', lambda x: getattr(x, 'trigger_infos', []),
     # electron
@@ -126,7 +133,7 @@ dilepton = Block(
 
 
 common = EventContent(
-    [event, weights, jets30, bjets, electron, muon, dilepton, metvars, triggers_fired]
+    [event, weights, syst, jets30, bjets, electron, muon, dilepton, metvars, triggers_fired]
 )
 
 ################################################################################
