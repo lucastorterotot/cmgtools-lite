@@ -61,8 +61,8 @@ class MuonSystARC(Analyzer):
             
         setattr(event, 'systMuonIdWeight', syst_id_weight)
         setattr(event, 'systMuonIsoWeight', syst_iso_weight)
-        event.eventSystWeight *= event.sfmIdWeight
-        event.eventSystWeight *= event.sfmIsoWeight
+        event.eventSystWeight *= event.systMuonIdWeight
+        event.eventSystWeight *= event.systMuonIsoWeight
         
         
         
