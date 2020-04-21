@@ -33,6 +33,6 @@ class PileUpAnalyzerARC( Analyzer ):
                                              has been found for bunch crossing 0.')
 
 
-        print(event.nPU)
+        #print(event.nPU)
         
         
