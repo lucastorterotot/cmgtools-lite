@@ -1,4 +1,4 @@
-TTbarTime analysis of the 2017 data (CERN/Lyon)
+# TTbarTime analysis of the 2017 data (CERN/Lyon)
 
 ## Installation recipe
 
@@ -50,37 +50,43 @@ Let's try the code with small interactive test:
 cd CMGTools/TTbarTime/cfgPython/me/
 heppy Trash electronMuon_2017_config.py -o test=True -N 1000 -f
 
-This command will launch heppy in test mode (On a small part of MiniAOD) and shut the run at 1000 events. All results including rootfiles will be store in the 'Trash' directory.
+#This command will launch heppy in test mode (On a small part of MiniAOD) and shut the run at 1000 events. All results including rootfiles will be store in the 'Trash' directory.
 ```
 
 
 ## Running analysis with crab
 
 ```
--When your config file is ready you can launch heppy with crab. 
--Don't forget to disable the 'test' mode in your config file with :
+#When your config file is ready you can launch heppy with crab. 
+#Don't forget to disable the 'test' mode in your config file with :
 
 test = getHeppyOption('test', False)
 
--To work with crab, for this go in crab directory and run heppy :
+#To work with crab, for this go in crab directory and run heppy :
 
 cd CMGTools/TTbarTime/cfgPython/crab/
 ./heppy_crab.py --siteWhitelist='T3_FR_IPNL' ../me/electronMuon_2017_config.py -l "name_of_your_jobs" 
 
--You can check the status of your crab jobs and resubmit jobs with :
+#You can check the status of your crab jobs and resubmit jobs with :
 
 cd CMGTools/TTbarTime/cfgPython/crab/
 bash status_all.sh "name_of_your_jobs"
 bash resubmit_all.sh "name_of_your_jobs"
 
--When it's done, you can bring back your jobs on your session : 
+#When it's done, you can bring back your jobs on your session : 
 
 cd CMGTools/scripts/
 python multiHarvest.py -l "name_of_your_jobs"
 
--NB: if your username is different on lxplus and on local computer add a username option on multiHarvest : 
+#NB: if your username is different on lxplus and on local computer add a username option on multiHarvest : 
 
 python multiHarvest.py -u "lxp username" -l "name_of_your_jobs"
+
+```
+
+
+
+
 
 ```
 
