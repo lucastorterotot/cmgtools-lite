@@ -51,6 +51,17 @@ The idea of this code is, at the end, to create a ROOT flat tree containing all 
 # Config file call all modules needed for your analysis (call Analyzers) present in 'CMGTools/TTbarTime/python/heppy/' or 'CMGTools/TTbarTime/python/proto/'.  
 ```
 
+## Start with heppy
+
+The first thing to do is to run init.sh script to source everything needed and init voms
+
+```
+cd CMGTools/TTbarTime/
+source init.sh 
+
+```
+
+
 ## Running our analysis in heppy
 
 Let's try the code with small interactive test: 
