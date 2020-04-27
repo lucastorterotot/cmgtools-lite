@@ -1,30 +1,55 @@
 import sys,os
+from optparse import OptionParser
 from ROOT import TFile, TH1D, TTree
 
-dir_input  = "./files/"
-dir_output = "./"
+from   PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
+
+usage = "usage: python pu_hist_gen.py [options] \n example: python pu_hist_gen.py -l CRABtest -y year"
+parser = OptionParser(usage=usage)
+parser.add_option("-y","--year", dest='year', default="2016", help="year on which u want to run the PU")
+parser.add_option("-l", "--prod_label", dest = "prod_label",
+                      default='MC_PU',
+                      help='The prod label or part of prod labels to be selected.')
+parser.add_option("-g", "--get_files", dest="get_files",
+                      action="store_true", default=False,
+                      help='whether or not to get the PU files')
+options,args = parser.parse_args()
+
+print options
+
+if options.year == '2016':
+    from CMGTools.TTbarTime.proto.samples.summer16.ttbar2016 import mc_ttbar
+else: 
+    from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import mc_ttbar
+
+
+samples=[]
+dir_input  = "./files/"+options.year+"/"
+if options.get_files:
+    if not os.path.exists(dir_input):
+        '''
+        create the input file path
+         '''
+        print "here am I creating input directory" 
+        os.makedirs(dir_input)
+    samples=os.listdir("../../scripts/"+options.prod_label)
+    os.chdir(dir_input)
+    for i in samples:
+        os.system("cp -r ../../../../scripts/"+options.prod_label+"/"+i+" . ") 
+    os.chdir("../../")
+
+dir_output = "./"+options.year+"/"
+if not os.path.exists(dir_output):
+    os.mkdir(dir_output)
+
+name_list = []
+for i in mc_ttbar:
+    #print '#'.join(i.dataset.split("/"))
+    name_list.append('#'.join(i.dataset.split("/")))
 
 file_names = os.listdir(dir_input)
 file_names.sort()
-print file_names
-
-name_list = [
-    "#TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#ST_s-channel_4f_leptonDecays_TuneCP5_PSweights_13TeV-amcatnlo-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1#MINIAODSIM",
-    "#ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1#MINIAODSIM",
-    "#ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#ST_tW_top_5f_inclusiveDecays_TuneCP5_PSweights_13TeV-powheg-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1#MINIAODSIM",
-    "#ST_tW_antitop_5f_inclusiveDecays_TuneCP5_PSweights_13TeV-powheg-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#WW_TuneCP5_13TeV-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#WZ_TuneCP5_13TeV-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1#MINIAODSIM",
-    "#ZZ_TuneCP5_13TeV-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v2#MINIAODSIM",
-    "#WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v3#MINIAODSIM",
-    "#DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1#MINIAODSIM",
-    "#DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8#RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v2#MINIAODSIM"
-]
+#print file_names
 
 rootfile = TFile(dir_output+"pileup.root", "RECREATE")
 pu_file = []
@@ -34,12 +59,23 @@ pu_hist = []
 for i in range(len(file_names)):
     pu_file.append(TFile(dir_input+file_names[i]+"/tree.root"))
     pu_tree.append(pu_file[i].Get('events'))
+    #print "got tree of the sample:", file_names[i] 
+
+
+#print len(file_names)
+#for i in range(len(file_names)):
+#    print file_names[i],name_list[i]
+#exit()
+ 
 
 rootfile = TFile(dir_output+"pileup.root", "RECREATE")
 for i in range(len(file_names)):
-    pu_hist.append(TH1D(name_list[i], "",200,0.,200.))
+    #print "projecting pu distribution of the sample:",i, file_names[i] 
+    pu_hist.append(TH1D(name_list[i],"",200,0.,200.))
     pu_tree[i].Project(name_list[i], "pu")
     pu_hist[i].Write()
+
+os.system("cp "+dir_output+"pileup.root ../../data/"+options.year+"/") 
 
 
 
