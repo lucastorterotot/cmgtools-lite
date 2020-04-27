@@ -80,11 +80,10 @@ background_MC_DY_10502 = creator.makeMCComponent("MC_o_DY_10502", "/DYJetsToLL_M
 background_MC_DY_10503 = creator.makeMCComponent("MC_o_DY_10503", "/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2/MINIAODSIM", "CMS", ".*root", 18590)
 ###########################
 
-
-
-
-
-
+#####################################################################################
+## please not the list below should correspond to exact order above, used in PU  ####
+##                   TTbarTime/weights/pileup/pu_hist_gen.py                     ####
+#####################################################################################
 mc_ttbar = [
     signal_MC_dilep,
     signal_MC_semilep,
@@ -99,10 +98,10 @@ mc_ttbar = [
     background_MC_tW_top,
     background_MC_tW_antitop,
     background_MC_WW, 
-    background_MC_WZ,
-    background_MC_ZZ,
     background_MC_WW2, 
+    background_MC_WZ,
     background_MC_WZ2,
+    background_MC_ZZ,
     background_MC_ZZ2,
     background_MC_WJets,
     background_MC_WJets2,
