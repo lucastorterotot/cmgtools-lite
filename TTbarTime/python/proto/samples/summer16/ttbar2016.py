@@ -196,11 +196,7 @@ DoubleMuon_Run2016H_17Jul2018 = creator.makeDataComponent("DoubleMuon_Run2016H_1
 #MuonEG_Run2016Hver3_17Jul2018 = creator.makeDataComponent("MuonEG_Run2016Hver3_17Jul2018", "/MuonEG/Run2016H-17Jul2018_ver3-v1/MINIAOD", "CMS", ".*root", json)
 #DoubleMuon_Run2016Hver3_17Jul2018 = creator.makeDataComponent("DoubleMuon_Run2016Hver3_17Jul2018", "/DoubleMuon/Run2016H-17Jul2018_ver3-v1/MINIAOD", "CMS", ".*root", json)
 
->>>>>>> str_fix
-
-
 # les lists 
-
 data_single_electron = [SingleElectron_Run2016B_17Jul2018, SingleElectron_Run2016C_17Jul2018, SingleElectron_Run2016D_17Jul2018, SingleElectron_Run2016E_17Jul2018, SingleElectron_Run2016F_17Jul2018,SingleElectron_Run2016G_17Jul2018, SingleElectron_Run2016H_17Jul2018]
 #, SingleElectron_Run2016Hver3_17Jul2018]
 
