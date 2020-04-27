@@ -15,7 +15,7 @@ ComponentCreator.useAAA = True
 ################################################################################
 
 if (year == '2016'):
-    from CMGTools.TTbarTime.proto.samples.summer16.ttbar2016 import mc_ttbar_test as mc_ttbar
+    from CMGTools.TTbarTime.proto.samples.summer16.ttbar2016 import mc_ttbar
 else:
     from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import mc_ttbar
 
