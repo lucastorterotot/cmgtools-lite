@@ -2,10 +2,10 @@ import os
 import ROOT
 
 import PhysicsTools.HeppyCore.framework.config as cfg
-from PhysicsTools.HeppyCore.framework.config import printComps
-from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
-from PhysicsTools.HeppyCore.framework.looper import Looper
-from PhysicsTools.HeppyCore.framework.event import Event
+from   PhysicsTools.HeppyCore.framework.config     import printComps
+from   PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
+from   PhysicsTools.HeppyCore.framework.looper     import Looper
+from   PhysicsTools.HeppyCore.framework.event      import Event
 Event.print_patterns = ['*taus*', 
                         '*muons*', 
                         '*electrons*', 
@@ -16,8 +16,8 @@ Event.print_patterns = ['*taus*',
 #import pdb; pdb.set_trace()
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-#ComponentCreator.useAAA = True
-ComponentCreator.useLyonAAA = True
+ComponentCreator.useAAA = True
+#ComponentCreator.useLyonAAA = True
 
 from CMGTools.H2TauTau.heppy.analyzers.Cleaner import Cleaner
 
@@ -36,9 +36,10 @@ logging.basicConfig(level=logging.WARNING)
 # Get all heppy options; set via "-o production" or "-o production=True"
 
 # production = True run on batch, production = False run locally
-test = getHeppyOption('test', True)
+test       = getHeppyOption('test', True)
 syncntuple = getHeppyOption('syncntuple', True)
-data = getHeppyOption('data', False)
+data       = getHeppyOption('data', False)
+year       = getHeppyOption('year', '2016' )
 tes_string = getHeppyOption('tes_string', '') # '_tesup' '_tesdown'
 reapplyJEC = getHeppyOption('reapplyJEC', True)
 
@@ -46,35 +47,68 @@ reapplyJEC = getHeppyOption('reapplyJEC', True)
 ############################################################################
 # Components
 ############################################################################
-from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import mc_ttbar
-from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import data_elecmuon
-from CMGTools.TTbarTime.proto.samples.fall17.trigger import data_triggers
-from CMGTools.TTbarTime.proto.samples.fall17.trigger import mc_triggers
+if year == '2016':
+    from CMGTools.TTbarTime.proto.samples.summer16.ttbar2016 import mc_ttbar
+    from CMGTools.TTbarTime.proto.samples.summer16.ttbar2016 import data_elecmuon
+    from CMGTools.TTbarTime.proto.samples.summer16.trigger   import data_triggers
+    from CMGTools.TTbarTime.proto.samples.summer16.trigger   import mc_triggers
+if year == '2017':
+    from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import mc_ttbar
+    from CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 import data_elecmuon
+    from CMGTools.TTbarTime.proto.samples.fall17.trigger   import data_triggers
+    from CMGTools.TTbarTime.proto.samples.fall17.trigger   import mc_triggers
 
 events_to_pick = []
 
-# Global Tag
-gt_mc = 'Fall17_17Nov2017_V32_MC'
-gt_data = 'Fall17_17Nov2017{}_V32_DATA'
+# JEC Tag
+if year == '2016':
+    gt_mc = 'Summer16_07Aug2017_V11_MC'
+    gt_data = 'Summer16_07Aug2017{}_V11_DATA'
+if year == '2017':    
+    gt_mc   = 'Fall17_17Nov2017_V32_MC'
+    gt_data = 'Fall17_17Nov2017{}_V32_DATA'
 #https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
+#https://github.com/cms-nanoAOD/nanoAOD-tools/blob/master/python/postprocessing/modules/jme/jetmetHelperRun2.py
+#https://github.com/cms-nanoAOD/nanoAOD-tools/blob/master/python/postprocessing/modules/jme/jetmetUncertainties.py
 
 
 # PileUp
-puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
-puFileMC = '$CMSSW_BASE/src/CMGTools/TTbarTime/data/pileup.root'
+if year == '2016':    
+    puFileData = '$CMSSW_BASE/src/CMGTools/TTbarTime/data/2016/MyDataPileupHistogram.root'
+    puFileMC   = '$CMSSW_BASE/src/CMGTools/TTbarTime/data/2016/pileup.root'
+    
+if year == '2017':
+    puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/pudistributions_data_2017.root'
+    puFileMC   = '$CMSSW_BASE/src/CMGTools/TTbarTime/data/pileup.root'
 
+#else:
 for sample in mc_ttbar:
-    sample.triggers = mc_triggers
-    sample.puFileMC = puFileMC
-    sample.puFileData = puFileData
- 
+        sample.triggers = mc_triggers
+        sample.puFileMC = puFileMC
+        sample.puFileData = puFileData
+
+#print data_triggers 
+
 for sample in data_elecmuon:
-    # sample.name[sample.name.find('2017')+4] are era A,B,C,D,E and F
-    sample.triggers = data_triggers[sample.name[sample.name.find('2017')+4]]
-    era = sample.name[sample.name.find('2017')+4]
-    if 'V32' in gt_data and era in ['D','E']:
-        era = 'DE'
-    sample.dataGT = gt_data.format(era)
+    #sample.name[sample.name.find('2017')+4] are era A,B,C,D,E and F
+    #print sample.name, sample.name.find(year), sample.name.find(year)+4, sample.name[sample.name.find(year)+4], data_triggers[sample.name[sample.name.find(year)+4]]
+    sample.triggers = data_triggers[sample.name[sample.name.find(year)+4]]
+    era = sample.name[sample.name.find(year)+4]
+    if year == '2017':
+        if 'V32' in gt_data and era in ['D','E']:
+            era = 'DE'
+            sample.dataGT = gt_data.format(era)
+        #print sample.dataGT
+    else:
+        if 'V11' in gt_data and era in ['B','C','D']:
+            era = 'BCD'
+            sample.dataGT = gt_data.format(era)
+        if 'V11' in gt_data and era in ['E','F']:
+            era = 'EF'
+            sample.dataGT = gt_data.format(era)
+        if 'V11' in gt_data and era in ['G','H']:
+            era = 'GH'
+            sample.dataGT = gt_data.format(era)
 
 if (not data):
     selectedComponents = mc_ttbar
@@ -84,18 +118,21 @@ elif (data):
 ############################################################################
 # Test
 ############################################################################
-import CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 as backgrounds_forindex
+if(year == '2016'):    
+    import CMGTools.TTbarTime.proto.samples.summer16.ttbar2016 as backgrounds_forindex
+if(year == '2017'):
+    import CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 as backgrounds_forindex    
 from CMGTools.TTbarTime.proto.samples.component_index import ComponentIndex
-bindex = ComponentIndex( backgrounds_forindex)
+bindex = ComponentIndex(backgrounds_forindex)
 
 if test:
     cache = True
     if (not data):
         comp = bindex.glob('MC_a_dilep')[0]
     else:
-        comp = selectedComponents[10]
+        comp = selectedComponents[0]
     selectedComponents = [comp]
-    comp.files = comp.files[:1]
+    comp.files = [comp.files[0]]
     comp.splitFactor = 1
     comp.fineSplitFactor = 1
 
@@ -103,11 +140,11 @@ if test:
 ############################################################################
 # Analyzers 
 ############################################################################
-from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer import JSONAnalyzer
+from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer      import JSONAnalyzer
 from PhysicsTools.Heppy.analyzers.core.SkimAnalyzerCount import SkimAnalyzerCount
-from CMGTools.TTbarTime.proto.analyzers.TriggerAnalyzer import TriggerAnalyzer
+from CMGTools.TTbarTime.proto.analyzers.TriggerAnalyzer  import TriggerAnalyzer
 from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer import VertexAnalyzer
-from CMGTools.TTbarTime.heppy.analyzers.Debugger import Debugger
+from CMGTools.TTbarTime.heppy.analyzers.Debugger         import Debugger
 
 json = cfg.Analyzer(JSONAnalyzer,
                     name='JSONAnalyzer',)
@@ -144,11 +181,11 @@ time = cfg.Analyzer(TimeAnalyzerARC,
 # Muon 
 ############################################################################
 # setting up an alias for our isolation, now use iso_htt everywhere
-from PhysicsTools.Heppy.physicsobjects.Muon import Muon
-from CMGTools.TTbarTime.heppy.analyzers.MuonSFARC import MuonSFARC
+from PhysicsTools.Heppy.physicsobjects.Muon          import Muon
+from CMGTools.TTbarTime.heppy.analyzers.MuonSFARC    import MuonSFARC
 from CMGTools.TTbarTime.heppy.analyzers.MuonAnalyzer import MuonAnalyzer
-from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
-from CMGTools.TTbarTime.heppy.analyzers.Selector import Selector
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter  import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.Selector     import Selector
 
 Muon.iso_htt = lambda x: x.relIso(0.4, 
                                   'dbeta', 
@@ -204,12 +241,12 @@ exclude_loose_muon = cfg.Analyzer(EventFilter,
 # Electron 
 ############################################################################
 # setting up an alias for our isolation, now use iso_htt everywhere
-from PhysicsTools.Heppy.physicsobjects.Electron import Electron
-from PhysicsTools.Heppy.physicsutils.EffectiveAreas import areas
-from CMGTools.TTbarTime.heppy.analyzers.ElectronSFARC import ElectronSFARC
+from PhysicsTools.Heppy.physicsobjects.Electron          import Electron
+from PhysicsTools.Heppy.physicsutils.EffectiveAreas      import areas
+from CMGTools.TTbarTime.heppy.analyzers.ElectronSFARC    import ElectronSFARC
 from CMGTools.TTbarTime.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
-from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
-from CMGTools.TTbarTime.heppy.analyzers.Selector import Selector
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter      import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.Selector         import Selector
 
 Electron.EffectiveArea03 = areas['Fall17']['electron']
 
@@ -238,6 +275,9 @@ def exclude_electron_function(electron): #function use in the next Analyzer
            is_out_gap_ECAL(electron) and\
            electron.id_passes("cutBasedElectronID-Fall17-94X-V2","veto") and\
            not(select_electron_function(electron))
+
+#electron.id_passes("cutBasedElectronID-Fall17-94X-V2","tight") 
+#electron.id_passes("cutBasedElectronID-Fall17-94X-V2","veto") and\
 
 select_electron = cfg.Analyzer(Selector,
                                'select_electron',
@@ -268,11 +308,10 @@ exclude_loose_electron = cfg.Analyzer(EventFilter,
 ############################################################################
 # Dilepton 
 ############################################################################
-from CMGTools.TTbarTime.heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.DiLeptonAnalyzer  import DiLeptonAnalyzer
 from CMGTools.TTbarTime.heppy.analyzers.DilepTriggerSFARC import DilepTriggerSFARC
-#DiLeptonAnalyzer change (rajout de fonction lead/sublead)
-from CMGTools.TTbarTime.heppy.analyzers.Selector import Selector
-from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.Selector          import Selector
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter       import EventFilter
 
 
 dilepton = cfg.Analyzer(DiLeptonAnalyzer,
@@ -294,7 +333,7 @@ select_dilepton = cfg.Analyzer(Selector,
                          src = 'dileptons',
                          filter_func = select_dilepton_function)
 
-reweight_dilepton = cfg.Analyzer(DilepTriggerSFARC, 
+reweight_dilepton_trig = cfg.Analyzer(DilepTriggerSFARC, 
                                  'reweight_dilepton', 
                                  dilepton = 'select_dilepton')
 
@@ -317,7 +356,7 @@ dilepton_sorted = cfg.Analyzer(
 # Jets 
 ############################################################################
 from CMGTools.TTbarTime.heppy.analyzers.JetAnalyzer import JetAnalyzer
-from CMGTools.TTbarTime.heppy.analyzers.JetCleaner import JetCleaner
+from CMGTools.TTbarTime.heppy.analyzers.JetCleaner  import JetCleaner
 from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
 
 
@@ -372,7 +411,7 @@ two_jets = cfg.Analyzer(EventFilter,
 # b-Jets 
 ############################################################################
 from CMGTools.TTbarTime.heppy.analyzers.BJetAnalyzerARC import BJetAnalyzerARC
-from CMGTools.TTbarTime.heppy.analyzers.EventFilter import EventFilter
+from CMGTools.TTbarTime.heppy.analyzers.EventFilter     import EventFilter
 
 
 btagger = cfg.Analyzer(BJetAnalyzerARC, 
@@ -395,10 +434,18 @@ bjets_30 = cfg.Analyzer(Selector,
 # Generator stuff 
 ############################################################################
 from PhysicsTools.Heppy.analyzers.gen.LHEWeightAnalyzer import LHEWeightAnalyzer
-from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer import PileUpAnalyzer
-from CMGTools.TTbarTime.heppy.analyzers.MCWeighter import MCWeighter
-from CMGTools.TTbarTime.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
+from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer   import PileUpAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.MCWeighter      import MCWeighter
+from CMGTools.TTbarTime.proto.analyzers.NJetsAnalyzer   import NJetsAnalyzer
+from CMGTools.TTbarTime.heppy.analyzers.METAnalyzer     import METAnalyzer
+#from CMGTools.TTbarTime.heppy.analyzers.GenAnalyzer import GenAnalyzer
 
+pfmetana = cfg.Analyzer(METAnalyzer,
+                        name='PFMetana',
+                        recoil_correction_file='HTT-utilities/RecoilCorrections/data/Type1_PFMET_2017.root',
+                        met = 'pfmet',
+                        apply_recoil_correction= True,#Recommendation states loose pfjetID for jet multiplicity but this WP is not supported anymore?
+                        runFixEE2017= True)
 
 lheweight = cfg.Analyzer(LHEWeightAnalyzer,
                          name="LHEWeightAnalyzer",
@@ -422,7 +469,7 @@ njets_ana = cfg.Analyzer(NJetsAnalyzer,
 # Ntuples 
 ############################################################################
 from CMGTools.TTbarTime.heppy.analyzers.NtupleProducer import NtupleProducer
-from CMGTools.TTbarTime.heppy.ntuple.NtupleCreator import common as event_content_test
+from CMGTools.TTbarTime.heppy.ntuple.NtupleCreator     import common as event_content_test
 
 ntuple = cfg.Analyzer(NtupleProducer,
                       name = 'NtupleProducer',
@@ -453,7 +500,7 @@ sequence = cfg.Sequence([
 # Dilepton
     dilepton,
     select_dilepton,
-    reweight_dilepton,
+    reweight_dilepton_trig,
     only_one_dilepton,
     dilepton_sorted,
 # Jets
@@ -463,20 +510,20 @@ sequence = cfg.Sequence([
     jet_20_clean,
     jets_30,
     two_jets,
-# b-Jets
+# b-jets
     btagger,
     bjets_30,
     one_bjets,
-# Mets
 # Rescaling
-    trigger, 
-    # trigger_match,
-    # met_filters,
-    # pfmetana,
+    trigger,
+    #trigger_match,
+    #met_filters,
     lheweight,
     pileup, 
     njets_ana,
-# Ntuple
+#Met
+    pfmetana,
+# Ntple
     #debugger,
     ntuple
 ])
