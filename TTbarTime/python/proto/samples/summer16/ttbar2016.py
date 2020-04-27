@@ -3,7 +3,7 @@ from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 
 creator = ComponentCreator()
 
-json = os.path.expandvars('$CMSSW_BASE/src/CMGTools/TTbarTime/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt')
+json = os.path.expandvars('$CMSSW_BASE/src/CMGTools/TTbarTime/data/2016/Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt')
 lumi = 35920.
 
 
