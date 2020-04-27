@@ -30,6 +30,8 @@ if username == 'torterotot':
     username = 'ltortero'
 if username == 'touquet':
     username = 'gtouquet'
+if username == 'sjain':
+    username = 'sandhya'
 config.Data.outLFNDirBase = '/store/user/' + username
 config.Data.publication = False
 

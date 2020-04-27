@@ -77,10 +77,16 @@ class BTagSFARC(object):
         eff_b = self.getMCBTagEff(pt, abs(eta), jetflavor)
         
         if csv > csv_cut:
-            jet.btagWeight = (SFb*eff_b)/eff_b
+            if(eff_b != 0):
+                jet.btagWeight = (SFb*eff_b)/eff_b
+            else:
+                jet.btagWeight = 1
             return True
         else:
-            jet.btagWeight = (1 - SFb*eff_b)/(1 - eff_b)
+            if(eff_b != 1):
+                jet.btagWeight = (1 - SFb*eff_b)/(1 - eff_b)
+            else:
+                jet.btagWeight = 1
             return False
     
 

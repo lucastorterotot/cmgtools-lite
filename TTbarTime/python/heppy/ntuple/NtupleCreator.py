@@ -18,7 +18,7 @@ event = Block(
    
 jets30 = Block(
     'jets30', lambda x: x.jets_30,
-    n_jets_pt30 = v(lambda x: len(x), int),
+    n_jets = v(lambda x: len(x), int),
     j1_pt = v(lambda x: x[0].pt() if len(x)>0 else default),
     j1_eta = v(lambda x: x[0].eta() if len(x)>0 else default),
     j1_phi = v(lambda x: x[0].phi() if len(x)>0 else default),
@@ -61,20 +61,23 @@ weights = Block(
 #    weight_sf_mm_trig = v(lambda x : getattr(x, 'sfMMTrigWeight', 1.)),
 ) 
 
+syst = Block(
+    'systematics', lambda x: x,
+    weight_syst = v(lambda x : x.eventSystWeight),
+    syst_muon_id = v(lambda x : getattr(x, 'systMuonIdWeight', 1.)),
+    syst_muon_iso = v(lambda x : getattr(x, 'systMuonIsoWeight',1.)),
+)
+
 triggers_fired = Block(
     'triggers_fired', lambda x: getattr(x, 'trigger_infos', []),
     # electron
     trg_electron_ele32doubleEG_fired       = v(lambda x : any('Ele32_WPTight_Gsf_L1DoubleEG_v' in trg.name for trg in x if trg.fired)),
-    trg_electron_ele32_fired               = v(lambda x : any('Ele32_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
     trg_electron_ele35_fired               = v(lambda x : any('Ele35_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
     trg_electron_ele38_fired               = v(lambda x : any('Ele38_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)), 
-    trg_electron_ele40_fired               = v(lambda x : any('Ele40_WPTight_Gsf_v' in trg.name for trg in x if trg.fired)),
     # double electron
     trg_double_electron_ele23ele12DZ_fired = v(lambda x : any('Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)), 
     trg_double_electron_ele23ele12_fired   = v(lambda x : any('Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v' in trg.name for trg in x if trg.fired)),    
     # muon 
-    trg_muon_mu24_fired                    = v(lambda x : any('IsoMu24_v' in trg.name for trg in x if trg.fired)),
-    trg_muon_mu24tk_fired                  = v(lambda x : any('IsoTkMu24_v' in trg.name for trg in x if trg.fired)),
     trg_muon_mu24eta21_fired               = v(lambda x : any('IsoMu24_eta2p1_v' in trg.name for trg in x if trg.fired)), 
     trg_muon_mu27_fired                    = v(lambda x : any('IsoMu27_v' in trg.name for trg in x if trg.fired)),    
     # double muon
@@ -82,8 +85,6 @@ triggers_fired = Block(
     trg_double_muon_mu17m3_fired           = v(lambda x : any('Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v' in trg.name for trg in x if trg.fired)),
     trg_double_muon_mu17m8_fired           = v(lambda x : any('Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v' in trg.name for trg in x if trg.fired)), 
     # electron - muon
-    trg_muon_electron_mu8ele23_fired       = v(lambda x : any('Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v' in trg.name for trg in x if trg.fired)),
-    trg_muon_electron_mu12ele23_fired      = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v' in trg.name for trg in x if trg.fired)),
     trg_muon_electron_mu23ele12_fired      = v(lambda x : any('Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v' in trg.name for trg in x if trg.fired)),
     trg_muon_electron_mu8ele23DZ_fired     = v(lambda x : any('Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
     trg_muon_electron_mu12ele23DZ_fired    = v(lambda x : any('Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v' in trg.name for trg in x if trg.fired)),
@@ -132,7 +133,7 @@ dilepton = Block(
 
 
 common = EventContent(
-    [event, weights, jets30, bjets, electron, muon, dilepton, metvars, triggers_fired]
+    [event, weights, syst, jets30, bjets, electron, muon, dilepton, metvars, triggers_fired]
 )
 
 ################################################################################

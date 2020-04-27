@@ -124,6 +124,11 @@ class TriggerAnalyzer(Analyzer):
         triggerBits = self.handles['triggerResultsHLT'].product()
         names = event.input.object().triggerNames(triggerBits)
 
+        #print 'debut'
+        #for i in names.triggerNames():
+        #    print i
+        #print 'fin'
+
         preScales = self.handles['triggerPrescales'].product()
 
         self.counters.counter('Trigger').inc('All events')
@@ -144,7 +149,6 @@ class TriggerAnalyzer(Analyzer):
 
             if len(matched_names) > 1:
                 print 'Multiple trigger names matched to', trigger_name
-                import pdb; pdb.set_trace()
             elif matched_names:
                 trigger_match_name = matched_names[0]
 
@@ -155,7 +159,7 @@ class TriggerAnalyzer(Analyzer):
             fired = triggerBits.accept(index)
 
             trigger_infos.append(TriggerInfo(trigger_match_name, index, fired, prescale))
-
+            
             if fired and (prescale == 1 or self.cfg_ana.usePrescaled or prescale == 0): # FIXME: prescale should of course not be zero, but there was a bug in the PAT trigger producer for 2017 data
                 if trigger_name in self.triggerList:
                     trigger_passed = True
@@ -216,6 +220,8 @@ class TriggerAnalyzer(Analyzer):
 
                                                 
         event.trigger_infos = trigger_infos
+        #for i in trigger_infos:
+        #    print i.name, i.prescale
 
         if self.cfg_ana.verbose:
             print 'run %d, lumi %d,event %d' %(event.run, event.lumi, event.eventId) , 'Triggers_fired: ', triggers_fired  
