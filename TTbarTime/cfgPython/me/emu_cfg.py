@@ -68,8 +68,6 @@ if year == '2017':
     gt_mc   = 'Fall17_17Nov2017_V32_MC'
     gt_data = 'Fall17_17Nov2017{}_V32_DATA'
 #https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
-#https://github.com/cms-nanoAOD/nanoAOD-tools/blob/master/python/postprocessing/modules/jme/jetmetHelperRun2.py
-#https://github.com/cms-nanoAOD/nanoAOD-tools/blob/master/python/postprocessing/modules/jme/jetmetUncertainties.py
 
 
 # PileUp
