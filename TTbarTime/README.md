@@ -36,10 +36,11 @@ scram b -j 20
 
 The idea of this code is, at the end, to create a ROOT flat tree containing all wanted observable of selected events.
 
-In practice, hearts of the code are the config files in 'CMGTools/TTbarTime/cfgPython/YOUR_CHANNEL/' 
-In these files, you can make selection on you events, get observable from AOD, MINIAOD, NanoAOD,... or create new ones.
-Config file call all modules needed for your analysis (call Analyzers) present in 'CMGTools/TTbarTime/python/heppy/' or 'CMGTools/TTbarTime/python/proto/'.  
-
+```
+# In practice, hearts of the code are the config files in 'CMGTools/TTbarTime/cfgPython/YOUR_CHANNEL/' 
+# In these files, you can make selection on you events, get observable from AOD, MINIAOD, NanoAOD,... or create new ones.
+# Config file call all modules needed for your analysis (call Analyzers) present in 'CMGTools/TTbarTime/python/heppy/' or 'CMGTools/TTbarTime/python/proto/'.  
+```
 
 ## Running our analysis in heppy
 
