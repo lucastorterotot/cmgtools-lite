@@ -16,7 +16,25 @@ Got the cross-sections from McM and not AN. Tried to stick with same tune as use
 Get the json from : 
 https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/
 
+Lumi number from: 
+https://twiki.cern.ch/twiki/bin/view/CMS/TWikiLUM
+> In lxplus bash, 
+ export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH
+ pip install --user --upgrade brilws
+ brilcalc lumi -u /pb --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json -i /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt 
 
+Get the run range from:
+ > https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2016Analysis
+ 
+To get the lumi for a given run-range
+2016 B to F : 
+brilcalc lumi -u /pb --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json -i /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt --begin 272007 --end 278808
+
+19695.422958521
+
+2016 G to H :
+brilcalc lumi -u /pb --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json -i /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt --begin 278820 --end 284044
+16226.452636126 
 
 3. Made the emu cfg compatible to run with 2016 MC/data
 
@@ -58,7 +76,15 @@ https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions
  
 
 
+6. For Muon SFs: 
 
+> Copy all the SF files from 
+https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2016LegacyRereco
 
+to data/2016/muonSF/ and data/2016/muonSF/SystUnc/
+
+> made a copy of MuonSFARC.py as MuonSF.py and updated it to extract SF as event weights.
+
+7. For Electron SFs : 
 
    
