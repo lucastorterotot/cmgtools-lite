@@ -3,8 +3,9 @@ from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 
 creator = ComponentCreator()
 
-json = os.path.expandvars('$CMSSW_BASE/src/CMGTools/TTbarTime/data/2016/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt')
+json = os.path.expandvars('$CMSSW_BASE/src/CMGTools/TTbarTime/data/2016/Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt')
 lumi = 35920.
+
 
 ############################################################################
 # MC
@@ -195,10 +196,7 @@ DoubleMuon_Run2016H_17Jul2018 = creator.makeDataComponent("DoubleMuon_Run2016H_1
 #MuonEG_Run2016Hver3_17Jul2018 = creator.makeDataComponent("MuonEG_Run2016Hver3_17Jul2018", "/MuonEG/Run2016H-17Jul2018_ver3-v1/MINIAOD", "CMS", ".*root", json)
 #DoubleMuon_Run2016Hver3_17Jul2018 = creator.makeDataComponent("DoubleMuon_Run2016Hver3_17Jul2018", "/DoubleMuon/Run2016H-17Jul2018_ver3-v1/MINIAOD", "CMS", ".*root", json)
 
-
-
 # les lists 
-
 data_single_electron = [SingleElectron_Run2016B_17Jul2018, SingleElectron_Run2016C_17Jul2018, SingleElectron_Run2016D_17Jul2018, SingleElectron_Run2016E_17Jul2018, SingleElectron_Run2016F_17Jul2018,SingleElectron_Run2016G_17Jul2018, SingleElectron_Run2016H_17Jul2018]
 #, SingleElectron_Run2016Hver3_17Jul2018]
 

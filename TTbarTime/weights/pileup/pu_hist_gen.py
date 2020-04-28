@@ -75,6 +75,8 @@ for i in range(len(file_names)):
     pu_tree[i].Project(name_list[i], "pu")
     pu_hist[i].Write()
 
+rootfile.Close()
+
 os.system("cp "+dir_output+"pileup.root ../../data/"+options.year+"/") 
 
 
