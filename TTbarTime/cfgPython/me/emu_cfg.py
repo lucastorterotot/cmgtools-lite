@@ -244,7 +244,7 @@ exclude_loose_muon = cfg.Analyzer(EventFilter,
 # setting up an alias for our isolation, now use iso_htt everywhere
 from PhysicsTools.Heppy.physicsobjects.Electron          import Electron
 from PhysicsTools.Heppy.physicsutils.EffectiveAreas      import areas
-from CMGTools.TTbarTime.heppy.analyzers.ElectronSFARC    import ElectronSFARC
+from CMGTools.TTbarTime.heppy.analyzers.ElectronSF       import ElectronSFARC
 from CMGTools.TTbarTime.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
 from CMGTools.TTbarTime.heppy.analyzers.EventFilter      import EventFilter
 from CMGTools.TTbarTime.heppy.analyzers.Selector         import Selector
@@ -294,7 +294,8 @@ exclude_electron = cfg.Analyzer(Selector,
                          
 reweight_electron = cfg.Analyzer(ElectronSFARC, 
                                  'reweight_electron', 
-                                 electrons = 'select_electron')
+                                 electrons = 'select_electron', 
+                                 year = year)
                                
 one_electron = cfg.Analyzer(EventFilter, 
                             'one_electron',

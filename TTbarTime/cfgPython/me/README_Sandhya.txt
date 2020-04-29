@@ -83,8 +83,10 @@ https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2016LegacyRereco
 
 to data/2016/muonSF/ and data/2016/muonSF/SystUnc/
 
-> made a copy of MuonSFARC.py as MuonSF.py and updated it to extract SF as event weights.
+> Update MuonSFARC.py  to extract SF as event weights.
 
 7. For Electron SFs : 
+> Copy all the SF files from 
+#https://twiki.cern.ch/twiki/bin/view/CMS/EgammaRunIIRecommendations
 
-   
+> Update ElectronSFARC.py  to extract SF as event weights.

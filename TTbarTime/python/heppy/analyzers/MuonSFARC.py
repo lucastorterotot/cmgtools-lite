@@ -74,8 +74,8 @@ class MuonSFARC(Analyzer):
                     sfm_iso_weight *= (sfm_iso_weight1*self.lumi_BCDEF + sfm_iso_weight2*self.lumi_GH)/(self.lumi_BCDEF + self.lumi_GH)
       
                 else : 
-                    sfm_id_weight  *= self.mc_sfm_id_hist1.GetBinContent(self.mc_sfm_id_hist1.FindBin(muon.eta(), muon.pt()))
-                    sfm_iso_weight *= self.mc_sfm_iso_hist1.GetBinContent(self.mc_sfm_iso_hist1.FindBin(muon.eta(), muon.pt()))
+                    sfm_id_weight  *= self.mc_sfm_id_hist1.GetBinContent(self.mc_sfm_id_hist1.FindBin(abs(muon.eta()), muon.pt()))
+                    sfm_iso_weight *= self.mc_sfm_iso_hist1.GetBinContent(self.mc_sfm_iso_hist1.FindBin(abs(muon.eta()), muon.pt()))
 
 
         setattr(event, 'sfmIdWeight', sfm_id_weight)
