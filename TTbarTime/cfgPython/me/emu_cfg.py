@@ -1,7 +1,7 @@
 import os
 import ROOT
 
-import PhysicsTools.HeppyCore.framework.config as cfg
+import PhysicsTools.HeppyCore.framework.config     as cfg
 from   PhysicsTools.HeppyCore.framework.config     import printComps
 from   PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 from   PhysicsTools.HeppyCore.framework.looper     import Looper
@@ -20,7 +20,6 @@ ComponentCreator.useAAA = True
 #ComponentCreator.useLyonAAA = True
 
 from CMGTools.H2TauTau.heppy.analyzers.Cleaner import Cleaner
-
 
 import logging
 logging.shutdown()
@@ -60,14 +59,15 @@ if year == '2017':
 
 events_to_pick = []
 
-# JEC Tag
+# JEC Tag stored as GT
+#https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
 if year == '2016':
-    gt_mc = 'Summer16_07Aug2017_V11_MC'
+    gt_mc   = 'Summer16_07Aug2017_V11_MC'
     gt_data = 'Summer16_07Aug2017{}_V11_DATA'
 if year == '2017':    
     gt_mc   = 'Fall17_17Nov2017_V32_MC'
     gt_data = 'Fall17_17Nov2017{}_V32_DATA'
-#https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
+
 
 
 # PileUp
@@ -84,10 +84,12 @@ for sample in mc_ttbar:
         sample.triggers = mc_triggers
         sample.puFileMC = puFileMC
         sample.puFileData = puFileData
+        #print sample
 
 #print data_triggers 
 
 for sample in data_elecmuon:
+    #print sample
     #sample.name[sample.name.find('2017')+4] are era A,B,C,D,E and F
     #print sample.name, sample.name.find(year), sample.name.find(year)+4, sample.name[sample.name.find(year)+4], data_triggers[sample.name[sample.name.find(year)+4]]
     sample.triggers = data_triggers[sample.name[sample.name.find(year)+4]]
@@ -108,30 +110,30 @@ for sample in data_elecmuon:
             era = 'GH'
             sample.dataGT = gt_data.format(era)
 
-if (not data):
+if not data:
     selectedComponents = mc_ttbar
-elif (data):
+elif data:
     selectedComponents = data_elecmuon
 
 ############################################################################
 # Test
 ############################################################################
-if(year == '2016'):    
+if year == '2016':    
     import CMGTools.TTbarTime.proto.samples.summer16.ttbar2016 as backgrounds_forindex
-if(year == '2017'):
+if year == '2017':
     import CMGTools.TTbarTime.proto.samples.fall17.ttbar2017 as backgrounds_forindex    
 from CMGTools.TTbarTime.proto.samples.component_index import ComponentIndex
 bindex = ComponentIndex(backgrounds_forindex)
 
 if test:
     cache = True
-    if (not data):
+    if not data:
         comp = bindex.glob('MC_a_dilep')[0]
     else:
         comp = selectedComponents[0]
-    selectedComponents = [comp]
-    comp.files = [comp.files[0]]
-    comp.splitFactor = 1
+    selectedComponents   = [comp]
+    comp.files           = [comp.files[0]]
+    comp.splitFactor     = 1
     comp.fineSplitFactor = 1
 
 
@@ -180,7 +182,7 @@ time = cfg.Analyzer(TimeAnalyzerARC,
 ############################################################################
 # setting up an alias for our isolation, now use iso_htt everywhere
 from PhysicsTools.Heppy.physicsobjects.Muon          import Muon
-from CMGTools.TTbarTime.heppy.analyzers.MuonSFARC    import MuonSFARC
+from CMGTools.TTbarTime.heppy.analyzers.MuonSFARC    import MuonSFARC   
 from CMGTools.TTbarTime.heppy.analyzers.MuonAnalyzer import MuonAnalyzer
 from CMGTools.TTbarTime.heppy.analyzers.EventFilter  import EventFilter
 from CMGTools.TTbarTime.heppy.analyzers.Selector     import Selector
@@ -223,7 +225,8 @@ exclude_muon = cfg.Analyzer(Selector,
 
 reweight_muon = cfg.Analyzer(MuonSFARC, 
                              'reweight_muon', 
-                             muons = 'select_muon')
+                             muons = 'select_muon', 
+                             year = year)
 
 one_muon = cfg.Analyzer(EventFilter, 
                         'one_muon',
@@ -241,7 +244,7 @@ exclude_loose_muon = cfg.Analyzer(EventFilter,
 # setting up an alias for our isolation, now use iso_htt everywhere
 from PhysicsTools.Heppy.physicsobjects.Electron          import Electron
 from PhysicsTools.Heppy.physicsutils.EffectiveAreas      import areas
-from CMGTools.TTbarTime.heppy.analyzers.ElectronSFARC    import ElectronSFARC
+from CMGTools.TTbarTime.heppy.analyzers.ElectronSF       import ElectronSFARC
 from CMGTools.TTbarTime.heppy.analyzers.ElectronAnalyzer import ElectronAnalyzer
 from CMGTools.TTbarTime.heppy.analyzers.EventFilter      import EventFilter
 from CMGTools.TTbarTime.heppy.analyzers.Selector         import Selector
@@ -291,7 +294,8 @@ exclude_electron = cfg.Analyzer(Selector,
                          
 reweight_electron = cfg.Analyzer(ElectronSFARC, 
                                  'reweight_electron', 
-                                 electrons = 'select_electron')
+                                 electrons = 'select_electron', 
+                                 year = year)
                                
 one_electron = cfg.Analyzer(EventFilter, 
                             'one_electron',
