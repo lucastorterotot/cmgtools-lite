@@ -15,6 +15,8 @@ cd CMSSW_9_4_11_cand1/src
 cmsenv
 git cms-init --upstream-only
 
+# first make a fork from git@github.com:Arc-Pintade/cmg-cmssw.git to get cmg-cmssw.
+
 # add your (forked) CMSSW repo
 git remote add <YOUR NAME> git@github.com:<YOUR USER NAME>/cmg-cmssw.git
 
@@ -68,9 +70,9 @@ Let's try the code with small interactive test:
 
 ```
 cd CMGTools/TTbarTime/cfgPython/me/
-heppy Trash electronMuon_2017_config.py -o test=True -N 1000 -f
+heppy Trash emu_cfg.py -o test=True -o year=2017 -N 1000 -f
 
-# This command will launch heppy in test mode (On a small part of MiniAOD) and shut the run at 1000 events. 
+# This command will launch heppy in test mode (On a small part of MiniAOD), for 2017, and shut the run at 1000 events. 
 # All results including rootfiles will be store in the 'Trash' directory.
 ```
 
