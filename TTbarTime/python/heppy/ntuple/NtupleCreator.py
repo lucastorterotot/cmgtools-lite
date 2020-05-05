@@ -49,6 +49,7 @@ weights = Block(
     'weights', lambda x: x, 
     weight = v(lambda x : x.eventWeight),
     weight_pu = v(lambda x : getattr(x, 'puWeight', 1.)),
+    weight_generator = v(lambda x : getattr(x, 'generatorWeight', 1.)),
     weight_sfb = v(lambda x : getattr(x, 'sfbWeight', 1.)),
     weight_sfe_id = v(lambda x : getattr(x, 'sfeIdWeight', 1.)),
     weight_sfe_reco = v(lambda x : getattr(x, 'sfeRecoWeight', 1.)),
@@ -66,7 +67,12 @@ syst = Block(
     weight_syst = v(lambda x : x.eventSystWeight),
     syst_muon_id = v(lambda x : getattr(x, 'systMuonIdWeight', 1.)),
     syst_muon_iso = v(lambda x : getattr(x, 'systMuonIsoWeight',1.)),
-)
+    syst_muon_trig_isomu27 = v(lambda x : getattr(x, 'systTrigIsoMu27Weight',1.)),
+    syst_muon_trig_mu50 = v(lambda x : getattr(x, 'systTrigMu50Weight',1.)),
+    syst_em_trig = v(lambda x : getattr(x, 'systEMTrigWeight',1.)),
+    syst_elec_id = v(lambda x : getattr(x, 'systElecIdWeight',1.)),
+    syst_elec_reco = v(lambda x : getattr(x, 'systElecRecoWeight',1.)),
+)  
 
 triggers_fired = Block(
     'triggers_fired', lambda x: getattr(x, 'trigger_infos', []),
