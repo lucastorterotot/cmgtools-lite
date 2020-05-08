@@ -16,8 +16,8 @@ Event.print_patterns = ['*taus*',
 #import pdb; pdb.set_trace()
 
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
-#ComponentCreator.useAAA = True
-ComponentCreator.useLyonAAA = True
+ComponentCreator.useAAA = True
+#ComponentCreator.useLyonAAA = True
 
 from CMGTools.H2TauTau.heppy.analyzers.Cleaner import Cleaner
 
@@ -311,7 +311,7 @@ exclude_loose_electron = cfg.Analyzer(EventFilter,
 # Dilepton 
 ############################################################################
 from CMGTools.TTbarTime.heppy.analyzers.DiLeptonAnalyzer  import DiLeptonAnalyzer
-from CMGTools.TTbarTime.heppy.analyzers.DilepTriggerSFARC import DilepTriggerSFARC
+from CMGTools.TTbarTime.heppy.analyzers.DilepTriggerSF    import DilepTriggerSFARC
 from CMGTools.TTbarTime.heppy.analyzers.Selector          import Selector
 from CMGTools.TTbarTime.heppy.analyzers.EventFilter       import EventFilter
 
@@ -336,8 +336,9 @@ select_dilepton = cfg.Analyzer(Selector,
                          filter_func = select_dilepton_function)
 
 reweight_dilepton_trig = cfg.Analyzer(DilepTriggerSFARC, 
-                                 'reweight_dilepton', 
-                                 dilepton = 'select_dilepton')
+                                      'reweight_dilepton', 
+                                      dilepton = 'select_dilepton', 
+                                      year =year)
 
 only_one_dilepton = cfg.Analyzer(EventFilter, 
                             name = 'OneDilepton',
@@ -367,12 +368,23 @@ def select_good_jets_FixEE2017(jet): #function use in the next Analyzer
            abs(jet.eta()) < 2.65 or\
            abs(jet.eta()) > 3.139
 
-jets = cfg.Analyzer(JetAnalyzer, 
-                    output = 'jets',
-                    jets = 'slimmedJets',
-                    do_jec = True,
-                    gt_mc = gt_mc,
-                    selection = select_good_jets_FixEE2017)
+if year == 2016:
+    jets = cfg.Analyzer(JetAnalyzer, 
+                        output = 'jets',
+                        jets = 'slimmedJets',
+                        do_jec = True,
+                        gt_mc = gt_mc,
+                        year = year)
+                        
+else:
+    
+    jets = cfg.Analyzer(JetAnalyzer, 
+                        output = 'jets',
+                        jets = 'slimmedJets',
+                        do_jec = True,
+                        gt_mc = gt_mc,
+                        year = year,
+                        selection = select_good_jets_FixEE2017)
 
 # From https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
 def select_jets_IDpt(jet): #function use in the next Analyzer

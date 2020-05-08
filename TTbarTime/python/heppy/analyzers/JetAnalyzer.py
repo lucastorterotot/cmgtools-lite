@@ -12,6 +12,7 @@ class JetAnalyzer(Analyzer):
             global_tag = self.cfg_ana.gt_mc 
             if not self.cfg_comp.isMC:
                 global_tag = self.cfg_comp.dataGT
+
             do_residual = not self.cfg_comp.isMC
             from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
             self.jet_calibrator = JetReCalibrator(
@@ -39,12 +40,18 @@ class JetAnalyzer(Analyzer):
         self.readCollections(event.input)
         jets = self.handles['jets'].product()
         output_jets = []
-        for jet in jets:
-            hjet = Jet(jet)
-            if not hasattr(self.cfg_ana,'selection'):
-                continue
-            elif self.cfg_ana.selection(hjet):
+        if self.cfg_ana.year == 2016 :
+            for jet in jets:
+                hjet = Jet(jet)
                 output_jets.append(hjet)
+        else:    
+            for jet in jets:
+                hjet = Jet(jet)
+                if not hasattr(self.cfg_ana,'selection'):
+                    continue
+                elif self.cfg_ana.selection(hjet):
+                    output_jets.append(hjet)
+
         if self.cfg_ana.do_jec:
             event.metShift = [0., 0.]
             event.type1METCorr = [0.,0.,0.]
